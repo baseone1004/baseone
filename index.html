@@ -20,7 +20,7 @@
       background:rgba(244,246,251,.85); backdrop-filter: blur(8px);
       border-bottom:1px solid var(--line);
     }
-    .wrap{max-width:980px;margin:0 auto;padding:18px 16px}
+    .wrap{max-width:1100px;margin:0 auto;padding:18px 16px}
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .brand{display:flex;align-items:center;gap:10px}
     .logo{
@@ -28,7 +28,7 @@
       display:grid;place-items:center;color:white;font-weight:900
     }
     .title{font-size:18px;font-weight:900}
-    .sub{color:var(--muted);font-size:13px;margin-top:6px}
+    .sub{color:var(--muted);font-size:13px;margin-top:6px; line-height:1.4}
     .actions{display:flex;gap:10px;flex-wrap:wrap}
     .pill{
       border:1px solid var(--line); background:var(--card);
@@ -45,8 +45,8 @@
       display:grid; grid-template-columns: repeat(4, 1fr);
       gap:12px; margin-top:14px;
     }
-    @media (max-width:860px){ .grid{grid-template-columns:repeat(3,1fr)} }
-    @media (max-width:620px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:980px){ .grid{grid-template-columns:repeat(3,1fr)} }
+    @media (max-width:640px){ .grid{grid-template-columns:repeat(2,1fr)} }
 
     .topic-btn{
       background:var(--btn); border:none; color:#fff;
@@ -67,21 +67,40 @@
     .blog-btn.active{background:#111827;border-color:#111827}
     .blog-btn:hover{opacity:.92}
 
-    #topics{margin-top:14px; display:none;}
-    #topics h2{margin:0 0 10px}
-    ul.topic-list{margin:0;padding:0;list-style:none;display:grid;gap:8px}
-    .topic-item{
-      padding:10px 12px;border:1px solid var(--line);border-radius:12px;
-      background:#fff;color:#111827;font-size:13px;
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    /* ====== 네모 박스 리스트 ====== */
+    .box-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
     }
-    .topic-item button{
-      border:1px solid var(--line); background:#fff; border-radius:10px;
-      padding:8px 10px; cursor:pointer; font-weight:900;
-    }
-    .topic-item button:hover{border-color:#cbd5e1}
+    @media (max-width:980px){ .box-grid{grid-template-columns:repeat(3,1fr)} }
+    @media (max-width:640px){ .box-grid{grid-template-columns:repeat(2,1fr)} }
 
-    /* modal */
+    .ibox{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:120px;
+    }
+    .ibox .t{font-size:13px; font-weight:900; color:#111827; line-height:1.35}
+    .ibox .meta{font-size:12px; color:var(--muted)}
+    .ibox .rowbtn{display:flex; gap:8px; flex-wrap:wrap; margin-top:auto}
+    .btn{
+      padding:10px 12px; border-radius:12px; border:1px solid var(--line);
+      background:#fff; cursor:pointer; font-weight:900; font-size:12px;
+    }
+    .btn.primary{background:var(--pri); border-color:var(--pri); color:#fff}
+    .btn.primary:hover{background:var(--pri2)}
+    .btn:hover{border-color:#cbd5e1}
+
+    .divider{height:1px;background:var(--line);margin:14px 0}
+    .mini{font-size:12px;color:var(--muted)}
+
+    /* modal (설정) */
     .modal-backdrop{
       position:fixed; inset:0; background:rgba(16,24,40,.55);
       display:none; align-items:center; justify-content:center; padding:18px; z-index:50;
@@ -91,34 +110,27 @@
     .modal .wrap{padding:14px 16px}
     .modal-title{font-size:16px;font-weight:1000}
     .x{border:none;background:transparent;font-size:20px;cursor:pointer}
-
     .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .tab{border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:900}
     .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
-
     .form{padding:16px}
-    .row{display:grid;grid-template-columns: 220px 1fr; gap:12px; align-items:start; margin:10px 0}
+    .row{display:grid;grid-template-columns: 240px 1fr; gap:12px; align-items:start; margin:10px 0}
     @media (max-width:720px){ .row{grid-template-columns:1fr} }
     label{font-weight:1000}
     input, select{
-      width:100%; padding:12px 12px; border:1px solid var(--line); border-radius:12px; outline:none;
+      width:100%;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      outline:none;
       background:#fff;
+      font-size:13px;
     }
     input:focus, select:focus{border-color:#93c5fd; box-shadow:0 0 0 4px rgba(59,130,246,.15)}
     .hint{color:var(--muted); font-size:12px; margin-top:6px; line-height:1.45}
-    .btnline{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
-    .btn{
-      padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fff; cursor:pointer; font-weight:1000;
-    }
-    .btn.primary{background:var(--pri); border-color:var(--pri); color:#fff}
-    .btn.primary:hover{background:var(--pri2)}
-    .btn:hover{border-color:#cbd5e1}
     .status{margin-top:10px; font-size:12px; color:var(--muted)}
     .ok{color:#16a34a;font-weight:1000}
     .bad{color:#dc2626;font-weight:1000}
-    .warn{color:#b45309;font-weight:1000}
-    .divider{height:1px;background:var(--line);margin:14px 0}
-    .mini{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
@@ -135,21 +147,24 @@
 
     <div class="actions">
       <button class="pill" id="btnSettings">설정</button>
-      <button class="pill primary" id="btnBulk">대량글 예약 발행(준비중)</button>
+      <button class="pill primary" id="btnMoney100">💰 돈되는 주제 100개 추천</button>
     </div>
   </div>
 </header>
 
 <main class="wrap">
+
+  <!-- 1) 주제 50개 -->
   <div class="card section">
     <div class="blog-row" aria-label="블로그 선택">
       <button class="blog-btn" data-blog="blogspot">블로그스팟</button>
       <button class="blog-btn" data-blog="naver">네이버</button>
       <button class="blog-btn" data-blog="tistory">티스토리</button>
     </div>
+
     <div class="sub" style="text-align:center">
-      먼저 블로그를 선택하고 → 주제를 고르면 50개 주제가 생성됩니다.
-      <div class="mini">※ 지금은 “각자 브라우저에 본인 키를 저장” 방식입니다. 공용PC에서는 저장하지 마세요.</div>
+      카테고리를 고르면 <b>주제 50개</b>가 네모 박스로 생성됩니다.
+      <div class="mini">※ 각자 브라우저에 본인 설정/키를 저장하는 방식입니다.</div>
     </div>
 
     <div class="grid" style="margin-top:16px">
@@ -172,19 +187,33 @@
     </div>
   </div>
 
-  <div class="card" id="topics">
+  <!-- 주제 50개 결과(네모 박스) -->
+  <div class="card" id="topicsBox" style="margin-top:14px; display:none;">
     <div class="section">
       <h2 id="topicsTitle" style="margin:0 0 8px"></h2>
       <div class="sub" id="topicsSub"></div>
       <div class="mini" id="engineHint"></div>
     </div>
     <div style="padding:0 18px 18px">
-      <ul class="topic-list" id="topicList"></ul>
+      <div class="box-grid" id="topicGrid"></div>
     </div>
   </div>
+
+  <!-- 2) 돈되는 주제 100개 (네모 박스) -->
+  <div class="card" id="moneyBox" style="margin-top:14px; display:none;">
+    <div class="section">
+      <h2 style="margin:0 0 8px;">💰 돈되는 주제 100개 추천</h2>
+      <div class="sub">광고 단가/구매 의도/검색 수요를 고려한 “정보블로그”용 주제 아이디어입니다.</div>
+      <div class="mini" id="moneyMeta"></div>
+    </div>
+    <div style="padding:0 18px 18px">
+      <div class="box-grid" id="moneyGrid"></div>
+    </div>
+  </div>
+
 </main>
 
-<!-- Settings Modal -->
+<!-- Settings Modal (간단 유지) -->
 <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
   <div class="modal card">
     <header>
@@ -201,7 +230,6 @@
       </div>
     </header>
 
-    <!-- 글작성 -->
     <div class="form" id="tab-writer">
       <div class="row">
         <label>글작성 엔진 선택</label>
@@ -211,10 +239,7 @@
             <option value="chatgpt">ChatGPT(OpenAI)</option>
             <option value="genspark">GenSpark</option>
           </select>
-          <div class="hint">
-            선택한 엔진으로 “주제 50개 생성 / 본문 생성”을 하게 됩니다.<br>
-            (지금은 데모 UI 단계라 실제 호출은 다음 단계에서 연결합니다.)
-          </div>
+          <div class="hint">선택한 엔진으로 주제/본문 생성 연결을 할 수 있어요(다음 단계에서 실제 API 연결).</div>
         </div>
       </div>
 
@@ -222,36 +247,26 @@
 
       <div class="row">
         <label>Gemini API Key</label>
-        <div>
-          <input id="geminiKey" placeholder="예: AIza..." />
-          <div class="hint">Gemini 텍스트/이미지 모두 같은 키를 쓰는 경우가 많지만, 이미지 모델은 결제/권한이 추가로 필요할 수 있어요.</div>
-        </div>
+        <div><input id="geminiKey" placeholder="예: AIza..." /></div>
       </div>
 
       <div class="row">
         <label>ChatGPT(OpenAI) API Key</label>
-        <div>
-          <input id="openaiKey" placeholder="예: sk-..." />
-          <div class="hint">OpenAI를 선택할 때 사용됩니다. (원하지 않으면 비워도 됨)</div>
-        </div>
+        <div><input id="openaiKey" placeholder="예: sk-..." /></div>
       </div>
 
       <div class="row">
         <label>GenSpark 키/토큰</label>
-        <div>
-          <input id="gensparkKey" placeholder="예: ..." />
-          <div class="hint">GenSpark를 선택할 때 사용됩니다.</div>
-        </div>
+        <div><input id="gensparkKey" placeholder="예: ..." /></div>
       </div>
 
-      <div class="btnline">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px">
         <button class="btn primary" id="saveWriter">저장</button>
-        <button class="btn" id="testWriter">연동 확인(형식 검사)</button>
+        <button class="btn" id="testWriter">연동 확인(형식)</button>
       </div>
       <div class="status" id="writerStatus"></div>
     </div>
 
-    <!-- 이미지 -->
     <div class="form" id="tab-image" style="display:none;">
       <div class="row">
         <label>이미지 소스 선택</label>
@@ -261,11 +276,6 @@
             <option value="gemini_image">Gemini 이미지(유료/권한 필요)</option>
             <option value="nanobanana">NanoBanana Pro(API)</option>
           </select>
-          <div class="hint">
-            “무료 이미지(Pexels)”는 가장 안정적입니다.<br>
-            “Gemini 이미지”는 프로젝트 권한/결제가 필요할 수 있어요.<br>
-            “NanoBanana Pro”는 해당 서비스의 API 키/엔드포인트가 있어야 합니다.
-          </div>
         </div>
       </div>
 
@@ -273,81 +283,62 @@
 
       <div class="row" id="rowPexels">
         <label>Pexels API Key</label>
-        <div>
-          <input id="pexelsKey" placeholder="Pexels 키" />
-          <div class="hint">무료 이미지 검색/다운로드에 사용됩니다.</div>
-        </div>
+        <div><input id="pexelsKey" placeholder="Pexels 키" /></div>
       </div>
 
       <div class="row" id="rowNano" style="display:none;">
         <label>NanoBanana Pro API</label>
         <div>
           <input id="nanoKey" placeholder="NanoBanana API Key" />
-          <div class="hint">NanoBanana Pro에서 발급받은 키를 넣으세요.</div>
           <div style="height:10px"></div>
-          <input id="nanoEndpoint" placeholder="NanoBanana Endpoint (예: https://api.nanobanana...)" />
-          <div class="hint">서비스에서 안내한 API 주소(엔드포인트)가 있다면 넣으세요.</div>
+          <input id="nanoEndpoint" placeholder="NanoBanana Endpoint (예: https://api....)" />
         </div>
       </div>
 
-      <div class="btnline">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px">
         <button class="btn primary" id="saveImg">저장</button>
-        <button class="btn" id="testImg">연동 확인(형식 검사)</button>
+        <button class="btn" id="testImg">연동 확인(형식)</button>
       </div>
       <div class="status" id="imgStatus"></div>
     </div>
 
-    <!-- 블로그 -->
     <div class="form" id="tab-blog" style="display:none;">
       <div class="row">
         <label>블로그스팟 주소</label>
-        <div>
-          <input id="bloggerSite" placeholder="예: https://내블로그.blogspot.com" />
-          <div class="hint">자동 업로드는 추후 OAuth 연결이 필요합니다. (지금은 저장/표시 단계)</div>
-        </div>
+        <div><input id="bloggerSite" placeholder="예: https://내블로그.blogspot.com" /></div>
       </div>
-
       <div class="row">
         <label>티스토리 주소</label>
         <div><input id="tistorySite" placeholder="예: https://내.tistory.com" /></div>
       </div>
-
       <div class="row">
         <label>네이버 블로그</label>
-        <div><input id="naverId" placeholder="예: baseone1004 (아이디 또는 주소)" /></div>
+        <div><input id="naverId" placeholder="예: 아이디 또는 주소" /></div>
       </div>
 
-      <div class="btnline">
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px">
         <button class="btn primary" id="saveBlog">저장</button>
-        <button class="btn" id="testBlog">연동 확인(형식 검사)</button>
+        <button class="btn" id="testBlog">연동 확인(형식)</button>
       </div>
       <div class="status" id="blogStatus"></div>
-      <div class="hint">
-        ※ 실제 “연동 확인(로그인/OAuth)”과 “자동 발행”은 서버가 필요한 단계입니다.<br>
-        하지만 “각자 본인 키/계정 저장” UI는 지금처럼 공개 사이트에서도 가능합니다.
-      </div>
     </div>
 
   </div>
 </div>
 
 <script>
-  // ---------- storage ----------
+  // ===== storage =====
   const store = {
-    get() {
-      try { return JSON.parse(localStorage.getItem("baseone_settings") || "{}"); }
-      catch { return {}; }
-    },
+    get() { try { return JSON.parse(localStorage.getItem("baseone_settings") || "{}"); } catch { return {}; } },
     set(partial) {
       const cur = store.get();
       const next = {...cur, ...partial};
       localStorage.setItem("baseone_settings", JSON.stringify(next));
       return next;
-    },
-    clear() { localStorage.removeItem("baseone_settings"); }
+    }
   };
 
-  // ---------- Main state ----------
+  // ===== blog selection =====
   let selectedBlog = null;
 
   function setBlog(blog){
@@ -369,40 +360,209 @@
     return p;
   }
 
+  // ===== 50 topics boxes =====
   function makeTopics(category){
     if(!selectedBlog){
       alert("먼저 블로그(블로그스팟/네이버/티스토리) 중 하나를 선택해주세요.");
       return;
     }
-    const box = document.getElementById("topics");
+
+    const box = document.getElementById("topicsBox");
     box.style.display = "block";
     document.getElementById("topicsTitle").textContent = `${category} 주제 50개`;
     document.getElementById("topicsSub").textContent = `선택된 블로그: ${selectedBlog}`;
     document.getElementById("engineHint").textContent = `글작성 엔진: ${currentWriterLabel()} (현재는 UI 데모)`;
 
+    const grid = document.getElementById("topicGrid");
+    grid.innerHTML = "";
 
-    const list = document.getElementById("topicList");
-    list.innerHTML = "";
     for(let i=1;i<=50;i++){
-      const topic = `${category} 관련 글 아이디어 ${i}`;
-      const li = document.createElement("li");
-      li.className = "topic-item";
-      li.innerHTML = `
-        <span>${topic}</span>
-        <button type="button" onclick="alert('다음 단계에서 글/이미지 생성 + 자동발행 연결할게요!')">발행(준비중)</button>
-      `;
-      list.appendChild(li);
+      const t = `${category} 관련 글 아이디어 ${i}`;
+      grid.appendChild(makeBox(t, `카테고리: ${category}`, "선택", "미리보기"));
     }
+
+    window.scrollTo({ top: box.offsetTop - 90, behavior: "smooth" });
   }
 
-  // ---------- Modal ----------
+  function makeBox(title, meta, btn1, btn2){
+    const div = document.createElement("div");
+    div.className = "ibox";
+    div.innerHTML = `
+      <div class="t">${title}</div>
+      <div class="meta">${meta || ""}</div>
+      <div class="rowbtn">
+        <button class="btn primary" type="button">${btn1}</button>
+        <button class="btn" type="button">${btn2}</button>
+      </div>
+    `;
+    div.querySelectorAll("button")[0].onclick = ()=>alert("다음 단계: 체크된 주제만 대량 글 생성/예약발행 연결할게요!");
+    div.querySelectorAll("button")[1].onclick = ()=>alert("다음 단계: 미리보기(서론/목차/본문) 연결할게요!");
+    return div;
+  }
+
+  // ===== 돈되는 주제 100개 =====
+  const moneyTopics = [
+    // 금융/보험/대출/세금 (고단가)
+    "2026년 신용점수 올리는 법: 카드/대출/연체 관리 체크리스트",
+    "주부도 가능한 소액대출 조건 비교: 금리·한도·서류 정리",
+    "자동차 보험료 아끼는 특약 10가지: 자녀/마일리지/블랙박스",
+    "실손보험 청구 방법 완전정리: 앱 청구, 필요서류, 자주 묻는 질문",
+    "암보험/종신보험 차이: 가입 전 꼭 비교할 7가지 포인트",
+    "연말정산 환급 늘리는 공제 항목: 의료비/교육비/신용카드",
+    "건강검진 결과로 보험 가입 가능할까? 유의사항 정리",
+    "전세보증보험 가입 조건/비용/서류: 한 번에 정리",
+    "대환대출 가능한 조건: 금리 낮추는 순서와 주의점",
+    "주택담보대출 갈아타기 체크리스트: 중도상환수수료 포함",
+    "ISA/연금저축/IRP 차이: 세액공제 최대화 전략",
+    "가계부 앱 추천과 돈 새는 구멍 찾는 방법",
+    "통신비 할인 받는 방법: 결합/알뜰폰/요금제 비교",
+    "전기요금·가스요금 절약 팁: 생활 습관 + 제품 추천",
+    "신혼부부/다자녀 혜택 모음: 청약/대출/지원금",
+    "국민연금 임의가입 장단점: 주부가 알아야 할 포인트",
+    "주부도 가능한 재택 부업 현실적인 시작법(사기 구별 포함)",
+    "소액 투자 시작 전 체크: 수수료/세금/리스크 관리",
+    "환율 우대 100% 받는 법: 은행/앱 비교",
+    "해외 직구 관세 계산 방법과 면세 한도 정리",
+
+    // 생활/가전 (구매 의도 강함)
+    "로봇청소기 추천 기준: 흡입력/물걸레/AS 비교",
+    "공기청정기 평수 계산법: 필터 교체 비용까지 비교",
+    "제습기 선택 가이드: 용량/소음/전기세",
+    "에어프라이어 용량 고르는 법: 가족 수별 추천",
+    "식기세척기 설치 가능 여부 체크: 싱크대 구조/전기/수도",
+    "정수기 렌탈 vs 구매: 3년 총비용 비교",
+    "건조기 살까 말까? 전기세/공간/빨래량 기준",
+    "무선청소기 배터리 수명 늘리는 관리법",
+    "김치냉장고 용량 선택: 뚜껑형 vs 스탠드형",
+    "인덕션 vs 가스레인지 장단점 비교",
+    "침대 매트리스 고르는 법: 허리 통증/체형별 추천",
+    "베개 고르는 법: 거북목/수면자세별 추천",
+    "전동킥보드/자전거 보험 필요할까? 가입 팁",
+    "가정용 CCTV 설치 팁: 사생활/법적 주의사항 포함",
+    "공유기 추천/설치: 와이파이 속도 올리는 법",
+    "프린터/복합기 선택: 잉크젯 vs 레이저, 유지비 비교",
+    "노트북 살 때 체크리스트: 용도별 스펙 추천",
+    "중고폰 구매 주의사항: 배터리/침수/확정기변",
+    "TV 크기 선택: 거실 거리별 인치 추천",
+    "안마의자 구매 전 체크: 설치 공간/AS/소음",
+
+    // 건강/다이어트 (수요 큼)
+    "체지방 줄이는 식단: 한 달 플랜(장보기 리스트 포함)",
+    "혈당 관리 식단: 당뇨 전단계가 알아야 할 음식",
+    "콜레스테롤 낮추는 음식/운동: 수치별 관리법",
+    "갱년기 증상 완화 방법: 영양/운동/생활습관",
+    "관절 통증에 좋은 운동: 무릎/허리별 추천",
+    "수면의 질 높이는 방법: 불면증 루틴 7일 챌린지",
+    "비타민D/오메가3/마그네슘: 언제, 얼마나 먹어야 할까?",
+    "건강검진 항목 해석: 수치가 의미하는 것",
+    "아이 감기 자주 걸릴 때: 집에서 할 수 있는 관리법",
+    "알레르기 비염 완화: 집먼지/침구 관리법",
+    "피부 트러블 줄이는 습관: 세안/보습/식습관",
+    "홈트 추천: 10분 운동 루틴(초보용)",
+    "다이어트 정체기 해결: 식단/운동 조정법",
+    "간헐적 단식 방법과 주의사항",
+    "저탄고지 vs 저지방: 나에게 맞는 다이어트는?",
+    "혈압 낮추는 생활습관: 하루 체크리스트",
+    "건강보험공단 지원 사업: 검진/예방접종/지원금",
+    "치과 비용 아끼는 법: 스케일링/충치/임플란트 보험",
+    "안과 검사 주기: 라식/라섹 전 검사 체크",
+    "영양제 과다복용 위험: 같이 먹으면 안 되는 조합",
+
+    // 육아/교육 (지속 수요)
+    "아기 수면교육 방법: 월령별 루틴 정리",
+    "어린이집 준비물 체크리스트: 1주 전 준비",
+    "초등 입학 준비: 생활습관/학습/물품 정리",
+    "아이 키성장에 좋은 습관: 수면/운동/식단",
+    "육아휴직 급여 신청 방법: 기간/서류/주의사항",
+    "가정양육수당/아동수당 신청 방법 총정리",
+    "아이 영어 시작 시기: 유아/초등별 접근법",
+    "한글 떼는 방법: 놀이 중심 학습 루틴",
+    "아이 스마트폰 중독 예방: 규칙 세우는 방법",
+    "학원비 줄이는 방법: 지역 지원/바우처 활용",
+
+    // 여행/취미 (제휴/광고)
+    "항공권 싸게 사는 법: 요일/시간/앱 비교",
+    "숙소 예약 꿀팁: 취소 정책/수수료/카드 할인",
+    "국내여행 렌터카 보험 선택: 자차/면책금 비교",
+    "캠핑 장비 필수템 리스트: 초보 예산 가이드",
+    "등산화 고르는 법: 발형/코스별 추천",
+    "낚시 입문 장비 추천: 비용 최소로 시작하기",
+    "골프 입문 비용: 레슨/장비/연습장 총정리",
+    "사진 잘 찍는 스마트폰 설정: 초보 가이드",
+    "블로그 사진 편집 앱 추천: 무료/유료 비교",
+    "유튜브/블로그 저작권 주의사항: 이미지/음악 사용",
+
+    // 자동차 (단가/수요)
+    "자동차 타이어 교체 시기: 마모한계선 확인법",
+    "엔진오일 교환 주기: 차종별 추천과 비용",
+    "블랙박스 추천 기준: 화질/주차모드/발열",
+    "중고차 구매 체크리스트: 성능기록부 보는 법",
+    "자동차 보험 갱신 전에 꼭 할 일: 특약 재설정",
+    "전기차 충전 비용/시간: 집충전 vs 급속 비교",
+    "차량 배터리 방전 예방: 겨울철 관리법",
+    "자동차 세차 용품 추천: 초보 세트 구성",
+
+    // 법/서류/지원금 (검색수요/단가)
+    "전입신고/확정일자 한 번에 하는 방법",
+    "가족관계증명서 인터넷 발급 방법(모바일 포함)",
+    "범칙금/과태료 조회·납부 방법",
+    "근로장려금/자녀장려금 신청 자격과 지급일",
+    "각종 지원금 놓치지 않는 방법: 정부24 활용법",
+    "이사할 때 해야 할 일 체크리스트(전기/가스/인터넷)",
+    "개인정보 유출 확인/대처법: 스팸 차단/명의도용",
+    "중고거래 사기 예방법: 안전결제/계좌조회",
+
+    // 쇼핑/리뷰형 (구매 의도)
+    "가성비 밀키트 추천: 다이어트/가족용 비교",
+    "냉동식품 보관법: 맛 살리는 해동 팁",
+    "주방세제/세탁세제 추천: 성분/자극 비교",
+    "아기 로션/세제 고르는 법: 성분 체크리스트",
+    "커피머신 추천: 캡슐 vs 반자동 비교",
+    "가정용 빔프로젝터 추천: 밝기/해상도 체크",
+    "게이밍 의자/책상 추천: 허리 편한 선택법",
+    "눈건강 영양제 선택법: 루테인/지아잔틴 비교",
+    "단백질 파우더 고르는 법: 성분/맛/가성비",
+    "홍삼/건기식 선물 고르는 법: 연령별 추천"
+  ];
+
+  function openMoney100(){
+    const box = document.getElementById("moneyBox");
+    box.style.display = "block";
+    document.getElementById("moneyMeta").textContent =
+      `총 ${moneyTopics.length}개 / 글작성 엔진: ${currentWriterLabel()} (현재는 UI 데모)`;
+
+    const grid = document.getElementById("moneyGrid");
+    grid.innerHTML = "";
+    moneyTopics.slice(0,100).forEach((t, idx)=>{
+      const meta = `돈되는 주제 #${idx+1}`;
+      grid.appendChild(makeBox(t, meta, "주제로 쓰기", "미리보기"));
+    });
+
+    window.scrollTo({ top: box.offsetTop - 90, behavior: "smooth" });
+  }
+
+  // ===== helpers =====
+  function makeBox(title, meta, btn1, btn2){
+    const div = document.createElement("div");
+    div.className = "ibox";
+    div.innerHTML = `
+      <div class="t">${title}</div>
+      <div class="meta">${meta || ""}</div>
+      <div class="rowbtn">
+        <button class="btn primary" type="button">${btn1}</button>
+        <button class="btn" type="button">${btn2}</button>
+      </div>
+    `;
+    div.querySelectorAll("button")[0].onclick = ()=>alert("다음 단계: 선택한 주제를 ‘글 생성’에 넣어 자동 작성/예약발행으로 연결할게요!");
+    div.querySelectorAll("button")[1].onclick = ()=>alert("다음 단계: 제목+목차+본문 미리보기를 보여주게 만들게요!");
+    return div;
+  }
+
+  // ===== Settings modal =====
   const modal = document.getElementById("modalBackdrop");
-  document.getElementById("btnSettings").onclick = () => {
-    modal.style.display = "flex";
-    hydrateSettings();
-  };
-  document.getElementById("btnClose").onclick = () => modal.style.display = "none";
-  modal.addEventListener("click", (e)=>{ if(e.target === modal) modal.style.display="none"; });
+  document.getElementById("btnSettings").onclick = () => { modal.style.display="flex"; hydrateSettings(); };
+  document.getElementById("btnClose").onclick = () => modal.style.display="none";
+  modal.addEventListener("click", (e)=>{ if(e.target===modal) modal.style.display="none"; });
 
   function showTab(name){
     document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
@@ -411,6 +571,15 @@
     });
   }
   document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showTab(t.dataset.tab));
+
+  function looksLikeUrl(s){ return /^https?:\/\/.+/i.test(s); }
+
+  function syncImageRows(){
+    const p = document.getElementById("imageProvider").value;
+    document.getElementById("rowPexels").style.display = (p === "pexels") ? "grid" : "none";
+    document.getElementById("rowNano").style.display = (p === "nanobanana") ? "grid" : "none";
+  }
+  document.getElementById("imageProvider").addEventListener("change", syncImageRows);
 
   function hydrateSettings(){
     const s = store.get();
@@ -435,22 +604,13 @@
     syncImageRows();
   }
 
-  function syncImageRows(){
-    const p = document.getElementById("imageProvider").value;
-    document.getElementById("rowPexels").style.display = (p === "pexels") ? "grid" : "none";
-    document.getElementById("rowNano").style.display = (p === "nanobanana") ? "grid" : "none";
-    // gemini_image는 Gemini 키(글작성 탭의 geminiKey)를 사용한다고 안내만 하고 별도 입력 없음
-  }
-
-  document.getElementById("imageProvider").addEventListener("change", syncImageRows);
-
-  // ---------- Save ----------
+  // save
   document.getElementById("saveWriter").onclick = () => {
     store.set({
       writerProvider: document.getElementById("writerProvider").value,
       geminiKey: document.getElementById("geminiKey").value.trim(),
       openaiKey: document.getElementById("openaiKey").value.trim(),
-      gensparkKey: document.getElementById("gensparkKey").value.trim(),
+      gensparkKey: document.getElementById("gensparkKey").value.trim()
     });
     document.getElementById("writerStatus").innerHTML = `<span class="ok">저장 완료</span>`;
   };
@@ -460,7 +620,7 @@
       imageProvider: document.getElementById("imageProvider").value,
       pexelsKey: document.getElementById("pexelsKey").value.trim(),
       nanoKey: document.getElementById("nanoKey").value.trim(),
-      nanoEndpoint: document.getElementById("nanoEndpoint").value.trim(),
+      nanoEndpoint: document.getElementById("nanoEndpoint").value.trim()
     });
     document.getElementById("imgStatus").innerHTML = `<span class="ok">저장 완료</span>`;
   };
@@ -469,29 +629,25 @@
     store.set({
       bloggerSite: document.getElementById("bloggerSite").value.trim(),
       tistorySite: document.getElementById("tistorySite").value.trim(),
-      naverId: document.getElementById("naverId").value.trim(),
+      naverId: document.getElementById("naverId").value.trim()
     });
     document.getElementById("blogStatus").innerHTML = `<span class="ok">저장 완료</span>`;
   };
 
-  // ---------- “연동 확인” (지금은 형식 검사 = 서버 없이 가능) ----------
-  function looksLikeUrl(s){ return /^https?:\/\/.+/i.test(s); }
+  // 연동 확인(형식)
   document.getElementById("testWriter").onclick = () => {
-    const s = store.get();
     const provider = document.getElementById("writerProvider").value;
-
-    let ok = true;
-    let msg = "";
+    let ok = true, msg = "";
 
     if(provider==="gemini"){
-      ok = (document.getElementById("geminiKey").value.trim().length >= 10);
+      ok = document.getElementById("geminiKey").value.trim().length >= 10;
       msg = ok ? "Gemini 키 형식 OK" : "Gemini 키가 너무 짧아요.";
     } else if(provider==="chatgpt"){
       const k = document.getElementById("openaiKey").value.trim();
       ok = k.startsWith("sk-") && k.length >= 20;
       msg = ok ? "OpenAI 키 형식 OK" : "OpenAI 키는 보통 sk- 로 시작합니다.";
     } else if(provider==="genspark"){
-      ok = (document.getElementById("gensparkKey").value.trim().length >= 10);
+      ok = document.getElementById("gensparkKey").value.trim().length >= 10;
       msg = ok ? "GenSpark 키 형식 OK" : "GenSpark 키가 너무 짧아요.";
     }
 
@@ -505,18 +661,15 @@
     let ok = true, msg = "";
 
     if(provider==="pexels"){
-      ok = (document.getElementById("pexelsKey").value.trim().length >= 10);
+      ok = document.getElementById("pexelsKey").value.trim().length >= 10;
       msg = ok ? "Pexels 키 형식 OK" : "Pexels 키가 너무 짧아요.";
     } else if(provider==="gemini_image"){
-      const g = document.getElementById("geminiKey").value.trim();
-      ok = g.length >= 10;
-      msg = ok
-        ? "Gemini 키는 입력되어 있어요. (이미지 모델은 결제/권한이 추가로 필요할 수 있음)"
-        : "Gemini 키가 필요해요. (글작성 탭에 입력)";
+      ok = document.getElementById("geminiKey").value.trim().length >= 10;
+      msg = ok ? "Gemini 키 입력됨(권한/결제는 별도일 수 있음)" : "Gemini 키가 필요해요(글작성 탭)";
     } else if(provider==="nanobanana"){
-      ok = (document.getElementById("nanoKey").value.trim().length >= 10);
+      const k = document.getElementById("nanoKey").value.trim();
       const ep = document.getElementById("nanoEndpoint").value.trim();
-      if(ok && ep) ok = looksLikeUrl(ep);
+      ok = k.length >= 10 && (!ep || looksLikeUrl(ep));
       msg = ok ? "NanoBanana 키/엔드포인트 형식 OK" : "NanoBanana 키(필수) 또는 엔드포인트(URL)가 올바르지 않아요.";
     }
 
@@ -536,23 +689,23 @@
     if(naver) checks.push(["네이버", naver.length >= 2]);
 
     if(checks.length === 0){
-      document.getElementById("blogStatus").innerHTML =
-        `<span class="warn">입력된 블로그 정보가 없어요.</span> - 주소/아이디를 넣어주세요.`;
+      document.getElementById("blogStatus").innerHTML = `<span class="bad">입력값 없음</span> - 주소/아이디를 넣어주세요.`;
       return;
     }
 
     const bad = checks.filter(x=>!x[1]).map(x=>x[0]);
     const ok = bad.length === 0;
     document.getElementById("blogStatus").innerHTML = ok
-      ? `<span class="ok">연동 확인(형식) 성공</span> - 저장 후 다음 단계에서 OAuth 연동을 붙이면 자동발행이 가능합니다.`
-      : `<span class="bad">연동 확인(형식) 실패</span> - 형식이 이상한 항목: ${bad.join(", ")}`;
+      ? `<span class="ok">연동 확인(형식) 성공</span>`
+      : `<span class="bad">연동 확인(형식) 실패</span> - 이상한 항목: ${bad.join(", ")}`;
   };
 
-  // ---------- Bind main buttons ----------
+  // bind main
   document.querySelectorAll(".blog-btn").forEach(b => b.onclick=()=>setBlog(b.dataset.blog));
   document.querySelectorAll(".topic-btn").forEach(b => b.onclick=()=>makeTopics(b.dataset.cat));
+  document.getElementById("btnMoney100").onclick = openMoney100;
 
-  // restore selected blog
+  // restore blog
   const saved = store.get();
   if(saved.selectedBlog) setBlog(saved.selectedBlog);
 </script>
