@@ -22,22 +22,30 @@
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      margin: 5px;
+      margin: 5px 0;
+    }
+    .btn.gray {
+      background: #666;
     }
     .box {
-      max-width: 600px;
+      max-width: 650px;
       margin: 20px auto;
       background: #2b2f45;
       padding: 20px;
       border-radius: 12px;
     }
-    input {
+    input, textarea {
       width: 100%;
       padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 15px;
+      margin-top: 6px;
+      margin-bottom: 10px;
       border-radius: 6px;
       border: none;
+    }
+    .help {
+      font-size: 13px;
+      color: #ccc;
+      margin-bottom: 15px;
     }
     h2 {
       margin-top: 0;
@@ -50,21 +58,32 @@
   <div class="top">
     <h1>⚙ BaseOne 설정</h1>
     <a href="index.html">
-      <button class="btn">← 메인으로 돌아가기</button>
+      <button class="btn gray">← 메인으로 돌아가기</button>
     </a>
   </div>
 
   <!-- 글작성 API -->
   <div class="box">
     <h2>글작성 API 설정</h2>
+
     <label>Gemini API 키</label>
     <input placeholder="Gemini API 키 입력">
+    <div class="help">
+      ▸ Gemini API 발급방법  
+      Google AI Studio → API Keys → Create API Key → 복사해서 여기에 붙여넣기
+    </div>
 
     <label>ChatGPT API 키</label>
     <input placeholder="ChatGPT API 키 입력">
+    <div class="help">
+      ▸ OpenAI → API Keys → Create new secret key → 복사해서 입력
+    </div>
 
     <label>Genspark API 키</label>
     <input placeholder="Genspark API 키 입력">
+    <div class="help">
+      ▸ Genspark 홈페이지 → 개발자 메뉴 → API 발급 → 키 복사
+    </div>
 
     <button class="btn">저장</button>
   </div>
@@ -72,6 +91,7 @@
   <!-- 이미지 API -->
   <div class="box">
     <h2>이미지 생성 API</h2>
+
     <label>Gemini 이미지 키</label>
     <input placeholder="Gemini 이미지 키">
 
@@ -80,6 +100,9 @@
 
     <label>무료 이미지 API (예: Pexels)</label>
     <input placeholder="무료 이미지 API 키">
+    <div class="help">
+      ▸ Pexels → API 메뉴 → Generate API Key → 복사해서 입력
+    </div>
 
     <button class="btn">저장</button>
   </div>
@@ -88,17 +111,20 @@
   <div class="box">
     <h2>블로그 연동</h2>
 
-    <label>블로그스팟 주소 (최대 10개, 줄바꿈으로 구분)</label>
-    <input placeholder="https://xxx.blogspot.com">
+    <label>블로그스팟 주소</label>
+    <textarea rows="3" placeholder="https://xxx.blogspot.com"></textarea>
+    <button class="btn">+ 블로그스팟 추가</button>
 
-    <label>네이버 블로그 주소 (최대 3개)</label>
-    <input placeholder="https://blog.naver.com/xxx">
+    <label>네이버 블로그 주소</label>
+    <textarea rows="3" placeholder="https://blog.naver.com/xxx"></textarea>
+    <button class="btn">+ 네이버 추가</button>
 
-    <label>티스토리 주소 (최대 10개)</label>
-    <input placeholder="https://xxx.tistory.com">
+    <label>티스토리 주소</label>
+    <textarea rows="3" placeholder="https://xxx.tistory.com"></textarea>
+    <button class="btn">+ 티스토리 추가</button>
 
     <button class="btn">저장</button>
-    <button class="btn">연동 확인</button>
+    <button class="btn gray">연동 확인</button>
   </div>
 
 </body>
