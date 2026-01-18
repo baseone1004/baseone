@@ -4,17 +4,41 @@
   <meta charset="UTF-8">
   <title>BaseOne</title>
   <style>
-    body { font-family: sans-serif; text-align: center; }
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 700px; margin: 20px auto; }
-    button { padding: 12px; font-size: 14px; cursor: pointer; border-radius: 6px; border: none; background:#4a90e2; color:white; }
-    button.gray { background:#666; }
-    #topicsBox, #moneyBox {
-      border:2px solid #ddd; border-radius:10px; padding:15px;
-      max-width:700px; margin:20px auto; text-align:left;
+    body {
+      background: #1f1f2e;
+      color: #f2f2f2;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
     }
-    li { font-size:13px; margin:3px 0; }
-    .publish-box { margin:20px; }
-    input { padding:6px; width:60px; text-align:center; }
+    h1 { color: #7db4ff; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 700px;
+      margin: 20px auto;
+    }
+    button {
+      padding: 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .cat-btn { background:#4e8ef7; color:white; }
+    .blog-btn { background:#555; color:white; margin:5px; }
+    .box {
+      background:#2b2b3c;
+      border-radius:10px;
+      padding:15px;
+      margin:20px auto;
+      max-width:700px;
+      text-align:left;
+    }
+    .small { font-size:13px; color:#ccc; }
+    input { padding:8px; border-radius:5px; border:none; }
+    .main-btn { background:#4e8ef7; color:white; margin:5px; }
   </style>
 </head>
 <body>
@@ -22,73 +46,55 @@
 <h1>BaseOne</h1>
 
 <div class="grid">
-  <button onclick="makeTopics('건강')">건강</button>
-  <button onclick="makeTopics('컴퓨터/IT')">컴퓨터/IT</button>
-  <button onclick="makeTopics('자동차')">자동차</button>
-  <button onclick="makeTopics('생활/가전')">생활/가전</button>
-  <button onclick="makeTopics('육아')">육아</button>
-  <button onclick="makeTopics('돈/재테크')">돈/재테크</button>
-  <button onclick="makeTopics('여행')">여행</button>
-  <button onclick="makeTopics('요리')">요리</button>
-  <button onclick="makeTopics('자기계발')">자기계발</button>
-  <button onclick="makeTopics('공부/자격증')">공부/자격증</button>
-  <button onclick="makeTopics('반려동물')">반려동물</button>
-  <button onclick="makeTopics('패션/뷰티')">패션/뷰티</button>
-  <button onclick="makeTopics('취미')">취미</button>
-  <button onclick="makeTopics('스포츠')">스포츠</button>
-  <button onclick="makeTopics('게임')">게임</button>
-  <button onclick="makeTopics('영화/드라마')">영화/드라마</button>
+  <button class="cat-btn" onclick="makeTopics('건강')">건강</button>
+  <button class="cat-btn" onclick="makeTopics('컴퓨터/IT')">컴퓨터/IT</button>
+  <button class="cat-btn" onclick="makeTopics('자동차')">자동차</button>
+  <button class="cat-btn" onclick="makeTopics('생활/가전')">생활/가전</button>
+  <button class="cat-btn" onclick="makeTopics('육아')">육아</button>
+  <button class="cat-btn" onclick="makeTopics('돈/재테크')">돈/재테크</button>
+  <button class="cat-btn" onclick="makeTopics('여행')">여행</button>
+  <button class="cat-btn" onclick="makeTopics('요리')">요리</button>
+  <button class="cat-btn" onclick="makeTopics('자기계발')">자기계발</button>
+  <button class="cat-btn" onclick="makeTopics('공부/자격증')">공부/자격증</button>
+  <button class="cat-btn" onclick="makeTopics('반려동물')">반려동물</button>
+  <button class="cat-btn" onclick="makeTopics('패션/뷰티')">패션/뷰티</button>
+  <button class="cat-btn" onclick="makeTopics('취미')">취미</button>
+  <button class="cat-btn" onclick="makeTopics('스포츠')">스포츠</button>
+  <button class="cat-btn" onclick="makeTopics('게임')">게임</button>
+  <button class="cat-btn" onclick="makeTopics('영화/드라마')">영화/드라마</button>
 </div>
 
 <h3>블로그 선택</h3>
-<button class="gray" onclick="selectBlog('블로그스팟')">블로그스팟</button>
-<button class="gray" onclick="selectBlog('네이버')">네이버</button>
-<button class="gray" onclick="selectBlog('티스토리')">티스토리</button>
+<button class="blog-btn">블로그스팟</button>
+<button class="blog-btn">네이버</button>
+<button class="blog-btn">티스토리</button>
 
-<div id="selectedBlog" style="margin:10px;font-weight:bold;"></div>
+<div class="box" id="topicsBox"></div>
+<div class="box" id="moneyBox"></div>
 
-<div id="topicsBox"></div>
-<div id="moneyBox"></div>
-
-<div class="publish-box">
+<div class="box">
   <h3>자동 발행</h3>
-  <button onclick="autoPublish()">하루에 3개 자동 발행</button>
-  <br><br>
+  <button class="main-btn">하루에 3개 자동 발행</button><br><br>
   하루 발행 개수:
-  <input type="number" id="countInput" value="3" min="1">
-  <button onclick="customPublish()">이 개수로 발행</button>
-  <div id="publishResult" style="margin-top:10px;color:green;"></div>
+  <input type="number" value="3" min="1">
+  <button class="main-btn">이 개수로 발행</button>
 </div>
 
 <script>
-let currentBlog = "";
-
-function selectBlog(name){
-  currentBlog = name;
-  document.getElementById("selectedBlog").innerText = "선택한 블로그: " + name;
-}
-
 function makeTopics(category){
-  let box = document.getElementById("topicsBox");
-  let html = `<h3>${category} 주제 50개</h3><ol>`;
+  let box=document.getElementById("topicsBox");
+  box.innerHTML="<h3>"+category+" 주제 50개</h3>";
   for(let i=1;i<=50;i++){
-    html += `<li>${category} 관련 글 아이디어 ${i}</li>`;
+    box.innerHTML+= "<div class='small'>"+category+" 글 아이디어 "+i+"</div>";
   }
-  html += "</ol>";
-  box.innerHTML = html;
+  makeMoneyTopics();
 }
-
-function autoPublish(){
-  if(!currentBlog){ alert("블로그를 먼저 선택하세요!"); return; }
-  document.getElementById("publishResult").innerText =
-    currentBlog + "에 하루 3개씩 자동 발행 설정 완료!";
-}
-
-function customPublish(){
-  if(!currentBlog){ alert("블로그를 먼저 선택하세요!"); return; }
-  let n = document.getElementById("countInput").value;
-  document.getElementById("publishResult").innerText =
-    currentBlog + "에 하루 " + n + "개 발행 설정 완료!";
+function makeMoneyTopics(){
+  let box=document.getElementById("moneyBox");
+  box.innerHTML="<h3>돈되는 주제 100개</h3>";
+  for(let i=1;i<=100;i++){
+    box.innerHTML+= "<div class='small'>수익형 블로그 주제 "+i+"</div>";
+  }
 }
 </script>
 
