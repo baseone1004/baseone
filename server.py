@@ -1,162 +1,124 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import os
+import json
+import re
 from datetime import datetime
 
-from google import genai
-from google.genai import types
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-app = Flask(__name__, static_folder=".")
+# ✅ 같은 폴더(BaseOne) 안에 index.html, settings.html이 있어야 함
+app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
-# -----------------------------
-# 화면(HTML) 제공
-# -----------------------------
+def now_str():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 @app.route("/")
-def home_page():
-    return send_from_directory(BASE_DIR, "index.html")
+def home():
+    return send_from_directory(".", "index.html")
 
 @app.route("/settings")
-def settings_page():
-    return send_from_directory(BASE_DIR, "settings.html")
+def settings():
+    # settings.html 파일이 BaseOne 폴더에 있어야 함
+    return send_from_directory(".", "settings.html")
 
-@app.route("/style.css")
-def style_css():
-    return send_from_directory(BASE_DIR, "style.css")
+@app.route("/health")
+def health():
+    return jsonify({"ok": True, "time": now_str()})
 
-@app.route("/baseone.ico")
-def favicon():
-    return send_from_directory(BASE_DIR, "baseone.ico")
+def call_gemini(api_key: str, model: str, topic: str, category: str):
+    """
+    google-genai(권장) 우선 사용, 없으면 google.generativeai로 fallback
+    응답은 JSON 형태로 유도한 뒤 파싱
+    """
+    prompt = f"""
+너는 블로그 글 작성 도우미야.
+주제: {topic}
+카테고리: {category}
 
-# -----------------------------
-# 테스트용 API
-# -----------------------------
-@app.route("/api/blogspot/test")
-def blogspot_test():
-    return jsonify({"ok": True, "message": "서버 연결 OK"})
+아래 JSON 형식으로만 출력해. 다른 문장/설명 금지.
+- title: 블로그 제목(한글)
+- html: 블로그에 바로 붙여넣을 수 있는 HTML 본문(소제목/목록/강조 포함, 1200~2000자)
+- image_prompt: 대표 이미지 생성 프롬프트(한글 또는 영어, 1~2문장)
 
-def build_prompt(topic: str, category: str) -> str:
-    # ✅ 요구사항 그대로 박아넣기 (HTML만 출력)
-    return f"""
-너는 '수익형 정보블로그' 전문 작가다.
-아래 조건을 모두 만족하는 한국어 블로그 글을 **HTML만** 출력해라. (설명 금지, 코드블록 금지)
+JSON:
+{{"title":"...","html":"...","image_prompt":"..."}}
+"""
 
-[주제]
-- 카테고리: {category}
-- 주제: {topic}
-
-[필수 조건]
-1) 전체 분량: **14,000자 이상**
-2) 목차/소제목(H2)은 **8~9개만**
-3) 각 H2 아래 본문은 **700자 이상**
-4) 본문 중간에 **표 1개** 포함 (HTML <table>)
-5) 아이콘/박스 디자인 요소 포함:
-   - ✅ 체크박스 스타일
-   - 💡 팁 박스
-   - ⚠️ 주의 박스
-   (div + 인라인 스타일로 예쁘게)
-6) 마지막에:
-   - 요약(3~5줄)
-   - FAQ 5개 (질문/답변)
-   - 행동유도(댓글/구독 등)
-
-[스타일]
-- 초보도 이해하게 친절하게
-- 과장/허위 금지
-- SEO 고려(자연스러운 키워드 반복, 소제목에 핵심 키워드 포함)
-
-[출력 형식]
-- 오직 HTML만 출력
-- <h1>제목</h1>로 시작
-""".strip()
-
-def gemini_generate_html(api_key: str, model: str, prompt: str) -> str:
-    # API 키가 있으면 우선 사용, 없으면 환경변수(GEMINI_API_KEY)를 사용
-    if api_key:
-        client = genai.Client(api_key=api_key)
-    else:
-        client = genai.Client()  # 환경변수 GEMINI_API_KEY가 있으면 자동 인식
-
-    # 길게 뽑기 위해 max_output_tokens 크게
-    cfg = types.GenerateContentConfig(
-        temperature=0.7,
-        max_output_tokens=8192
-    )
-
-    resp = client.models.generate_content(
-        model=model,
-        contents=prompt,
-        config=cfg
-    )
-
-    text = (resp.text or "").strip()
+    # 1) google-genai (new)
     try:
-        client.close()
+        from google import genai
+        client = genai.Client(api_key=api_key)
+        resp = client.models.generate_content(
+            model=model,
+            contents=prompt
+        )
+        text = getattr(resp, "text", None) or str(resp)
     except Exception:
-        pass
-    return text
+        # 2) google-generativeai (old)
+        import google.generativeai as genai_old
+        genai_old.configure(api_key=api_key)
+        m = genai_old.GenerativeModel(model)
+        resp = m.generate_content(prompt)
+        text = resp.text
 
-def ensure_length(html: str, api_key: str, model: str, topic: str, category: str) -> str:
-    # 14,000자 미만이면 보강 요청(최대 2번)
-    if len(html) >= 14000:
-        return html
+    # JSON만 뽑아내기(앞뒤 잡문 있어도 파싱되게)
+    m = re.search(r"\{.*\}", text, re.DOTALL)
+    if not m:
+        # 파싱 실패시 최소 형태로 반환
+        return {
+            "title": f"{topic}",
+            "html": f"<h2>{topic}</h2><p>생성 결과를 파싱하지 못했습니다. 모델 응답을 확인해주세요.</p>",
+            "image_prompt": f"{topic} 관련 고퀄리티 썸네일, 미니멀, 선명한 조명"
+        }
 
-    for _ in range(2):
-        add_prompt = f"""
-아래 HTML 글은 너무 짧다. **전체 14,000자 이상**이 되도록 확장해라.
-- H2는 8~9개 유지
-- 각 H2 아래를 700자 이상으로 늘려라
-- 표 1개 유지
-- 아이콘/박스(✅💡⚠️) 유지
-- HTML만 출력(설명 금지)
+    raw = m.group(0).strip()
+    try:
+        data = json.loads(raw)
+    except Exception:
+        # 가끔 따옴표가 깨진 경우 대비(최소 복구)
+        return {
+            "title": f"{topic}",
+            "html": f"<h2>{topic}</h2><p>JSON 파싱 실패. 서버 로그/응답을 확인해주세요.</p><pre>{raw}</pre>",
+            "image_prompt": f"{topic} thumbnail, clean, high quality"
+        }
 
-[기존 글]
-{html}
-""".strip()
-
-        new_html = gemini_generate_html(api_key, model, add_prompt)
-        if len(new_html) > len(html):
-            html = new_html
-        if len(html) >= 14000:
-            break
-
-    return html
+    return {
+        "title": data.get("title", topic),
+        "html": data.get("html", ""),
+        "image_prompt": data.get("image_prompt", "")
+    }
 
 @app.route("/api/generate", methods=["POST"])
-def generate():
-    data = request.get_json(force=True) or {}
-    topic = (data.get("topic") or "").strip()
-    category = (data.get("category") or "").strip()
-    blog = (data.get("blog") or "").strip()
-
-    # ✅ index.html에서 같이 보내는 geminiKey 사용 (로컬용)
-    gemini_key = (data.get("geminiKey") or "").strip()
+def api_generate():
+    payload = request.get_json(silent=True) or {}
+    topic = (payload.get("topic") or "").strip()
+    category = (payload.get("category") or "").strip()
+    model = (payload.get("model") or "gemini-2.0-flash").strip()
+    gemini_key = (payload.get("geminiKey") or "").strip()
 
     if not topic:
-        return jsonify({"ok": False, "message": "topic(주제)가 비어있어요."}), 400
+        return jsonify({"ok": False, "error": "topic is required"}), 400
 
-    # 모델은 기본값. (필요하면 바꿔도 됨)
-    model = (data.get("model") or "").strip() or "gemini-3-flash-preview"
+    if not gemini_key:
+        return jsonify({
+            "ok": False,
+            "error": "Gemini API Key가 없습니다. 설정에서 Gemini Key 저장 후 다시 시도하세요."
+        }), 400
 
-    prompt = build_prompt(topic, category)
-    html = gemini_generate_html(gemini_key, model, prompt)
-    html = ensure_length(html, gemini_key, model, topic, category)
-
-    image_prompt = f'{category} 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 스타일, 16:9'
-
-    return jsonify({
-        "ok": True,
-        "blog": blog,
-        "category": category,
-        "topic": topic,
-        "model": model,
-        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "title": topic,
-        "image_prompt": image_prompt,
-        "html": html
-    })
+    try:
+        out = call_gemini(gemini_key, model, topic, category)
+        return jsonify({
+            "ok": True,
+            "topic": topic,
+            "category": category,
+            "model": model,
+            "generated_at": now_str(),
+            "title": out["title"],
+            "html": out["html"],
+            "image_prompt": out["image_prompt"]
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 if __name__ == "__main__":
+    # ✅ 다른 기기에서도 접속하려면 host="0.0.0.0"
     app.run(host="127.0.0.1", port=5000, debug=True)
