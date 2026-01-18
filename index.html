@@ -6,156 +6,214 @@
   <title>BaseOne</title>
   <style>
     :root{
-      --bg:#0f1222;
-      --panel:#171a2f;
-      --panel2:#1c2040;
-      --line:rgba(255,255,255,.08);
-      --text:#e9ecff;
-      --muted:#aeb6e6;
-      --accent:#4c8dff;
-      --accent2:#2f6cff;
-      --ok:#37c46b;
+      --bg:#0b1020;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.08);
+      --line: rgba(255,255,255,.10);
+      --text:#eef2ff;
+      --muted:#b6c0ff;
+      --muted2:rgba(238,242,255,.70);
+      --accent:#6aa8ff;
+      --accent2:#3a7bff;
+      --pink:#ff66c4;
+      --ok:#39d98a;
       --bad:#ff5a6a;
-      --shadow: 0 14px 34px rgba(0,0,0,.35);
-      --radius:18px;
+      --shadow: 0 18px 44px rgba(0,0,0,.45);
+      --radius:22px;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial, sans-serif;
-      background:
-        radial-gradient(1200px 700px at 15% 5%, rgba(76,141,255,.20), transparent 60%),
-        radial-gradient(900px 600px at 85% 25%, rgba(255,255,255,.06), transparent 55%),
-        var(--bg);
       color:var(--text);
+      background:
+        radial-gradient(1100px 680px at 10% 8%, rgba(106,168,255,.22), transparent 60%),
+        radial-gradient(900px 620px at 82% 20%, rgba(255,102,196,.10), transparent 55%),
+        radial-gradient(1200px 900px at 60% 110%, rgba(58,123,255,.10), transparent 65%),
+        linear-gradient(180deg, #070a14 0%, var(--bg) 65%);
+      min-height:100vh;
     }
-    a{color:var(--accent); text-decoration:none}
-    .wrap{max-width:1100px;margin:0 auto;padding:22px 16px 70px}
+    .wrap{max-width:1140px;margin:0 auto;padding:22px 16px 74px}
     .top{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
       margin-bottom:14px;
     }
     .brand{
-      display:flex; align-items:center; gap:10px;
+      display:flex;align-items:center;gap:12px;
       font-weight:900; letter-spacing:.2px;
-      font-size:26px; color:#9fc0ff;
+      font-size:28px;
+    }
+    .logo{
+      width:40px;height:40px;border-radius:14px;
+      background:
+        radial-gradient(14px 14px at 30% 30%, rgba(255,255,255,.55), transparent 60%),
+        linear-gradient(180deg, rgba(106,168,255,1), rgba(58,123,255,1));
+      box-shadow: 0 10px 26px rgba(58,123,255,.35);
+      border:1px solid rgba(255,255,255,.18);
     }
     .chip{
-      font-size:12px;color:var(--muted);
-      padding:6px 10px;border:1px solid var(--line);
-      border-radius:999px;background:rgba(255,255,255,.03)
+      font-size:12px;color:var(--muted2);
+      padding:7px 10px;border:1px solid var(--line);
+      border-radius:999px;background:rgba(255,255,255,.04)
     }
+    .rightTop{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
     .btn{
       border:none; cursor:pointer;
-      padding:10px 12px;border-radius:12px;
-      font-weight:800;
+      padding:10px 12px;border-radius:14px;
+      font-weight:900;
       background:rgba(255,255,255,.06);
       color:var(--text);
       border:1px solid var(--line);
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
     }
+    .btn:hover{border-color: rgba(106,168,255,.35); background: rgba(255,255,255,.075)}
+    .btn:active{transform: translateY(1px)}
     .btn.primary{
-      background:linear-gradient(180deg, var(--accent), var(--accent2));
+      background: linear-gradient(180deg, rgba(106,168,255,1), rgba(58,123,255,1));
       border:none;
+      box-shadow: 0 12px 30px rgba(58,123,255,.25);
     }
-    .btn:active{transform:translateY(1px)}
-    .grid{
-      display:grid; grid-template-columns:1fr; gap:14px;
+    .btn.primary:hover{filter:brightness(1.05)}
+    .btn.pink{
+      background: linear-gradient(180deg, rgba(255,102,196,1), rgba(216,71,170,1));
+      border:none;
+      box-shadow: 0 12px 30px rgba(255,102,196,.18);
     }
-    @media (min-width: 980px){
-      .grid{grid-template-columns: 1.1fr .9fr;}
-    }
+
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    @media(min-width:980px){.grid{grid-template-columns:1.15fr .85fr}}
+
     .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      background: var(--panel);
       border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      border-radius: var(--radius);
       padding:16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
     }
     .card h2{margin:0 0 10px;font-size:18px}
-    .desc{margin:0 0 14px; color:var(--muted); font-size:13px; line-height:1.5}
+    .desc{margin:0 0 14px;color:var(--muted2);font-size:13px;line-height:1.55}
+
     .categoryGrid{
-      display:grid; grid-template-columns: repeat(2, 1fr);
+      display:grid; grid-template-columns: repeat(2,1fr);
       gap:10px;
     }
-    @media (min-width: 760px){
-      .categoryGrid{grid-template-columns: repeat(4, 1fr);}
-    }
+    @media(min-width:760px){.categoryGrid{grid-template-columns: repeat(4,1fr)}}
     .cat{
-      padding:12px 10px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      font-weight:800;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:12px 12px;border-radius:18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      font-weight:900;
+      transition: transform .08s ease, border-color .2s ease, background .2s ease;
     }
-    .cat:hover{border-color:rgba(76,141,255,.45)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    select, input{
-      width:100%;
-      background:rgba(0,0,0,.18);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      outline:none;
+    .cat:hover{transform: translateY(-1px); border-color: rgba(106,168,255,.38); background: rgba(255,255,255,.07)}
+    .cat small{color:var(--muted2);font-weight:800}
+    .dot{
+      width:10px;height:10px;border-radius:999px;
+      background: linear-gradient(180deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 0 4px rgba(58,123,255,.12);
+      flex:0 0 auto;
     }
-    .two{display:grid;grid-template-columns:1fr;gap:10px}
-    @media (min-width: 760px){ .two{grid-template-columns:1fr 1fr} }
+
+    .two{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+
     .box{
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      border-radius: 18px;
       padding:12px;
     }
-    .boxTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .count{font-size:12px;color:var(--muted)}
-    .list{
-      display:grid; gap:8px;
-      max-height: 380px; overflow:auto; padding-right:4px;
+    .boxTitle{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      margin-bottom:10px;
     }
-    .item{
-      padding:10px 10px;
-      border-radius:14px;
-      background:rgba(255,255,255,.03);
-      border:1px solid rgba(255,255,255,.06);
-      font-size:13px;
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-    }
+    .count{font-size:12px;color:var(--muted2)}
     .tag{
       font-size:12px;
       padding:6px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.10);
-      color:#cfd0ff;background:rgba(0,0,0,.12);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.16);
+      color:#d6dcff;
       white-space:nowrap;
     }
+
+    .list{
+      display:grid; gap:8px;
+      max-height: 390px; overflow:auto; padding-right:4px;
+    }
+    .item{
+      padding:10px 10px;border-radius:16px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      font-size:13px;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+    }
+    .item:hover{border-color: rgba(255,255,255,.14)}
+    .item .left{display:flex;align-items:center;gap:10px}
+    .badge{
+      width:30px;height:30px;border-radius:12px;
+      display:grid;place-items:center;
+      background: rgba(0,0,0,.20);
+      border:1px solid rgba(255,255,255,.10);
+      font-weight:900;color:#cfd6ff;
+      flex:0 0 auto;
+    }
+
+    select,input{
+      width:100%;
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding:11px 12px;
+      outline:none;
+    }
+
+    .divider{height:1px;background: rgba(255,255,255,.08); margin:14px 0}
+
     .toast{
       position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
       background:rgba(0,0,0,.55);backdrop-filter: blur(10px);
-      border:1px solid var(--line);
-      padding:10px 12px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      padding:10px 12px;border-radius:14px;
       color:var(--text);font-size:13px;display:none;
       max-width: 92vw;
+      box-shadow: 0 14px 30px rgba(0,0,0,.35);
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="top">
-      <div class="brand">BaseOne <span class="chip">수익형 포스팅 도구</span></div>
-      <div class="row">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>
+          BaseOne
+          <div style="margin-top:6px">
+            <span class="chip">수익형 포스팅 도구</span>
+            <span class="chip">주제 · 예약 · 자동화(다음 단계)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rightTop">
         <a class="btn" href="./settings.html">⚙ 설정</a>
         <button class="btn primary" onclick="openPlanner()">📅 예약 발행</button>
+        <button class="btn pink" onclick="scrollToTop()">⬆ 맨위</button>
       </div>
     </div>
 
     <div class="grid">
-      <!-- LEFT: 주제 -->
+      <!-- LEFT -->
       <div class="card">
         <h2>카테고리 선택</h2>
-        <p class="desc">카테고리를 누르면 주제 50개가 자동으로 생성됩니다. (서버 없이도 동작)</p>
+        <p class="desc">카테고리를 누르면 주제 50개가 만들어져요. (서버 없이도 동작)</p>
 
         <div class="categoryGrid" id="cats"></div>
 
-        <div style="height:14px"></div>
+        <div class="divider"></div>
 
         <div class="two">
           <div class="box">
@@ -171,7 +229,7 @@
               <b>💰 돈 되는 주제 100개</b>
               <span class="count" id="moneyCount">0개</span>
             </div>
-            <div class="row" style="margin-bottom:10px">
+            <div class="rightTop" style="justify-content:flex-start;margin-bottom:10px">
               <button class="btn primary" onclick="makeMoney()">추천 생성</button>
               <button class="btn" onclick="clearMoney()">비우기</button>
             </div>
@@ -180,53 +238,58 @@
         </div>
       </div>
 
-      <!-- RIGHT: 발행 -->
+      <!-- RIGHT -->
       <div class="card">
         <h2>발행 설정</h2>
         <p class="desc">
-          지금 단계는 “예약 저장”까지. 다음 단계에서 실제 자동 발행(블로그스팟/네이버/티스토리)로 연결합니다.
+          지금은 “예약 저장”까지만. 다음 단계에서 실제 자동 글/이미지 생성 + 블로그 자동 발행으로 연결해요.
         </p>
 
         <div class="box">
           <div class="two">
             <div>
-              <label style="color:var(--muted);font-size:13px">발행할 블로그(저장된 목록)</label>
+              <label style="color:var(--muted2);font-size:13px">발행할 블로그(저장된 목록)</label>
               <select id="blogSelect"></select>
               <div class="desc" style="margin-top:8px">
                 설정에서 블로그를 저장해두면 여기서 선택할 수 있어요.
               </div>
             </div>
             <div>
-              <label style="color:var(--muted);font-size:13px">하루 발행 개수</label>
+              <label style="color:var(--muted2);font-size:13px">하루 발행 개수</label>
               <input id="dailyCount" type="number" min="1" value="3"/>
               <div class="desc" style="margin-top:8px">
-                예: 3개면 하루에 3개씩 예약 발행
+                예: 3개면 하루에 3개씩 예약 저장
               </div>
             </div>
           </div>
 
-          <div class="row" style="margin-top:10px">
+          <div class="rightTop" style="justify-content:flex-start;margin-top:10px">
             <button class="btn primary" onclick="saveSchedule()">예약 저장</button>
             <button class="btn" onclick="viewSchedule()">예약 보기</button>
           </div>
         </div>
 
-        <div class="box" style="margin-top:14px">
+        <div class="divider"></div>
+
+        <div class="box">
           <div class="boxTitle">
-            <b>오늘 할 일</b>
-            <span class="tag">다음 단계: 실제 자동발행</span>
+            <b>✅ 체크리스트</b>
+            <span class="tag">다음 단계 준비</span>
           </div>
+
           <div class="item">
-            <span>① 설정에서 블로그/키 저장</span>
-            <span class="tag">settings.html</span>
+            <div class="left"><div class="badge">1</div><span>설정에서 블로그/키 저장</span></div>
+            <span class="tag">settings</span>
           </div>
+
           <div class="item">
-            <span>② 주제 생성 → 예약 저장</span>
-            <span class="tag">index.html</span>
+            <div class="left"><div class="badge">2</div><span>주제 생성 → 예약 저장</span></div>
+            <span class="tag">planner</span>
           </div>
+
           <div class="item">
-            <span>③ 다음 단계에서 자동 글/이미지/발행 연결</span>
-            <span class="tag">server</span>
+            <div class="left"><div class="badge">3</div><span>자동 글/이미지/발행 연결</span></div>
+            <span class="tag">2단계</span>
           </div>
         </div>
       </div>
@@ -236,13 +299,11 @@
   <div class="toast" id="toast"></div>
 
 <script>
-  // ---------- UI 데이터 ----------
   const CATEGORIES = [
     "건강","컴퓨터/IT","자동차","생활/가전","육아","돈/재테크","여행","요리",
     "자기계발","공부/자격증","반려동물","패션/뷰티","취미","스포츠","게임","영화/드라마"
   ];
 
-  // ---------- 토스트 ----------
   function toast(msg){
     const t=document.getElementById("toast");
     t.textContent=msg;
@@ -251,44 +312,47 @@
     window.__t=setTimeout(()=>t.style.display="none", 2200);
   }
 
-  // ---------- 카테고리 버튼 생성 ----------
-  const catsEl = document.getElementById("cats");
-  CATEGORIES.forEach(c=>{
+  function scrollToTop(){ window.scrollTo({top:0, behavior:"smooth"}); }
+
+  // 카테고리 생성
+  const catsEl=document.getElementById("cats");
+  CATEGORIES.forEach((c, idx)=>{
     const b=document.createElement("button");
     b.className="cat";
-    b.textContent=c;
+    b.innerHTML = `<span><span class="dot"></span> ${c}</span><small>${idx+1}</small>`;
     b.onclick=()=>makeTopics(c);
     catsEl.appendChild(b);
   });
 
-  // ---------- 주제 50개 ----------
+  // 주제 50개
   function makeTopics(category){
     const topics=document.getElementById("topics");
     topics.innerHTML="";
     for(let i=1;i<=50;i++){
       const el=document.createElement("div");
       el.className="item";
-      el.innerHTML=`<span>${category} 글 아이디어 ${i}</span><span class="tag">${category}</span>`;
+      el.innerHTML = `<div class="left"><div class="badge">${i}</div><span>${category} 글 아이디어 ${i}</span></div><span class="tag">${category}</span>`;
       topics.appendChild(el);
     }
     document.getElementById("topicCount").textContent="50개";
     toast(`${category} 주제 50개 생성!`);
   }
 
-  // ---------- 돈 되는 주제 100개 ----------
+  // 돈 되는 주제 100개
   function makeMoney(){
     const money=document.getElementById("money");
     money.innerHTML="";
     const samples = [
       "보험/실비/암보험 비교", "카드 혜택 최적화", "통신비 절약", "전기요금 절약",
       "정부지원금/복지", "연금/IRP/ISA", "대출 상식", "부업/재택", "세금/환급",
-      "다이어트/건강기능식품", "피부/탈모", "영양제 비교", "육아템 추천", "가전 추천"
+      "다이어트/건강기능식품", "피부/탈모", "영양제 비교", "육아템 추천", "가전 추천",
+      "자동차 보험/정비", "여행 할인/특가", "자격증/시험", "노트북/가성비", "청소/살림팁"
     ];
     for(let i=1;i<=100;i++){
       const base = samples[i % samples.length];
       const el=document.createElement("div");
       el.className="item";
-      el.innerHTML=`<span>수익형 주제 ${i}: ${base}</span><span class="tag">수익</span>`;
+      el.innerHTML = `<div class="left"><div class="badge">${i}</div><span>수익형 주제 ${i}: ${base}</span></div><span class="tag">수익</span>`;
       money.appendChild(el);
     }
     document.getElementById("moneyCount").textContent="100개";
@@ -299,7 +363,7 @@
     document.getElementById("moneyCount").textContent="0개";
   }
 
-  // ---------- 설정(블로그 목록) 불러오기 ----------
+  // 블로그 목록 불러오기 (settings.html에서 저장한 baseone.blogs)
   function loadBlogsToSelect(){
     const sel=document.getElementById("blogSelect");
     sel.innerHTML="";
@@ -315,15 +379,16 @@
 
     blogs.forEach((b, idx)=>{
       const opt=document.createElement("option");
-      const label = `${(b.type||"").toUpperCase()} · ${b.name ? b.name : "이름없음"} · ${b.url}`;
+      const type = (b.type||"").toUpperCase();
+      const name = b.name ? b.name : "이름없음";
       opt.value=idx;
-      opt.textContent=label;
+      opt.textContent=`${type} · ${name} · ${b.url}`;
       sel.appendChild(opt);
     });
   }
   loadBlogsToSelect();
 
-  // ---------- 예약 저장(서버 없이 localStorage에 저장만) ----------
+  // 예약 저장 (서버 없이 localStorage)
   const LS_PLAN="baseone.plan.v1";
 
   function saveSchedule(){
@@ -331,18 +396,9 @@
     const selIdx = document.getElementById("blogSelect").value;
     const daily = parseInt(document.getElementById("dailyCount").value || "3", 10);
 
-    if(!blogs.length){
-      toast("설정에서 블로그를 먼저 저장하세요!");
-      return;
-    }
-    if(selIdx === ""){
-      toast("블로그를 선택하세요!");
-      return;
-    }
-    if(!daily || daily < 1){
-      toast("하루 발행 개수는 1 이상!");
-      return;
-    }
+    if(!blogs.length){ toast("설정에서 블로그를 먼저 저장하세요!"); return; }
+    if(selIdx === ""){ toast("블로그를 선택하세요!"); return; }
+    if(!daily || daily < 1){ toast("하루 발행 개수는 1 이상!"); return; }
 
     const picked = blogs[parseInt(selIdx, 10)];
     const data = { blog: picked, dailyCount: daily, savedAt: new Date().toISOString() };
@@ -365,9 +421,7 @@
     );
   }
 
-  function openPlanner(){
-    viewSchedule();
-  }
+  function openPlanner(){ viewSchedule(); }
 </script>
 </body>
 </html>
