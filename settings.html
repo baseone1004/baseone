@@ -196,7 +196,9 @@
 </div>
 
 <script>
-const KEY = "baseone_settings_v3";
+const KEY = "baseone_settings_v3"; // 기존 유지(네 설정창 자체 저장)
+const KEY_V2 = "baseone_settings_v2"; // ✅ 메인(index.html)이 읽는 키
+
 
 function makeInputs(containerId, prefix, count){
   const box = document.getElementById(containerId);
@@ -268,3 +270,4 @@ async function testServer(){
 </script>
 </body>
 </html>
+
