@@ -179,10 +179,50 @@ let topics = [];
 let selectedTopic = "";
 let selectedCat = "";
 
-function loadSettings(){
-  const s = JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}");
-  const backend = s.backend || "http://127.0.0.1:5000";
-  document.getElementById("serverPill").textContent = "서버: " + backend;
+async function aiGenerateSelected(){
+  if(!selectedTopic){ 
+    alert("먼저 주제를 선택하세요!"); 
+    return; 
+  }
+
+  // 설정값 불러오기
+  const s = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
+  const backend = (s.backend || "http://127.0.0.1:5000").trim();
+
+  const payload = {
+    topic: selectedTopic,
+    category: selectedCat,
+    blog: document.getElementById("blogSelect").value || "local",
+
+    // 글작성 엔진
+    textProvider: s.text_provider || "gemini",
+
+    // ✅ 이미지 엔진(무료 Pexels 포함)
+    img_provider: s.img_provider || "pexels",
+    pexels_key: s.pexels_key || ""
+  };
+
+  try{
+    const res = await fetch(backend + "/api/generate", {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    if(!res.ok){
+      const t = await res.text();
+      alert("생성 실패: " + t);
+      return;
+    }
+
+    const data = await res.json();
+    openModal(data);
+
+  }catch(e){
+    alert("서버 연결 실패!\n\n서버가 켜져 있는지 확인하세요.\npython server.py");
+  }
+}
+
 
   // 저장된 블로그 주소를 드롭다운에 넣기
   const sel = document.getElementById("blogSelect");
