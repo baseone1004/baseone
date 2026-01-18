@@ -238,6 +238,17 @@ function saveAll(){
   localStorage.setItem(KEY, JSON.stringify(data));
   msg.innerHTML = `<span class="ok">저장 완료 ✅</span>`;
 }
+// ✅ 메인(index.html)과 호환되게 v2 형식도 같이 저장
+const v2 = {
+  blogs: {
+    blogspot: (data.blogspot || []).filter(v => v && v.trim()),
+    naver: (data.naver || []).filter(v => v && v.trim()),
+    tistory: (data.tistory || []).filter(v => v && v.trim())
+  },
+  imgProvider: data.img_provider || "pexels",
+  pexelsKey: data.pexels_key || ""
+};
+localStorage.setItem(KEY_V2, JSON.stringify(v2));
 
 (function load(){
   const d = JSON.parse(localStorage.getItem(KEY) || "{}");
@@ -270,4 +281,5 @@ async function testServer(){
 </script>
 </body>
 </html>
+
 
