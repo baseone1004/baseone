@@ -2,91 +2,406 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>BaseOne</title>
 <style>
-body{margin:0;font-family:sans-serif;background:#0b1020;color:#eef2ff}
-.top{display:flex;justify-content:space-between;align-items:center;padding:16px;flex-wrap:wrap}
-.btn{padding:10px 14px;border-radius:10px;border:none;background:#4f8cff;color:white;font-weight:bold;cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px}
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
-.cat{background:#1b2238;padding:16px;border-radius:14px;text-align:center;font-weight:bold;cursor:pointer}
-.box{background:#141a30;margin:16px;padding:14px;border-radius:14px}
-.card{background:#1b2238;padding:10px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between}
-.small{font-size:13px;color:#cfd6ff}
+  :root{
+    --bg1:#070A16;
+    --bg2:#0B1226;
+    --card:#121A33;
+    --card2:#0F1730;
+    --line:rgba(255,255,255,.10);
+    --text:#EAF0FF;
+    --muted:#AAB6DA;
+    --blue:#4F8CFF;
+    --blue2:#2F6BFF;
+    --chip:#0C1532;
+    --good:#4ADE80;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --radius:18px;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Apple SD Gothic Neo","Noto Sans KR", sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 15% 0%, rgba(79,140,255,.25), transparent 55%),
+      radial-gradient(900px 500px at 90% 15%, rgba(74,222,128,.12), transparent 55%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height:100vh;
+  }
+
+  .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 40px;}
+  .top{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:14px 14px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .brand{
+    display:flex; align-items:center; gap:12px;
+  }
+  .logo{
+    width:38px; height:38px; border-radius:14px;
+    background: linear-gradient(135deg, var(--blue), rgba(79,140,255,.25));
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900; letter-spacing:-.5px;
+    box-shadow: 0 10px 24px rgba(79,140,255,.22);
+  }
+  .title{
+    font-size:22px; font-weight:900; letter-spacing:-.6px;
+  }
+  .sub{
+    font-size:12px; color:var(--muted); margin-top:2px;
+  }
+
+  .right{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 12px; border-radius:999px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .btn{
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.04);
+    color:var(--text);
+    padding:10px 14px;
+    border-radius:14px;
+    cursor:pointer;
+    font-weight:800;
+    transition:.15s transform, .15s opacity, .15s background;
+  }
+  .btn:hover{transform: translateY(-1px); background:rgba(255,255,255,.06)}
+  .btn.primary{
+    border:none;
+    background: linear-gradient(135deg, var(--blue), var(--blue2));
+    box-shadow: 0 14px 26px rgba(79,140,255,.18);
+  }
+  .btn.primary:hover{opacity:.95}
+  .btn.ghost{background:transparent}
+
+  .section{
+    margin-top:16px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+
+  .sectionHead{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:14px 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border-bottom:1px solid var(--line);
+  }
+  .sectionHead b{font-size:14px}
+  .hint{color:var(--muted); font-size:12px}
+
+  .tools{
+    display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  }
+  .input{
+    min-width:240px;
+    padding:10px 12px;
+    border-radius:14px;
+    background: rgba(0,0,0,.18);
+    border:1px solid var(--line);
+    color:var(--text);
+    outline:none;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:12px;
+    padding:14px;
+  }
+  @media (max-width: 980px){
+    .grid{grid-template-columns: repeat(2, 1fr);}
+  }
+  @media (max-width: 520px){
+    .grid{grid-template-columns: repeat(1, 1fr);}
+    .input{min-width: 100%;}
+  }
+
+  .cat{
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border:1px solid var(--line);
+    border-radius: 18px;
+    padding:14px;
+    cursor:pointer;
+    transition:.15s transform, .15s border;
+    position:relative;
+    overflow:hidden;
+  }
+  .cat:hover{transform: translateY(-2px); border-color: rgba(79,140,255,.35);}
+  .catTop{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .catIcon{
+    width:42px; height:42px; border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(79,140,255,.14);
+    border:1px solid rgba(79,140,255,.25);
+    font-size:20px;
+  }
+  .catName{font-weight:900; letter-spacing:-.4px;}
+  .catDesc{margin-top:6px; color:var(--muted); font-size:12px;}
+
+  .listWrap{padding:14px;}
+  .empty{
+    padding:18px;
+    border-radius: 18px;
+    border:1px dashed rgba(255,255,255,.18);
+    color:var(--muted);
+    background: rgba(0,0,0,.10);
+    text-align:center;
+  }
+
+  .cards{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:12px;
+  }
+  @media (max-width: 820px){
+    .cards{grid-template-columns:1fr;}
+  }
+
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:12px 12px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    transition:.15s transform, .15s border;
+  }
+  .card:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.18);}
+  .cardTitle{font-weight:900; letter-spacing:-.3px;}
+  .cardMeta{font-size:12px; color:var(--muted); margin-top:3px;}
+  .cardBtns{display:flex; gap:8px; flex-wrap:wrap;}
+  .btn.sm{padding:8px 10px; border-radius:12px; font-size:12px; font-weight:900;}
+  .tag{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; color:var(--muted);
+    padding:6px 10px;
+    border-radius:999px;
+    background: rgba(0,0,0,.18);
+    border:1px solid var(--line);
+    margin-left:8px;
+  }
+
+  /* 작은 토스트 느낌 */
+  .toast{
+    position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+    background: rgba(10,16,34,.92);
+    border:1px solid rgba(255,255,255,.14);
+    padding:10px 12px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    color:var(--text);
+    font-size:12px;
+    display:none;
+    z-index:9999;
+  }
 </style>
 </head>
+
 <body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="logo">B</div>
+        <div>
+          <div class="title">BaseOne</div>
+          <div class="sub">카테고리/수익형 주제를 카드로 만들고, 복사해서 바로 포스팅에 쓰세요.</div>
+        </div>
+      </div>
 
-<div class="top">
-  <div style="font-size:24px;font-weight:bold">BaseOne</div>
-  <button class="btn" onclick="makeMoney()">💰 수익형 주제 100</button>
-</div>
+      <div class="right">
+        <span class="pill">서버: <b style="color:var(--text);margin-left:6px;">-</b></span>
+        <a href="/settings" style="text-decoration:none"><button class="btn">설정</button></a>
+        <button class="btn primary" onclick="makeMoney()">💰 수익형 주제 100</button>
+      </div>
+    </div>
 
-<div class="box">
-  <b>카테고리를 선택하세요</b>
-</div>
+    <div class="section">
+      <div class="sectionHead">
+        <div>
+          <b id="titleBox">주제 생성</b>
+          <div class="hint" id="selInfo">아래에서 카테고리를 선택하세요.</div>
+        </div>
 
-<!-- 카테고리 영역 -->
-<div class="grid" id="catGrid"></div>
+        <div class="tools">
+          <input class="input" id="filter" placeholder="주제 검색(필터)" oninput="render()">
+          <button class="btn sm" onclick="copyAll()">전체복사</button>
+        </div>
+      </div>
 
-<div class="box">
-  <b id="titleBox">주제 목록</b>
-  <div class="small" id="selInfo">카테고리를 선택하세요</div>
-  <div id="topics"></div>
-</div>
+      <div class="grid" id="catGrid"></div>
+
+      <div class="listWrap">
+        <div class="cards" id="topics"></div>
+        <div class="empty" id="emptyBox" style="display:none;">선택한 카테고리의 주제가 여기에 카드로 나와요.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">복사 완료!</div>
 
 <script>
-const CATS=["건강","컴퓨터/IT","자동차","생활/가전","육아","돈/재테크","여행","요리","자기계발","공부/자격증","반려동물","패션/뷰티","취미","스포츠","게임","영화/드라마"];
-let topics=[];
-let selectedCat="";
+  const CATS = [
+    {name:"건강", icon:"🫀", desc:"운동·영양·생활관리"},
+    {name:"컴퓨터/IT", icon:"💻", desc:"유틸·보안·가이드"},
+    {name:"자동차", icon:"🚗", desc:"정비·보험·팁"},
+    {name:"생활/가전", icon:"🏠", desc:"살림·가전·절약"},
+    {name:"육아", icon:"👶", desc:"육아템·교육"},
+    {name:"돈/재테크", icon:"💰", desc:"절약·투자·세금"},
+    {name:"여행", icon:"✈️", desc:"코스·꿀팁"},
+    {name:"요리", icon:"🍳", desc:"레시피·장보기"},
+    {name:"자기계발", icon:"📈", desc:"습관·목표"},
+    {name:"공부/자격증", icon:"📚", desc:"시험·합격"},
+    {name:"반려동물", icon:"🐶", desc:"케어·용품"},
+    {name:"패션/뷰티", icon:"💄", desc:"관리·추천"},
+    {name:"취미", icon:"🎨", desc:"취미·DIY"},
+    {name:"스포츠", icon:"⚽", desc:"운동·루틴"},
+    {name:"게임", icon:"🎮", desc:"리뷰·팁"},
+    {name:"영화/드라마", icon:"🎬", desc:"추천·리뷰"},
+  ];
 
-const grid=document.getElementById("catGrid");
-CATS.forEach(c=>{
-  const d=document.createElement("div");
-  d.className="cat";
-  d.textContent=c;
-  d.onclick=()=>makeTopics(c);
-  grid.appendChild(d);
-});
+  let topics = [];
+  let selectedTopic = "";
+  let selectedCat = "";
 
-function makeTopics(cat){
-  selectedCat=cat;
-  topics=[];
-  for(let i=1;i<=50;i++){
-    topics.push(`${cat} 글 아이디어 ${i}`);
-  }
-  document.getElementById("titleBox").textContent=`${cat} 주제 50개`;
-  document.getElementById("selInfo").textContent=`선택 카테고리: ${cat}`;
-  render();
-}
-
-function makeMoney(){
-  topics=[];
-  selectedCat="수익형";
-  for(let i=1;i<=100;i++){
-    topics.push(`수익형 주제 ${i}`);
-  }
-  document.getElementById("titleBox").textContent="💰 수익형 주제 100개";
-  document.getElementById("selInfo").textContent="선택 카테고리: 수익형";
-  render();
-}
-
-function render(){
-  const list=document.getElementById("topics");
-  list.innerHTML="";
-  topics.forEach(t=>{
-    const d=document.createElement("div");
-    d.className="card";
-    d.innerHTML=`<div>${t}</div><button class="btn" onclick="copyText('${t}')">복사</button>`;
-    list.appendChild(d);
+  const grid = document.getElementById("catGrid");
+  CATS.forEach(c=>{
+    const d = document.createElement("div");
+    d.className = "cat";
+    d.onclick = ()=>makeTopics(c.name);
+    d.innerHTML = `
+      <div class="catTop">
+        <div class="catIcon">${c.icon}</div>
+        <div style="flex:1">
+          <div class="catName">${c.name}</div>
+          <div class="catDesc">${c.desc}</div>
+        </div>
+        <span class="tag">50개</span>
+      </div>
+    `;
+    grid.appendChild(d);
   });
-}
 
-function copyText(t){
-  navigator.clipboard.writeText(t);
-  alert("복사 완료!");
-}
+  function makeTopics(cat){
+    selectedCat = cat;
+    topics = [];
+    for(let i=1;i<=50;i++){
+      topics.push(`${cat} 글 아이디어 ${i}`);
+    }
+    document.getElementById("titleBox").textContent = `${cat} 주제 50개`;
+    selectedTopic = topics[0] || "";
+    updateSel();
+    render();
+  }
+
+  function makeMoney(){
+    selectedCat = "수익형";
+    topics = [];
+    const base = [
+      "보험 비교/추천", "카드 혜택 정리", "통신비 절약", "전기요금 절약", "대출 금리 비교",
+      "부업 아이디어", "세금 신고", "연금/IRP", "다이어트 제품", "영양제 추천",
+      "가전 구매가이드", "육아템 추천", "자동차 보험", "여행 경비 절약", "자격증 로드맵",
+      "노트북 구매", "청소템 추천", "생활비 절약"
+    ];
+    for(let i=1;i<=100;i++){
+      topics.push(`수익형 주제 ${i}: ${base[i % base.length]}`);
+    }
+    document.getElementById("titleBox").textContent = "💰 수익형 주제 100개";
+    selectedTopic = topics[0] || "";
+    updateSel();
+    render();
+  }
+
+  function updateSel(){
+    document.getElementById("selInfo").textContent =
+      selectedTopic ? `선택한 주제: ${selectedTopic}` : "아래에서 카테고리를 선택하세요.";
+  }
+
+  function render(){
+    const q = (document.getElementById("filter").value || "").trim().toLowerCase();
+    const list = document.getElementById("topics");
+    const empty = document.getElementById("emptyBox");
+
+    list.innerHTML = "";
+
+    const filtered = q ? topics.filter(t => t.toLowerCase().includes(q)) : topics;
+
+    if(!filtered.length){
+      empty.style.display = "block";
+      empty.textContent = topics.length ? "검색 결과가 없어요." : "선택한 카테고리의 주제가 여기에 카드로 나와요.";
+      return;
+    }
+    empty.style.display = "none";
+
+    filtered.forEach(t=>{
+      const card = document.createElement("div");
+      card.className="card";
+      card.innerHTML = `
+        <div style="flex:1">
+          <div class="cardTitle">${escapeHtml(t)}</div>
+          <div class="cardMeta">${selectedCat ? "카테고리: " + escapeHtml(selectedCat) : ""}</div>
+        </div>
+        <div class="cardBtns">
+          <button class="btn sm" onclick="setSelected('${escapeAttr(t)}')">선택</button>
+          <button class="btn sm primary" onclick="copyText('${escapeAttr(t)}')">복사</button>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  function setSelected(t){
+    selectedTopic = t;
+    updateSel();
+    toast("선택됨 ✅");
+  }
+
+  function copyText(t){
+    navigator.clipboard.writeText(t);
+    toast("복사 완료 ✅");
+  }
+
+  function copyAll(){
+    if(!topics.length){ toast("주제가 없어요"); return; }
+    navigator.clipboard.writeText(topics.join("\n"));
+    toast("전체 복사 완료 ✅");
+  }
+
+  function toast(msg){
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.style.display = "block";
+    clearTimeout(window.__t);
+    window.__t = setTimeout(()=> el.style.display="none", 1200);
+  }
+
+  function escapeHtml(s){
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+  function escapeAttr(s){
+    return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
+  }
+
+  render();
 </script>
-
 </body>
 </html>
