@@ -216,7 +216,7 @@
     document.getElementById("outTitle").textContent = data.title || "-";
     document.getElementById("outMeta").textContent = `주제: ${data.topic || ""} / 카테고리: ${data.category || ""} / 생성시간: ${data.generated_at || ""}`;
     document.getElementById("outImage").value = data.image_prompt || "";
-    document.getElementById("outBody").value = data.body_prompt || "";
+    document.getElementById("outBody").value = data.html || "";
     document.getElementById("modalBg").style.display="block";
   }
 
@@ -236,3 +236,4 @@
 </script>
 </body>
 </html>
+
