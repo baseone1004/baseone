@@ -196,9 +196,8 @@
 </div>
 
 <script>
-const KEY = "baseone_settings_v3"; // 기존 유지(네 설정창 자체 저장)
-const KEY_V2 = "baseone_settings_v2"; // ✅ 메인(index.html)이 읽는 키
-
+const KEY = "baseone_settings_v3";      // 설정창 자체 저장
+const KEY_V2 = "baseone_settings_v2";   // ✅ 메인(index.html)이 읽는 키
 
 function makeInputs(containerId, prefix, count){
   const box = document.getElementById(containerId);
@@ -211,47 +210,58 @@ function makeInputs(containerId, prefix, count){
     box.appendChild(wrap);
   }
 }
+
 makeInputs("blogspot_box","blogspot",10);
 makeInputs("naver_box","naver",3);
 makeInputs("tistory_box","tistory",10);
 
 function saveAll(){
   const data = {
-    gemini_key: gemini_key.value.trim(),
-    openai_key: openai_key.value.trim(),
-    genspark_key: genspark_key.value.trim(),
+    gemini_key: (gemini_key.value || "").trim(),
+    openai_key: (openai_key.value || "").trim(),
+    genspark_key: (genspark_key.value || "").trim(),
     text_provider: text_provider.value,
-    gemini_img_key: gemini_img_key.value.trim(),
-    wisk_key: wisk_key.value.trim(),
-    pexels_key: pexels_key.value.trim(),
+    gemini_img_key: (gemini_img_key.value || "").trim(),
+    wisk_key: (wisk_key.value || "").trim(),
+    pexels_key: (pexels_key.value || "").trim(),
     img_provider: img_provider.value,
-    backend: backend.value.trim() || "http://127.0.0.1:5000",
+    backend: (backend.value || "").trim() || "http://127.0.0.1:5000",
     blogspot: [],
     naver: [],
     tistory: []
   };
 
-  for(let i=1;i<=10;i++) data.blogspot.push((document.getElementById(`blogspot_${i}`).value||"").trim());
-  for(let i=1;i<=3;i++) data.naver.push((document.getElementById(`naver_${i}`).value||"").trim());
-  for(let i=1;i<=10;i++) data.tistory.push((document.getElementById(`tistory_${i}`).value||"").trim());
+  for(let i=1;i<=10;i++){
+    data.blogspot.push(((document.getElementById(`blogspot_${i}`)?.value) || "").trim());
+  }
+  for(let i=1;i<=3;i++){
+    data.naver.push(((document.getElementById(`naver_${i}`)?.value) || "").trim());
+  }
+  for(let i=1;i<=10;i++){
+    data.tistory.push(((document.getElementById(`tistory_${i}`)?.value) || "").trim());
+  }
 
+  // 1) 기존 settings 저장 (v3)
   localStorage.setItem(KEY, JSON.stringify(data));
-  msg.innerHTML = `<span class="ok">저장 완료 ✅</span>`;
+
+  // ✅ 2) 메인(index) 호환 저장 (v2)
+  const v2 = {
+    blogs: {
+      blogspot: data.blogspot.filter(v => v),
+      naver: data.naver.filter(v => v),
+      tistory: data.tistory.filter(v => v)
+    },
+    imgProvider: data.img_provider || "pexels",
+    pexelsKey: data.pexels_key || ""
+  };
+  localStorage.setItem(KEY_V2, JSON.stringify(v2));
+
+  msg.innerHTML = `<span class="ok">저장 완료 ✅ (메인 연동 OK)</span>`;
 }
-// ✅ 메인(index.html)과 호환되게 v2 형식도 같이 저장
-const v2 = {
-  blogs: {
-    blogspot: (data.blogspot || []).filter(v => v && v.trim()),
-    naver: (data.naver || []).filter(v => v && v.trim()),
-    tistory: (data.tistory || []).filter(v => v && v.trim())
-  },
-  imgProvider: data.img_provider || "pexels",
-  pexelsKey: data.pexels_key || ""
-};
-localStorage.setItem(KEY_V2, JSON.stringify(v2));
 
 (function load(){
   const d = JSON.parse(localStorage.getItem(KEY) || "{}");
+
   gemini_key.value = d.gemini_key || "";
   openai_key.value = d.openai_key || "";
   genspark_key.value = d.genspark_key || "";
@@ -262,9 +272,18 @@ localStorage.setItem(KEY_V2, JSON.stringify(v2));
   img_provider.value = d.img_provider || "pexels";
   backend.value = d.backend || "http://127.0.0.1:5000";
 
-  (d.blogspot||[]).forEach((v,i)=>{ const el=document.getElementById(`blogspot_${i+1}`); if(el) el.value=v||"";});
-  (d.naver||[]).forEach((v,i)=>{ const el=document.getElementById(`naver_${i+1}`); if(el) el.value=v||"";});
-  (d.tistory||[]).forEach((v,i)=>{ const el=document.getElementById(`tistory_${i+1}`); if(el) el.value=v||"";});
+  (d.blogspot||[]).forEach((v,i)=>{
+    const el = document.getElementById(`blogspot_${i+1}`);
+    if(el) el.value = v || "";
+  });
+  (d.naver||[]).forEach((v,i)=>{
+    const el = document.getElementById(`naver_${i+1}`);
+    if(el) el.value = v || "";
+  });
+  (d.tistory||[]).forEach((v,i)=>{
+    const el = document.getElementById(`tistory_${i+1}`);
+    if(el) el.value = v || "";
+  });
 })();
 
 async function testServer(){
@@ -279,7 +298,9 @@ async function testServer(){
   }
 }
 </script>
+
 </body>
 </html>
+
 
 
