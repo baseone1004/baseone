@@ -6,25 +6,37 @@
 <title>BaseOne</title>
 <style>
   body{margin:0;font-family:sans-serif;background:#0b1020;color:#eef2ff}
+  .wrap{max-width:1100px;margin:0 auto}
   .top{display:flex;justify-content:space-between;align-items:center;padding:16px;gap:10px;flex-wrap:wrap}
-  .btn{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#1f2a44;color:white;font-weight:bold;cursor:pointer}
+  .btn{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#1f2a44;color:white;font-weight:700;cursor:pointer}
   .btn.blue{background:#4f8cff;border:none}
   .btn.gray{background:#555;border:none}
-  .wrap{max-width:1100px;margin:0 auto}
+  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#0f1530;border:1px solid rgba(255,255,255,.12);color:#cfd6ff;font-size:12px}
+  .box{background:#141a30;border:1px solid rgba(255,255,255,.10);margin:16px;padding:14px;border-radius:16px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+  input, select{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#0f1530;color:white;min-width:180px}
   .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 16px 16px}
   @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
   .cat{background:#141a30;border:1px solid rgba(255,255,255,.10);padding:14px;border-radius:16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
   .cat b{font-size:15px}
   .badge{font-size:12px;color:#cfd6ff;background:#0f1530;border:1px solid rgba(255,255,255,.12);padding:4px 8px;border-radius:999px}
-  .box{background:#141a30;border:1px solid rgba(255,255,255,.10);margin:16px;padding:14px;border-radius:16px}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
-  .card{background:#0f1530;border:1px solid rgba(255,255,255,.10);padding:12px;border-radius:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
   .small{font-size:13px;color:#cfd6ff}
-  input, select{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:#0f1530;color:white;min-width:200px}
-  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#0f1530;border:1px solid rgba(255,255,255,.12);color:#cfd6ff;font-size:12px}
+  .card{background:#0f1530;border:1px solid rgba(255,255,255,.10);padding:12px;border-radius:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+  /* ✅ 주제 목록 스크롤 박스 */
+  .topicScroll{
+    max-height: 360px;      /* 높이(원하면 260/420 등으로 바꿔도 됨) */
+    overflow-y: auto;
+    padding-right: 6px;
+    margin-top: 10px;
+  }
+  .topicScroll::-webkit-scrollbar{width:10px}
+  .topicScroll::-webkit-scrollbar-thumb{background:#273455;border-radius:10px}
+  .topicScroll::-webkit-scrollbar-track{background:#0f1530;border-radius:10px}
+
   .modalBg{display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); padding:18px;}
   .modal{max-width:860px;margin:40px auto;background:#141a30;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px}
   textarea{width:100%;min-height:220px;background:#0f1530;border:1px solid rgba(255,255,255,.14);border-radius:12px;color:white;padding:10px}
+  .hintBox{background:#0f1530;border:1px solid rgba(255,255,255,.10);padding:10px;border-radius:12px}
 </style>
 </head>
 <body>
@@ -35,13 +47,30 @@
       <div style="width:34px;height:34px;border-radius:10px;background:#4f8cff;display:flex;align-items:center;justify-content:center;font-weight:900">B</div>
       <div>
         <div style="font-size:22px;font-weight:900;line-height:1">BaseOne</div>
-        <div class="small">카테고리/수익형 주제를 카드로 만들고, 복사하거나(또는 로컬 서버로) AI 생성 테스트를 할 수 있어요.</div>
+        <div class="small">카테고리/수익형 주제를 카드로 만들고, 블로그를 선택해서 예약/즉시 발행 요청을 저장할 수 있어요.</div>
       </div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <span class="pill">서버: <b id="sv">-</b></span>
+      <span class="pill">서버: <b id="sv">http://127.0.0.1:5000</b></span>
       <a href="/settings"><button class="btn">설정</button></a>
       <button class="btn blue" onclick="makeMoney()">💰 수익형 주제 100</button>
+    </div>
+  </div>
+
+  <!-- ✅ 블로그 선택이 “사라지지 않게” 위에 고정 배치 -->
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>블로그 선택</b>
+        <div class="small">설정에서 저장한 주소를 불러옵니다. (블로그A 선택→발행, 블로그B 선택→다른 주제로 또 발행 가능)</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <select id="blogSelect" style="min-width:340px"></select>
+        <button class="btn" onclick="loadBlogsToSelect()">🔄 새로고침</button>
+      </div>
+    </div>
+    <div class="small" style="margin-top:8px">
+      현재 선택: <b id="blogNow">-</b>
     </div>
   </div>
 
@@ -65,20 +94,20 @@
     <div class="row">
       <div>
         <b>주제 목록</b>
-        <div class="small" id="selInfo">선택한 주제가 여기 카드로 나와요.</div>
+        <div class="small" id="selInfo">선택 주제: -</div>
       </div>
-
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <select id="blogSelect"></select>
+      <div class="hintBox small">
+        ✅ 팁: <b>블로그 선택</b>을 바꾼 뒤, 다른 주제를 선택해서 <b>또 발행</b>하면 됩니다.
       </div>
     </div>
 
-    <div id="topics" style="margin-top:10px"></div>
+    <!-- ✅ 작은 스크롤 창 -->
+    <div class="topicScroll" id="topics"></div>
   </div>
 
   <div class="box">
     <b>발행</b>
-    <div class="small" style="margin-top:6px">※ 지금은 “실제 업로드”가 아니라, 서버에 “발행 요청을 저장”합니다. (queue 파일에 기록됨)</div>
+    <div class="small" style="margin-top:6px">※ 지금은 “실제 업로드”가 아니라, 서버에 “발행 요청을 저장”합니다. (다음 단계에서 OAuth 붙여서 실제 업로드로 바꿔요)</div>
 
     <div class="row" style="margin-top:10px">
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
@@ -181,34 +210,28 @@
     grid.appendChild(d);
   });
 
-  // ====== 서버 표시 ======
-  document.getElementById("sv").textContent = "http://127.0.0.1:5000";
-
   // ====== 블로그 목록(설정에서 읽기) ======
   function loadBlogsToSelect(){
     const sel = document.getElementById("blogSelect");
+    const now = document.getElementById("blogNow");
     sel.innerHTML = "";
 
     const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
     const blogs = s.blogs || { blogspot:[], naver:[], tistory:[] };
 
     const options = [];
-    (blogs.blogspot||[]).forEach((u,i)=> options.push({type:"blogspot", url:u, label:`블로그스팟 ${i+1} - ${u}`}));
-    (blogs.naver||[]).forEach((u,i)=> options.push({type:"naver", url:u, label:`네이버 ${i+1} - ${u}`}));
-    (blogs.tistory||[]).forEach((u,i)=> options.push({type:"tistory", url:u, label:`티스토리 ${i+1} - ${u}`}));
+    (blogs.blogspot||[]).filter(Boolean).forEach((u,i)=> options.push({type:"blogspot", url:u, label:`블로그스팟 ${i+1} - ${u}`}));
+    (blogs.naver||[]).filter(Boolean).forEach((u,i)=> options.push({type:"naver", url:u, label:`네이버 ${i+1} - ${u}`}));
+    (blogs.tistory||[]).filter(Boolean).forEach((u,i)=> options.push({type:"tistory", url:u, label:`티스토리 ${i+1} - ${u}`}));
 
     if(options.length===0){
       const opt=document.createElement("option");
       opt.value="";
-      opt.textContent="블로그 선택(저장된 주소 없음) → 설정에서 저장하세요";
+      opt.textContent="저장된 블로그 주소 없음 → 설정에서 저장하세요";
       sel.appendChild(opt);
+      now.textContent = "-";
       return;
     }
-
-    const first=document.createElement("option");
-    first.value="";
-    first.textContent="블로그 선택(저장된 주소)";
-    sel.appendChild(first);
 
     options.forEach(o=>{
       const opt=document.createElement("option");
@@ -216,7 +239,40 @@
       opt.textContent = o.label;
       sel.appendChild(opt);
     });
+
+    // 마지막 선택 기억(있으면)
+    const last = localStorage.getItem("baseone_last_blog");
+    if(last){
+      for(let i=0;i<sel.options.length;i++){
+        if(sel.options[i].value === last){
+          sel.selectedIndex = i;
+          break;
+        }
+      }
+    }
+    updateBlogNow();
   }
+
+  function updateBlogNow(){
+    const sel = document.getElementById("blogSelect");
+    const now = document.getElementById("blogNow");
+    const v = sel.value;
+    if(!v){ now.textContent="-"; return; }
+    localStorage.setItem("baseone_last_blog", v);
+    try{
+      const obj = JSON.parse(v);
+      now.textContent = `${obj.type} / ${obj.url}`;
+    }catch(e){
+      now.textContent = "-";
+    }
+  }
+
+  document.addEventListener("change",(e)=>{
+    if(e.target && e.target.id==="blogSelect"){
+      updateBlogNow();
+    }
+  });
+
   loadBlogsToSelect();
 
   // ====== 주제 생성 ======
@@ -339,17 +395,13 @@
   function getSelectedBlog(){
     const v = document.getElementById("blogSelect").value;
     if(!v) return null;
-    try{
-      return JSON.parse(v); // {type, url}
-    }catch(e){
-      return null;
-    }
+    try{ return JSON.parse(v); }catch(e){ return null; }
   }
 
   async function scheduleDaily3(){
     const blog = getSelectedBlog();
-    if(!blog){ alert("먼저 블로그를 선택하세요(설정에서 주소 저장 필요)"); return; }
-    if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
+    if(!blog){ alert("블로그 선택이 필요합니다. (설정에서 주소 저장)"); return; }
+    if(!selectedTopic){ alert("주제를 먼저 선택하세요!"); return; }
 
     const payload = {
       blog_type: blog.type,
@@ -375,8 +427,8 @@
 
   async function publishNowInterval(){
     const blog = getSelectedBlog();
-    if(!blog){ alert("먼저 블로그를 선택하세요(설정에서 주소 저장 필요)"); return; }
-    if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
+    if(!blog){ alert("블로그 선택이 필요합니다. (설정에서 주소 저장)"); return; }
+    if(!selectedTopic){ alert("주제를 먼저 선택하세요!"); return; }
 
     const start_time = document.getElementById("startTime").value;
     const interval_hours = document.getElementById("intervalHours").value;
