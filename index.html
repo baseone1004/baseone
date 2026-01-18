@@ -18,6 +18,9 @@
     --blue2:#2F6BFF;
     --shadow: 0 10px 30px rgba(0,0,0,.35);
     --radius:18px;
+    --ok:#22c55e;
+    --warn:#fbbf24;
+    --bad:#ef4444;
   }
   *{box-sizing:border-box}
   body{
@@ -33,7 +36,6 @@
 
   .wrap{max-width:1100px;margin:0 auto;padding:18px 16px 40px;}
 
-  /* header */
   .top{
     display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
     padding:14px 14px;
@@ -82,8 +84,10 @@
   }
   .btn.primary:hover{opacity:.95}
   .btn.small{padding:8px 10px; border-radius:12px; font-size:12px;}
+  .btn.ok{border:none;background:rgba(34,197,94,.16); color:#d7ffe6; }
+  .btn.warn{border:none;background:rgba(251,191,36,.16); color:#fff2cc; }
+  .btn.bad{border:none;background:rgba(239,68,68,.16); color:#ffe0e0; }
 
-  /* section */
   .section{
     margin-top:16px;
     background:rgba(255,255,255,.04);
@@ -115,7 +119,6 @@
     outline:none;
   }
 
-  /* blog select */
   .blogBox{
     margin-top:12px;
     width:100%;
@@ -125,16 +128,10 @@
     gap:10px;
     flex-wrap:wrap;
   }
-  .blogBtns{
-    display:flex; gap:8px; flex-wrap:wrap;
-  }
-  .blogState{
-    color:var(--muted);
-    font-size:12px;
-  }
+  .blogBtns{display:flex; gap:8px; flex-wrap:wrap;}
+  .blogState{color:var(--muted); font-size:12px;}
   .blogState b{color:var(--text)}
 
-  /* category grid */
   .grid{
     display:grid;
     grid-template-columns: repeat(4, 1fr);
@@ -179,7 +176,6 @@
     border:1px solid var(--line);
   }
 
-  /* topic list */
   .listWrap{padding:14px;}
   .empty{
     padding:18px;
@@ -212,7 +208,35 @@
   .cardMeta{font-size:12px; color:var(--muted); margin-top:3px;}
   .cardBtns{display:flex; gap:8px; flex-wrap:wrap;}
 
-  /* toast */
+  /* 발행 섹션 */
+  .publishGrid{
+    display:grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap:12px;
+    padding:14px;
+    border-top:1px solid var(--line);
+    background: rgba(0,0,0,.10);
+  }
+  @media(max-width:900px){ .publishGrid{grid-template-columns:1fr;} }
+
+  .panel{
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:14px;
+  }
+  .panelTitle{font-weight:900; margin-bottom:10px;}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  select{
+    padding:10px 12px;
+    border-radius:14px;
+    background: rgba(0,0,0,.18);
+    border:1px solid var(--line);
+    color:var(--text);
+    outline:none;
+  }
+  .mini{font-size:12px;color:var(--muted)}
+
   .toast{
     position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
     background: rgba(10,16,34,.92);
@@ -224,6 +248,7 @@
     font-size:12px;
     display:none;
     z-index:9999;
+    max-width: calc(100vw - 40px);
   }
 </style>
 </head>
@@ -252,7 +277,6 @@
           <b id="titleBox">주제 생성</b>
           <div class="hint" id="selInfo">아래에서 카테고리를 선택하세요.</div>
 
-          <!-- ✅ 블로그 선택 영역 -->
           <div class="blogBox">
             <div class="blogBtns">
               <button class="btn small" id="b_blogspot" onclick="selectBlog('blogspot')">블로그스팟</button>
@@ -275,15 +299,57 @@
         <div class="cards" id="topics"></div>
         <div class="empty" id="emptyBox" style="display:none;">선택한 카테고리의 주제가 여기에 카드로 나와요.</div>
       </div>
+
+      <!-- ✅ 발행 기능 추가 -->
+      <div class="publishGrid">
+        <div class="panel">
+          <div class="panelTitle">🗓️ 예약 발행</div>
+          <div class="mini">선택한 주제를 기준으로 “예약 요청”을 서버로 보냅니다. (실제 자동 업로드는 다음 단계에서 연결)</div>
+          <div style="height:10px"></div>
+          <div class="row">
+            <button class="btn primary" onclick="scheduleFixed3()">✅ 하루 3개 예약 (08:00 / 13:00 / 18:00)</button>
+            <button class="btn" onclick="previewSchedule()">미리보기</button>
+          </div>
+          <div class="mini" id="schedulePreview" style="margin-top:10px"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panelTitle">⚡ 즉시 발행 (간격 선택)</div>
+          <div class="mini">지금부터 몇 시간 간격으로 발행할지 선택하고 “즉시 발행 요청”을 보냅니다.</div>
+          <div style="height:10px"></div>
+
+          <div class="row">
+            <label class="mini">시작 시간</label>
+            <input class="input" id="startTime" type="time" value="09:00" style="min-width:140px">
+            <label class="mini">간격</label>
+            <select id="intervalHours">
+              <option value="1">1시간</option>
+              <option value="2">2시간</option>
+              <option value="3">3시간</option>
+              <option value="4">4시간</option>
+              <option value="6">6시간</option>
+              <option value="12">12시간</option>
+            </select>
+          </div>
+
+          <div style="height:10px"></div>
+          <div class="row">
+            <button class="btn primary" onclick="publishNowWithInterval()">🚀 즉시 발행(간격 적용)</button>
+          </div>
+          <div class="mini" id="nowInfo" style="margin-top:10px"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <div class="toast" id="toast">복사 완료!</div>
 
 <script>
-  // ✅ 서버 상태는 "표시용"
-  document.getElementById("serverState").textContent = "로컬";
+  // ===== 서버 표시(표시용) =====
+  document.getElementById("serverState").textContent = "로컬(선택)";
 
+  // ===== 데이터 =====
   const CATS = [
     {name:"건강", icon:"🫀", desc:"운동·영양·생활관리"},
     {name:"컴퓨터/IT", icon:"💻", desc:"유틸·보안·가이드"},
@@ -306,9 +372,9 @@
   let topics = [];
   let selectedTopic = "";
   let selectedCat = "";
-  let selectedBlog = ""; // ✅ 블로그 선택값
+  let selectedBlog = "";
 
-  // 카테고리 렌더
+  // ===== 카테고리 렌더 =====
   const grid = document.getElementById("catGrid");
   CATS.forEach(c=>{
     const d = document.createElement("div");
@@ -325,22 +391,20 @@
     grid.appendChild(d);
   });
 
-  // ✅ 블로그 선택 UI
+  // ===== 블로그 선택 =====
   function selectBlog(blog){
     selectedBlog = blog;
     const map = {blogspot:"블로그스팟", naver:"네이버", tistory:"티스토리"};
     document.getElementById("blogLabel").textContent = map[blog] || "없음";
-
-    // 버튼 하이라이트
     ["blogspot","naver","tistory"].forEach(k=>{
-      const el = document.getElementById("b_"+k);
-      el.classList.remove("primary");
+      document.getElementById("b_"+k).classList.remove("primary");
     });
     document.getElementById("b_"+blog).classList.add("primary");
-
+    updateSel();
     toast("블로그 선택됨 ✅");
   }
 
+  // ===== 주제 생성 =====
   function makeTopics(cat){
     selectedCat = cat;
     topics = [];
@@ -377,6 +441,7 @@
       selectedTopic ? `선택한 주제: ${selectedTopic}${blogTxt}` : "아래에서 카테고리를 선택하세요.";
   }
 
+  // ===== 주제 카드 렌더 =====
   function render(){
     const q = (document.getElementById("filter").value || "").trim().toLowerCase();
     const list = document.getElementById("topics");
@@ -426,12 +491,99 @@
     toast("전체 복사 완료 ✅");
   }
 
+  // ===== 발행 기능(요청 전송) =====
+  // 실제 자동 업로드는 server.py에서 처리하게 될 예정.
+  // 지금은 “요청 payload 만들기 + 서버 호출”까지 세팅.
+
+  function ensureReady(){
+    if(!selectedBlog){
+      toast("먼저 블로그(블로그스팟/네이버/티스토리)를 선택하세요!");
+      return false;
+    }
+    if(!selectedTopic){
+      toast("먼저 주제를 선택하세요!");
+      return false;
+    }
+    return true;
+  }
+
+  // 1) 예약: 08:00 / 13:00 / 18:00
+  async function scheduleFixed3(){
+    if(!ensureReady()) return;
+
+    const times = ["08:00","13:00","18:00"];
+    const payload = {
+      mode: "schedule_fixed_3",
+      blog: selectedBlog,
+      category: selectedCat,
+      topic: selectedTopic,
+      schedule_times: times
+    };
+
+    document.getElementById("schedulePreview").textContent =
+      `예약 요청: ${times.join(" / ")}  (주제: ${selectedTopic})`;
+
+    await postPublishRequest("/api/publish/schedule", payload);
+  }
+
+  function previewSchedule(){
+    const times = ["08:00","13:00","18:00"];
+    document.getElementById("schedulePreview").textContent =
+      `미리보기: ${times.join(" / ")}  (주제: ${selectedTopic || "-"})`;
+    toast("미리보기 표시 ✅");
+  }
+
+  // 2) 즉시 발행: 시작시간 + 간격(1시간 등)
+  async function publishNowWithInterval(){
+    if(!ensureReady()) return;
+
+    const start = document.getElementById("startTime").value || "09:00";
+    const interval = Number(document.getElementById("intervalHours").value || "1");
+
+    const payload = {
+      mode: "publish_now_interval",
+      blog: selectedBlog,
+      category: selectedCat,
+      topic: selectedTopic,
+      start_time: start,
+      interval_hours: interval
+    };
+
+    document.getElementById("nowInfo").textContent =
+      `즉시 발행 요청: 시작 ${start}, 간격 ${interval}시간 (주제: ${selectedTopic})`;
+
+    await postPublishRequest("/api/publish/now", payload);
+  }
+
+  async function postPublishRequest(path, payload){
+    // GitHub Pages에서는 서버가 없어서 실패할 수 있음.
+    // 로컬(server.py 켠 상태)에서는 동작.
+    const base = "http://127.0.0.1:5000";
+    try{
+      const res = await fetch(base + path, {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok){
+        const t = await res.text();
+        toast("서버 응답 오류: " + t);
+        return;
+      }
+      const data = await res.json();
+      toast(data.message || "요청 전송 완료 ✅");
+    }catch(e){
+      toast("서버 연결 실패 (로컬 서버 필요) : python server.py");
+    }
+  }
+
+  // ===== 유틸 =====
   function toast(msg){
     const el = document.getElementById("toast");
     el.textContent = msg;
     el.style.display = "block";
     clearTimeout(window.__t);
-    window.__t = setTimeout(()=> el.style.display="none", 1200);
+    window.__t = setTimeout(()=> el.style.display="none", 1400);
   }
 
   function escapeHtml(s){
