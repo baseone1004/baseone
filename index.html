@@ -72,7 +72,7 @@
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn" onclick="copyText(document.getElementById('outTitle').textContent)">제목 복사</button>
           <button class="btn" onclick="copyText(document.getElementById('outImage').value)">이미지 프롬프트 복사</button>
-          <button class="btn blue" onclick="copyText(document.getElementById('outBody').value)">본문 프롬프트 복사</button>
+          <button class="btn blue" onclick="copyText(document.getElementById('outBody').value)">본문 복사(HTML)</button>
         </div>
       </div>
       <div style="margin-top:6px;font-weight:bold" id="outTitle">-</div>
@@ -80,12 +80,12 @@
     </div>
 
     <div class="box" style="margin:12px 0">
-      <div class="small"><b>이미지 프롬프트</b> (Gemini/WISK/Pexels 연결은 다음 단계에서)</div>
+      <div class="small"><b>이미지 프롬프트</b></div>
       <textarea id="outImage"></textarea>
     </div>
 
     <div class="box" style="margin:12px 0">
-      <div class="small"><b>본문 프롬프트</b> (다음 단계에서 Gemini가 “실제 글”을 생성하도록 바꿀 거야)</div>
+      <div class="small"><b>본문(HTML)</b> — 블로그에 붙여넣기용</div>
       <textarea id="outBody"></textarea>
     </div>
   </div>
@@ -110,7 +110,7 @@
     selectedCat = cat;
     topics=[];
     for(let i=1;i<=50;i++){
-      topics.push(`${cat} 글 아이디어 ${i}`); // ✅ 요청대로 변경
+      topics.push(`${cat} 글 아이디어 ${i}`);
     }
     document.getElementById("titleBox").textContent=`${cat} 주제 50개`;
     selectedTopic = topics[0] || "";
@@ -182,13 +182,14 @@
     const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
     const textProvider = s.textProvider || "gemini";
 
-    // 지금 단계는 “API 연결 확인용”
-    // (다음 단계에서 여기서 Gemini 실제 호출로 바꿀 거야)
+    // ✅ 여기 payload에 geminiKey/model까지 포함 (복붙 완료본)
     const payload = {
       topic: selectedTopic,
       category: selectedCat,
       blog: "local",
-      textProvider: textProvider
+      textProvider: textProvider,
+      geminiKey: (s.geminiKey || ""),
+      model: "gemini-3-flash-preview"
     };
 
     try{
@@ -214,8 +215,9 @@
 
   function openModal(data){
     document.getElementById("outTitle").textContent = data.title || "-";
-    document.getElementById("outMeta").textContent = `주제: ${data.topic || ""} / 카테고리: ${data.category || ""} / 생성시간: ${data.generated_at || ""}`;
+    document.getElementById("outMeta").textContent = `주제: ${data.topic || ""} / 카테고리: ${data.category || ""} / 생성시간: ${data.generated_at || ""} / 모델: ${data.model || ""}`;
     document.getElementById("outImage").value = data.image_prompt || "";
+    // ✅ 이제 프롬프트가 아니라 "완성 HTML"을 받음
     document.getElementById("outBody").value = data.html || "";
     document.getElementById("modalBg").style.display="block";
   }
@@ -236,4 +238,3 @@
 </script>
 </body>
 </html>
-
