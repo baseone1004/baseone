@@ -9,7 +9,7 @@
     :root{
       --bg:#f4f6fb; --card:#ffffff; --txt:#101828; --muted:#667085;
       --pri:#2f6fed; --pri2:#1f54c7; --btn:#3b82f6; --btn2:#2563eb;
-      --gray:#111827; --gray2:#374151; --line:#e5e7eb;
+      --gray:#111827; --line:#e5e7eb;
       --shadow: 0 10px 30px rgba(16,24,40,.12);
       --radius: 18px;
     }
@@ -25,14 +25,15 @@
     .brand{display:flex;align-items:center;gap:10px}
     .logo{
       width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--pri),#7c3aed);
-      display:grid;place-items:center;color:white;font-weight:800
+      display:grid;place-items:center;color:white;font-weight:900
     }
-    .title{font-size:18px;font-weight:800}
+    .title{font-size:18px;font-weight:900}
+    .sub{color:var(--muted);font-size:13px;margin-top:6px}
     .actions{display:flex;gap:10px;flex-wrap:wrap}
     .pill{
       border:1px solid var(--line); background:var(--card);
       padding:10px 12px;border-radius:999px; cursor:pointer;
-      font-weight:700; color:var(--txt);
+      font-weight:800; color:var(--txt);
     }
     .pill.primary{background:var(--pri);border-color:var(--pri);color:#fff}
     .pill.primary:hover{background:var(--pri2)}
@@ -49,11 +50,10 @@
 
     .topic-btn{
       background:var(--btn); border:none; color:#fff;
-      padding:14px 10px; border-radius:14px; font-weight:800;
+      padding:14px 10px; border-radius:14px; font-weight:900;
       cursor:pointer; transition:.12s transform;
     }
     .topic-btn:hover{background:var(--btn2); transform: translateY(-1px)}
-    .sub{color:var(--muted);font-size:13px;margin-top:6px}
 
     .blog-row{
       display:flex; justify-content:center; gap:12px; flex-wrap:wrap;
@@ -61,13 +61,13 @@
     }
     .blog-btn{
       background:#374151; border:1px solid #374151; color:#fff;
-      padding:12px 18px; border-radius:14px; font-weight:800; cursor:pointer;
+      padding:12px 18px; border-radius:14px; font-weight:900; cursor:pointer;
       min-width:140px;
     }
     .blog-btn.active{background:#111827;border-color:#111827}
     .blog-btn:hover{opacity:.92}
 
-    #topics{padding:18px}
+    #topics{margin-top:14px; display:none;}
     #topics h2{margin:0 0 10px}
     ul.topic-list{margin:0;padding:0;list-style:none;display:grid;gap:8px}
     .topic-item{
@@ -77,7 +77,7 @@
     }
     .topic-item button{
       border:1px solid var(--line); background:#fff; border-radius:10px;
-      padding:8px 10px; cursor:pointer; font-weight:800;
+      padding:8px 10px; cursor:pointer; font-weight:900;
     }
     .topic-item button:hover{border-color:#cbd5e1}
 
@@ -89,33 +89,36 @@
     .modal{width:min(920px,100%); max-height: 90vh; overflow:auto}
     .modal header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line)}
     .modal .wrap{padding:14px 16px}
-    .modal-title{font-size:16px;font-weight:900}
+    .modal-title{font-size:16px;font-weight:1000}
     .x{border:none;background:transparent;font-size:20px;cursor:pointer}
 
     .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .tab{border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:800}
+    .tab{border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:900}
     .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
 
     .form{padding:16px}
-    .row{display:grid;grid-template-columns: 180px 1fr; gap:12px; align-items:center; margin:10px 0}
+    .row{display:grid;grid-template-columns: 220px 1fr; gap:12px; align-items:start; margin:10px 0}
     @media (max-width:720px){ .row{grid-template-columns:1fr} }
-    label{font-weight:900}
+    label{font-weight:1000}
     input, select{
       width:100%; padding:12px 12px; border:1px solid var(--line); border-radius:12px; outline:none;
       background:#fff;
     }
     input:focus, select:focus{border-color:#93c5fd; box-shadow:0 0 0 4px rgba(59,130,246,.15)}
-    .hint{color:var(--muted); font-size:12px; margin-top:6px}
+    .hint{color:var(--muted); font-size:12px; margin-top:6px; line-height:1.45}
     .btnline{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
     .btn{
-      padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fff; cursor:pointer; font-weight:900;
+      padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fff; cursor:pointer; font-weight:1000;
     }
     .btn.primary{background:var(--pri); border-color:var(--pri); color:#fff}
     .btn.primary:hover{background:var(--pri2)}
     .btn:hover{border-color:#cbd5e1}
     .status{margin-top:10px; font-size:12px; color:var(--muted)}
-    .ok{color:#16a34a;font-weight:900}
-    .bad{color:#dc2626;font-weight:900}
+    .ok{color:#16a34a;font-weight:1000}
+    .bad{color:#dc2626;font-weight:1000}
+    .warn{color:#b45309;font-weight:1000}
+    .divider{height:1px;background:var(--line);margin:14px 0}
+    .mini{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
@@ -144,7 +147,10 @@
       <button class="blog-btn" data-blog="naver">네이버</button>
       <button class="blog-btn" data-blog="tistory">티스토리</button>
     </div>
-    <div class="sub" style="text-align:center">먼저 블로그를 선택하고 → 주제를 고르면 50개 주제가 생성됩니다.</div>
+    <div class="sub" style="text-align:center">
+      먼저 블로그를 선택하고 → 주제를 고르면 50개 주제가 생성됩니다.
+      <div class="mini">※ 지금은 “각자 브라우저에 본인 키를 저장” 방식입니다. 공용PC에서는 저장하지 마세요.</div>
+    </div>
 
     <div class="grid" style="margin-top:16px">
       <button class="topic-btn" data-cat="건강">건강</button>
@@ -166,10 +172,11 @@
     </div>
   </div>
 
-  <div class="card" id="topics" style="margin-top:14px; display:none;">
+  <div class="card" id="topics">
     <div class="section">
       <h2 id="topicsTitle" style="margin:0 0 8px"></h2>
       <div class="sub" id="topicsSub"></div>
+      <div class="mini" id="engineHint"></div>
     </div>
     <div style="padding:0 18px 18px">
       <ul class="topic-list" id="topicList"></ul>
@@ -187,109 +194,145 @@
       </div>
       <div class="wrap">
         <div class="tabs">
-          <button class="tab active" data-tab="ai">AI 연결</button>
+          <button class="tab active" data-tab="writer">글작성</button>
           <button class="tab" data-tab="image">이미지</button>
           <button class="tab" data-tab="blog">블로그</button>
-          <button class="tab" data-tab="system">시스템</button>
         </div>
       </div>
     </header>
 
-    <div class="form" id="tab-ai">
+    <!-- 글작성 -->
+    <div class="form" id="tab-writer">
+      <div class="row">
+        <label>글작성 엔진 선택</label>
+        <div>
+          <select id="writerProvider">
+            <option value="gemini">Gemini</option>
+            <option value="chatgpt">ChatGPT(OpenAI)</option>
+            <option value="genspark">GenSpark</option>
+          </select>
+          <div class="hint">
+            선택한 엔진으로 “주제 50개 생성 / 본문 생성”을 하게 됩니다.<br>
+            (지금은 데모 UI 단계라 실제 호출은 다음 단계에서 연결합니다.)
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
       <div class="row">
         <label>Gemini API Key</label>
         <div>
-          <input id="geminiKey" placeholder="예: AIza... (개인 키)" />
-          <div class="hint">※ 지금은 브라우저에만 저장(localStorage)됩니다. “모든 사용자용”은 서버 저장으로 바꿔야 합니다.</div>
+          <input id="geminiKey" placeholder="예: AIza..." />
+          <div class="hint">Gemini 텍스트/이미지 모두 같은 키를 쓰는 경우가 많지만, 이미지 모델은 결제/권한이 추가로 필요할 수 있어요.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>ChatGPT(OpenAI) API Key</label>
+        <div>
+          <input id="openaiKey" placeholder="예: sk-..." />
+          <div class="hint">OpenAI를 선택할 때 사용됩니다. (원하지 않으면 비워도 됨)</div>
         </div>
       </div>
 
       <div class="row">
         <label>GenSpark 키/토큰</label>
         <div>
-          <input id="gensparkKey" placeholder="없으면 비워도 됨" />
+          <input id="gensparkKey" placeholder="예: ..." />
+          <div class="hint">GenSpark를 선택할 때 사용됩니다.</div>
         </div>
       </div>
 
       <div class="btnline">
-        <button class="btn primary" id="saveAi">저장</button>
-        <button class="btn" id="testGemini">연동 확인(Gemini)</button>
+        <button class="btn primary" id="saveWriter">저장</button>
+        <button class="btn" id="testWriter">연동 확인(형식 검사)</button>
       </div>
-      <div class="status" id="aiStatus"></div>
+      <div class="status" id="writerStatus"></div>
     </div>
 
+    <!-- 이미지 -->
     <div class="form" id="tab-image" style="display:none;">
       <div class="row">
-        <label>이미지 소스</label>
+        <label>이미지 소스 선택</label>
         <div>
           <select id="imageProvider">
-            <option value="gemini">Gemini 이미지(유료/권한 필요)</option>
-            <option value="pexels">Pexels(무료)</option>
+            <option value="pexels">무료 이미지(Pexels)</option>
+            <option value="gemini_image">Gemini 이미지(유료/권한 필요)</option>
+            <option value="nanobanana">NanoBanana Pro(API)</option>
           </select>
+          <div class="hint">
+            “무료 이미지(Pexels)”는 가장 안정적입니다.<br>
+            “Gemini 이미지”는 프로젝트 권한/결제가 필요할 수 있어요.<br>
+            “NanoBanana Pro”는 해당 서비스의 API 키/엔드포인트가 있어야 합니다.
+          </div>
         </div>
       </div>
 
-      <div class="row">
+      <div class="divider"></div>
+
+      <div class="row" id="rowPexels">
         <label>Pexels API Key</label>
         <div>
-          <input id="pexelsKey" placeholder="pexels 키" />
+          <input id="pexelsKey" placeholder="Pexels 키" />
+          <div class="hint">무료 이미지 검색/다운로드에 사용됩니다.</div>
+        </div>
+      </div>
+
+      <div class="row" id="rowNano" style="display:none;">
+        <label>NanoBanana Pro API</label>
+        <div>
+          <input id="nanoKey" placeholder="NanoBanana API Key" />
+          <div class="hint">NanoBanana Pro에서 발급받은 키를 넣으세요.</div>
+          <div style="height:10px"></div>
+          <input id="nanoEndpoint" placeholder="NanoBanana Endpoint (예: https://api.nanobanana...)" />
+          <div class="hint">서비스에서 안내한 API 주소(엔드포인트)가 있다면 넣으세요.</div>
         </div>
       </div>
 
       <div class="btnline">
         <button class="btn primary" id="saveImg">저장</button>
-        <button class="btn" id="testPexels">연동 확인(Pexels)</button>
+        <button class="btn" id="testImg">연동 확인(형식 검사)</button>
       </div>
       <div class="status" id="imgStatus"></div>
     </div>
 
+    <!-- 블로그 -->
     <div class="form" id="tab-blog" style="display:none;">
       <div class="row">
-        <label>블로그스팟 연동</label>
+        <label>블로그스팟 주소</label>
         <div>
           <input id="bloggerSite" placeholder="예: https://내블로그.blogspot.com" />
-          <div class="hint">블로그스팟/네이버/티스토리는 “서버(OAuth)”가 있어야 자동발행이 가능합니다.</div>
+          <div class="hint">자동 업로드는 추후 OAuth 연결이 필요합니다. (지금은 저장/표시 단계)</div>
         </div>
       </div>
 
       <div class="row">
-        <label>티스토리 연동</label>
+        <label>티스토리 주소</label>
         <div><input id="tistorySite" placeholder="예: https://내.tistory.com" /></div>
       </div>
 
       <div class="row">
-        <label>네이버 연동</label>
-        <div><input id="naverId" placeholder="네이버 아이디(예: baseone1004)" /></div>
+        <label>네이버 블로그</label>
+        <div><input id="naverId" placeholder="예: baseone1004 (아이디 또는 주소)" /></div>
       </div>
 
       <div class="btnline">
         <button class="btn primary" id="saveBlog">저장</button>
-        <button class="btn" id="testBlog">연동 확인(샘플)</button>
+        <button class="btn" id="testBlog">연동 확인(형식 검사)</button>
       </div>
       <div class="status" id="blogStatus"></div>
-    </div>
-
-    <div class="form" id="tab-system" style="display:none;">
-      <div class="row">
-        <label>백엔드 API 주소</label>
-        <div>
-          <input id="backendUrl" placeholder="예: https://api.baseone.ai (없으면 비워둠)" />
-          <div class="hint">연동 확인 버튼은 여기 주소의 API로 요청합니다. 지금은 서버가 없으면 “테스트”는 모의 동작만 합니다.</div>
-        </div>
+      <div class="hint">
+        ※ 실제 “연동 확인(로그인/OAuth)”과 “자동 발행”은 서버가 필요한 단계입니다.<br>
+        하지만 “각자 본인 키/계정 저장” UI는 지금처럼 공개 사이트에서도 가능합니다.
       </div>
-
-      <div class="btnline">
-        <button class="btn primary" id="saveSystem">저장</button>
-        <button class="btn" id="resetAll">초기화</button>
-      </div>
-      <div class="status" id="sysStatus"></div>
     </div>
 
   </div>
 </div>
 
 <script>
-  // ---------- storage helpers ----------
+  // ---------- storage ----------
   const store = {
     get() {
       try { return JSON.parse(localStorage.getItem("baseone_settings") || "{}"); }
@@ -301,12 +344,10 @@
       localStorage.setItem("baseone_settings", JSON.stringify(next));
       return next;
     },
-    clear() {
-      localStorage.removeItem("baseone_settings");
-    }
+    clear() { localStorage.removeItem("baseone_settings"); }
   };
 
-  // ---------- UI state ----------
+  // ---------- Main state ----------
   let selectedBlog = null;
 
   function setBlog(blog){
@@ -316,6 +357,16 @@
     });
     const label = blog === "blogspot" ? "블로그스팟" : blog === "naver" ? "네이버" : "티스토리";
     document.getElementById("currentTargetText").textContent = `블로그 대상: ${label}`;
+    store.set({ selectedBlog: blog });
+  }
+
+  function currentWriterLabel(){
+    const s = store.get();
+    const p = s.writerProvider || "gemini";
+    if(p==="gemini") return "Gemini";
+    if(p==="chatgpt") return "ChatGPT";
+    if(p==="genspark") return "GenSpark";
+    return p;
   }
 
   function makeTopics(category){
@@ -327,6 +378,8 @@
     box.style.display = "block";
     document.getElementById("topicsTitle").textContent = `${category} 주제 50개`;
     document.getElementById("topicsSub").textContent = `선택된 블로그: ${selectedBlog}`;
+    document.getElementById("engineHint").textContent = `글작성 엔진: ${currentWriterLabel()} (현재는 UI 데모)`;
+
 
     const list = document.getElementById("topicList");
     list.innerHTML = "";
@@ -336,7 +389,7 @@
       li.className = "topic-item";
       li.innerHTML = `
         <span>${topic}</span>
-        <button type="button">발행(준비중)</button>
+        <button type="button" onclick="alert('다음 단계에서 글/이미지 생성 + 자동발행 연결할게요!')">발행(준비중)</button>
       `;
       list.appendChild(li);
     }
@@ -353,7 +406,7 @@
 
   function showTab(name){
     document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
-    ["ai","image","blog","system"].forEach(x=>{
+    ["writer","image","blog"].forEach(x=>{
       document.getElementById("tab-"+x).style.display = (x===name) ? "block" : "none";
     });
   }
@@ -361,33 +414,53 @@
 
   function hydrateSettings(){
     const s = store.get();
+    document.getElementById("writerProvider").value = s.writerProvider || "gemini";
     document.getElementById("geminiKey").value = s.geminiKey || "";
+    document.getElementById("openaiKey").value = s.openaiKey || "";
     document.getElementById("gensparkKey").value = s.gensparkKey || "";
+
     document.getElementById("imageProvider").value = s.imageProvider || "pexels";
     document.getElementById("pexelsKey").value = s.pexelsKey || "";
+    document.getElementById("nanoKey").value = s.nanoKey || "";
+    document.getElementById("nanoEndpoint").value = s.nanoEndpoint || "";
+
     document.getElementById("bloggerSite").value = s.bloggerSite || "";
     document.getElementById("tistorySite").value = s.tistorySite || "";
     document.getElementById("naverId").value = s.naverId || "";
-    document.getElementById("backendUrl").value = s.backendUrl || "";
-    document.getElementById("aiStatus").textContent = "";
+
+    document.getElementById("writerStatus").textContent = "";
     document.getElementById("imgStatus").textContent = "";
     document.getElementById("blogStatus").textContent = "";
-    document.getElementById("sysStatus").textContent = "";
+
+    syncImageRows();
   }
 
-  // ---------- Save buttons ----------
-  document.getElementById("saveAi").onclick = () => {
+  function syncImageRows(){
+    const p = document.getElementById("imageProvider").value;
+    document.getElementById("rowPexels").style.display = (p === "pexels") ? "grid" : "none";
+    document.getElementById("rowNano").style.display = (p === "nanobanana") ? "grid" : "none";
+    // gemini_image는 Gemini 키(글작성 탭의 geminiKey)를 사용한다고 안내만 하고 별도 입력 없음
+  }
+
+  document.getElementById("imageProvider").addEventListener("change", syncImageRows);
+
+  // ---------- Save ----------
+  document.getElementById("saveWriter").onclick = () => {
     store.set({
+      writerProvider: document.getElementById("writerProvider").value,
       geminiKey: document.getElementById("geminiKey").value.trim(),
+      openaiKey: document.getElementById("openaiKey").value.trim(),
       gensparkKey: document.getElementById("gensparkKey").value.trim(),
     });
-    document.getElementById("aiStatus").innerHTML = `<span class="ok">저장 완료</span>`;
+    document.getElementById("writerStatus").innerHTML = `<span class="ok">저장 완료</span>`;
   };
 
   document.getElementById("saveImg").onclick = () => {
     store.set({
       imageProvider: document.getElementById("imageProvider").value,
       pexelsKey: document.getElementById("pexelsKey").value.trim(),
+      nanoKey: document.getElementById("nanoKey").value.trim(),
+      nanoEndpoint: document.getElementById("nanoEndpoint").value.trim(),
     });
     document.getElementById("imgStatus").innerHTML = `<span class="ok">저장 완료</span>`;
   };
@@ -401,75 +474,85 @@
     document.getElementById("blogStatus").innerHTML = `<span class="ok">저장 완료</span>`;
   };
 
-  document.getElementById("saveSystem").onclick = () => {
-    store.set({ backendUrl: document.getElementById("backendUrl").value.trim() });
-    document.getElementById("sysStatus").innerHTML = `<span class="ok">저장 완료</span>`;
-  };
+  // ---------- “연동 확인” (지금은 형식 검사 = 서버 없이 가능) ----------
+  function looksLikeUrl(s){ return /^https?:\/\/.+/i.test(s); }
+  document.getElementById("testWriter").onclick = () => {
+    const s = store.get();
+    const provider = document.getElementById("writerProvider").value;
 
-  document.getElementById("resetAll").onclick = () => {
-    if(confirm("정말로 설정을 초기화할까요?")) {
-      store.clear();
-      hydrateSettings();
-      document.getElementById("sysStatus").innerHTML = `<span class="ok">초기화 완료</span>`;
+    let ok = true;
+    let msg = "";
+
+    if(provider==="gemini"){
+      ok = (document.getElementById("geminiKey").value.trim().length >= 10);
+      msg = ok ? "Gemini 키 형식 OK" : "Gemini 키가 너무 짧아요.";
+    } else if(provider==="chatgpt"){
+      const k = document.getElementById("openaiKey").value.trim();
+      ok = k.startsWith("sk-") && k.length >= 20;
+      msg = ok ? "OpenAI 키 형식 OK" : "OpenAI 키는 보통 sk- 로 시작합니다.";
+    } else if(provider==="genspark"){
+      ok = (document.getElementById("gensparkKey").value.trim().length >= 10);
+      msg = ok ? "GenSpark 키 형식 OK" : "GenSpark 키가 너무 짧아요.";
     }
+
+    document.getElementById("writerStatus").innerHTML = ok
+      ? `<span class="ok">연동 확인(형식) 성공</span> - ${msg}`
+      : `<span class="bad">연동 확인(형식) 실패</span> - ${msg}`;
   };
 
-  // ---------- Test buttons (현재는 '서버 있으면 호출', 없으면 안내) ----------
-  async function callApi(path, payload){
-    const s = store.get();
-    const base = (s.backendUrl || "").trim();
-    if(!base){
-      return { ok:false, message:"백엔드 API 주소가 비어있습니다. (설정 > 시스템에서 입력)" };
+  document.getElementById("testImg").onclick = () => {
+    const provider = document.getElementById("imageProvider").value;
+    let ok = true, msg = "";
+
+    if(provider==="pexels"){
+      ok = (document.getElementById("pexelsKey").value.trim().length >= 10);
+      msg = ok ? "Pexels 키 형식 OK" : "Pexels 키가 너무 짧아요.";
+    } else if(provider==="gemini_image"){
+      const g = document.getElementById("geminiKey").value.trim();
+      ok = g.length >= 10;
+      msg = ok
+        ? "Gemini 키는 입력되어 있어요. (이미지 모델은 결제/권한이 추가로 필요할 수 있음)"
+        : "Gemini 키가 필요해요. (글작성 탭에 입력)";
+    } else if(provider==="nanobanana"){
+      ok = (document.getElementById("nanoKey").value.trim().length >= 10);
+      const ep = document.getElementById("nanoEndpoint").value.trim();
+      if(ok && ep) ok = looksLikeUrl(ep);
+      msg = ok ? "NanoBanana 키/엔드포인트 형식 OK" : "NanoBanana 키(필수) 또는 엔드포인트(URL)가 올바르지 않아요.";
     }
-    const res = await fetch(base.replace(/\/$/,"") + path, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(payload || {})
-    });
-    const data = await res.json().catch(()=> ({}));
-    return { ok: res.ok, ...data };
-  }
 
-  document.getElementById("testGemini").onclick = async () => {
-    const s = store.get();
-    const st = document.getElementById("aiStatus");
-    st.textContent = "연동 확인 중...";
-    // 백엔드가 있으면: /api/test/gemini 호출
-    const r = await callApi("/api/test/gemini", { geminiKey: s.geminiKey || "" });
-    st.innerHTML = r.ok
-      ? `<span class="ok">연동 성공</span> ${r.message ? " - " + r.message : ""}`
-      : `<span class="bad">연동 실패</span> ${r.message ? " - " + r.message : ""}`;
+    document.getElementById("imgStatus").innerHTML = ok
+      ? `<span class="ok">연동 확인(형식) 성공</span> - ${msg}`
+      : `<span class="bad">연동 확인(형식) 실패</span> - ${msg}`;
   };
 
-  document.getElementById("testPexels").onclick = async () => {
-    const s = store.get();
-    const st = document.getElementById("imgStatus");
-    st.textContent = "연동 확인 중...";
-    const r = await callApi("/api/test/pexels", { pexelsKey: s.pexelsKey || "" });
-    st.innerHTML = r.ok
-      ? `<span class="ok">연동 성공</span> ${r.message ? " - " + r.message : ""}`
-      : `<span class="bad">연동 실패</span> ${r.message ? " - " + r.message : ""}`;
+  document.getElementById("testBlog").onclick = () => {
+    const blogger = document.getElementById("bloggerSite").value.trim();
+    const tistory = document.getElementById("tistorySite").value.trim();
+    const naver = document.getElementById("naverId").value.trim();
+
+    const checks = [];
+    if(blogger) checks.push(["블로그스팟", looksLikeUrl(blogger)]);
+    if(tistory) checks.push(["티스토리", looksLikeUrl(tistory)]);
+    if(naver) checks.push(["네이버", naver.length >= 2]);
+
+    if(checks.length === 0){
+      document.getElementById("blogStatus").innerHTML =
+        `<span class="warn">입력된 블로그 정보가 없어요.</span> - 주소/아이디를 넣어주세요.`;
+      return;
+    }
+
+    const bad = checks.filter(x=>!x[1]).map(x=>x[0]);
+    const ok = bad.length === 0;
+    document.getElementById("blogStatus").innerHTML = ok
+      ? `<span class="ok">연동 확인(형식) 성공</span> - 저장 후 다음 단계에서 OAuth 연동을 붙이면 자동발행이 가능합니다.`
+      : `<span class="bad">연동 확인(형식) 실패</span> - 형식이 이상한 항목: ${bad.join(", ")}`;
   };
 
-  document.getElementById("testBlog").onclick = async () => {
-    const s = store.get();
-    const st = document.getElementById("blogStatus");
-    st.textContent = "연동 확인 중...";
-    const r = await callApi("/api/test/blog", {
-      bloggerSite: s.bloggerSite || "",
-      tistorySite: s.tistorySite || "",
-      naverId: s.naverId || ""
-    });
-    st.innerHTML = r.ok
-      ? `<span class="ok">연동 성공</span> ${r.message ? " - " + r.message : ""}`
-      : `<span class="bad">연동 실패</span> ${r.message ? " - " + r.message : ""}`;
-  };
-
-  // ---------- Bind buttons ----------
+  // ---------- Bind main buttons ----------
   document.querySelectorAll(".blog-btn").forEach(b => b.onclick=()=>setBlog(b.dataset.blog));
   document.querySelectorAll(".topic-btn").forEach(b => b.onclick=()=>makeTopics(b.dataset.cat));
 
-  // restore previously selected blog (optional)
+  // restore selected blog
   const saved = store.get();
   if(saved.selectedBlog) setBlog(saved.selectedBlog);
 </script>
