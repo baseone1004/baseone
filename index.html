@@ -2,239 +2,94 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>BaseOne</title>
 <style>
-  body{margin:0;font-family:sans-serif;background:#0b1020;color:#eef2ff}
-  .top{display:flex;justify-content:space-between;align-items:center;padding:16px;gap:10px;flex-wrap:wrap}
-  .btn{padding:10px 14px;border-radius:10px;border:1px solid #444;background:#1f2a44;color:white;font-weight:bold;cursor:pointer}
-  .btn.blue{background:#4f8cff;border:none}
-  .btn.gray{background:#555;border:none}
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px}
-  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
-  .cat{background:#1b2238;padding:12px;border-radius:14px;cursor:pointer}
-  .box{background:#141a30;margin:16px;padding:14px;border-radius:14px}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
-  .card{background:#1b2238;padding:10px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;gap:10px;align-items:center}
-  .small{font-size:13px;color:#cfd6ff}
-  input{padding:10px;border-radius:10px;border:1px solid #444;background:#0f1530;color:white;min-width:200px}
-  .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:#0f1530;border:1px solid rgba(255,255,255,.12);color:#cfd6ff;font-size:12px}
-  .modalBg{display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); padding:18px;}
-  .modal{max-width:860px;margin:40px auto;background:#141a30;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px}
-  textarea{width:100%;min-height:220px;background:#0f1530;border:1px solid #444;border-radius:12px;color:white;padding:10px}
+body{margin:0;font-family:sans-serif;background:#121826;color:#e5ecff}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px}
+.btn{padding:10px 14px;border-radius:10px;border:none;background:#2a3555;color:white;font-weight:bold;cursor:pointer}
+.btn.blue{background:#4f8cff}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+.cat{background:#1f2742;padding:14px;border-radius:14px;text-align:center;cursor:pointer}
+.box{background:#1a2240;margin:16px;padding:14px;border-radius:14px}
+.card{background:#202a4d;padding:10px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.small{font-size:12px;color:#b8c2ff}
+input{padding:10px;border-radius:10px;border:1px solid #333;background:#0f1530;color:white}
 </style>
 </head>
 <body>
 
 <div class="top">
-  <div style="font-size:24px;font-weight:bold">BaseOne <span class="pill">로컬 자동화 단계</span></div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap">
-    <button class="btn blue" onclick="makeMoney()">💰 수익형글</button>
+  <div style="font-size:24px;font-weight:bold">BaseOne</div>
+  <div>
+    <button class="btn blue" onclick="makeMoney()">💰 수익형 주제</button>
     <a href="/settings"><button class="btn">설정</button></a>
   </div>
 </div>
 
 <div class="box">
-  <div class="row">
-    <div>
-      <b id="titleBox">주제 목록</b>
-      <div class="small" id="selInfo">카테고리를 선택하세요</div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <input id="filter" placeholder="주제 검색(필터)" oninput="render()">
-      <button class="btn" onclick="copyAll()">전체복사</button>
-      <button class="btn blue" onclick="aiGenerateSelected()">✨ AI 글 생성(선택 주제)</button>
-    </div>
-  </div>
+  <b id="titleBox">주제 선택</b>
+  <div class="small" id="selInfo">카테고리를 누르세요</div>
+  <input id="filter" placeholder="주제 검색" oninput="render()">
 </div>
 
 <div class="grid" id="catGrid"></div>
 
 <div class="box">
-  <div class="row">
-    <div class="small">주제 카드에서 <b>선택</b> 후, 상단의 <b>AI 글 생성</b>을 누르세요.</div>
-    <div class="small">서버: <b>http://127.0.0.1:5000</b> (서버 켜져 있어야 함)</div>
-  </div>
+  <div class="small">카드에서 선택 후 복사 가능</div>
   <div id="topics"></div>
 </div>
 
-<!-- 결과 모달 -->
-<div class="modalBg" id="modalBg">
-  <div class="modal">
-    <div class="row" style="justify-content:space-between">
-      <b>AI 생성 결과</b>
-      <button class="btn gray" onclick="closeModal()">닫기</button>
-    </div>
-
-    <div class="box" style="margin:12px 0">
-      <div class="row">
-        <div class="small">제목</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn" onclick="copyText(document.getElementById('outTitle').textContent)">제목 복사</button>
-          <button class="btn" onclick="copyText(document.getElementById('outImage').value)">이미지 프롬프트 복사</button>
-          <button class="btn blue" onclick="copyText(document.getElementById('outBody').value)">본문 복사(HTML)</button>
-        </div>
-      </div>
-      <div style="margin-top:6px;font-weight:bold" id="outTitle">-</div>
-      <div class="small" id="outMeta" style="margin-top:6px">-</div>
-    </div>
-
-    <div class="box" style="margin:12px 0">
-      <div class="small"><b>이미지 프롬프트</b></div>
-      <textarea id="outImage"></textarea>
-    </div>
-
-    <div class="box" style="margin:12px 0">
-      <div class="small"><b>본문(HTML)</b> — 블로그에 붙여넣기용</div>
-      <textarea id="outBody"></textarea>
-    </div>
-  </div>
-</div>
-
 <script>
-  const CATS=["건강","컴퓨터/IT","자동차","생활/가전","육아","돈/재테크","여행","요리","자기계발","공부/자격증","반려동물","패션/뷰티","취미","스포츠","게임","영화/드라마"];
-  let topics=[];
-  let selectedTopic = "";
-  let selectedCat = "";
+const CATS=["건강","컴퓨터/IT","자동차","생활/가전","육아","돈/재테크","여행","요리","자기계발","공부/자격증","반려동물","패션/뷰티","취미","스포츠","게임","영화/드라마"];
+let topics=[],selectedCat="",selectedTopic="";
 
-  const grid=document.getElementById("catGrid");
-  CATS.forEach(c=>{
-    const d=document.createElement("div");
-    d.className="cat";
-    d.textContent=c;
-    d.onclick=()=>makeTopics(c);
-    grid.appendChild(d);
-  });
+const grid=document.getElementById("catGrid");
+CATS.forEach(c=>{
+  const d=document.createElement("div");
+  d.className="cat";
+  d.textContent=c;
+  d.onclick=()=>makeTopics(c);
+  grid.appendChild(d);
+});
 
-  function makeTopics(cat){
-    selectedCat = cat;
-    topics=[];
-    for(let i=1;i<=50;i++){
-      topics.push(`${cat} 글 아이디어 ${i}`);
-    }
-    document.getElementById("titleBox").textContent=`${cat} 주제 50개`;
-    selectedTopic = topics[0] || "";
-    updateSel();
-    render();
-  }
-
-  function makeMoney(){
-    topics=[];
-    selectedCat = "수익형";
-    const base=["보험","카드","통신비","전기요금","대출","부업","세금","연금","다이어트","영양제","가전","육아템","자동차","여행","자격증","노트북","청소","생활팁"];
-    for(let i=1;i<=100;i++){
-      topics.push(`수익형 주제 ${i}: ${base[i%base.length]}`);
-    }
-    document.getElementById("titleBox").textContent="💰 수익형 글 100개";
-    selectedTopic = topics[0] || "";
-    updateSel();
-    render();
-  }
-
-  function updateSel(){
-    document.getElementById("selInfo").textContent = `선택 주제: ${selectedTopic ? selectedTopic : "-"}`
-  }
-
-  function render(){
-    const q=(document.getElementById("filter").value||"").trim().toLowerCase();
-    const list=document.getElementById("topics");
-    list.innerHTML="";
-    const filtered = q ? topics.filter(t=>t.toLowerCase().includes(q)) : topics;
-
-    filtered.forEach(t=>{
-      const d=document.createElement("div");
-      d.className="card";
-      d.innerHTML = `
-        <div style="flex:1">
-          <div>${escapeHtml(t)}</div>
-          <div class="small">${selectedCat || ""}</div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" onclick="setSelected('${escapeAttr(t)}')">선택</button>
-          <button class="btn" onclick="copyText('${escapeAttr(t)}')">복사</button>
-        </div>
-      `;
-      list.appendChild(d);
-    });
-  }
-
-  function setSelected(t){
-    selectedTopic = t;
-    updateSel();
-    alert("선택됨: " + t);
-  }
-
-  function copyText(t){
-    navigator.clipboard.writeText(t);
-    alert("복사 완료!");
-  }
-
-  function copyAll(){
-    if(!topics.length){alert("주제 없음");return;}
-    navigator.clipboard.writeText(topics.join("\n"));
-    alert("전체 복사 완료!");
-  }
-
-  async function aiGenerateSelected(){
-    if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
-
-    // settings에서 저장한 값 읽기
-    const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
-    const textProvider = s.textProvider || "gemini";
-
-    // ✅ 여기 payload에 geminiKey/model까지 포함 (복붙 완료본)
-    const payload = {
-      topic: selectedTopic,
-      category: selectedCat,
-      blog: "local",
-      textProvider: textProvider,
-      geminiKey: (s.geminiKey || ""),
-      model: "gemini-3-flash-preview"
-    };
-
-    try{
-      const res = await fetch("http://127.0.0.1:5000/api/generate", {
-        method:"POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
-      });
-
-      if(!res.ok){
-        const t = await res.text();
-        alert("생성 실패: " + t);
-        return;
-      }
-
-      const data = await res.json();
-      openModal(data);
-
-    }catch(e){
-      alert("서버 연결 실패! 서버가 켜져 있는지 확인하세요.\n\n(서버 실행: python server.py)");
-    }
-  }
-
-  function openModal(data){
-    document.getElementById("outTitle").textContent = data.title || "-";
-    document.getElementById("outMeta").textContent = `주제: ${data.topic || ""} / 카테고리: ${data.category || ""} / 생성시간: ${data.generated_at || ""} / 모델: ${data.model || ""}`;
-    document.getElementById("outImage").value = data.image_prompt || "";
-    // ✅ 이제 프롬프트가 아니라 "완성 HTML"을 받음
-    document.getElementById("outBody").value = data.html || "";
-    document.getElementById("modalBg").style.display="block";
-  }
-
-  function closeModal(){
-    document.getElementById("modalBg").style.display="none";
-  }
-
-  function escapeHtml(s){
-    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-  }
-  function escapeAttr(s){
-    return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
-  }
-
-  // 최초 렌더
+function makeTopics(cat){
+  selectedCat=cat;
+  topics=[];
+  for(let i=1;i<=50;i++) topics.push(`${cat} 글 아이디어 ${i}`);
+  document.getElementById("titleBox").textContent=`${cat} 주제 50개`;
+  selectedTopic="";
   render();
+}
+
+function makeMoney(){
+  selectedCat="수익형";
+  topics=[];
+  for(let i=1;i<=100;i++) topics.push(`수익형 주제 ${i}`);
+  document.getElementById("titleBox").textContent="💰 수익형 주제 100개";
+  render();
+}
+
+function render(){
+  const q=(filter.value||"").toLowerCase();
+  const list=document.getElementById("topics");
+  list.innerHTML="";
+  topics.filter(t=>t.toLowerCase().includes(q)).forEach(t=>{
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`
+      <div>${t}<div class="small">${selectedCat}</div></div>
+      <div>
+        <button class="btn" onclick="copyText('${t}')">복사</button>
+      </div>`;
+    list.appendChild(d);
+  });
+}
+
+function copyText(t){
+  navigator.clipboard.writeText(t);
+  alert("복사됨!");
+}
 </script>
 </body>
 </html>
