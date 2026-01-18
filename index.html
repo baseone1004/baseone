@@ -7,17 +7,13 @@
   <style>
     :root{
       --bg:#0b1020;
-
-      /* 눈 편한 다크 톤 */
       --panel: rgba(255,255,255,.05);
       --panel2: rgba(255,255,255,.07);
       --line: rgba(255,255,255,.10);
-
       --text:#eef2ff;
       --muted:rgba(238,242,255,.68);
       --accent:#6aa8ff;
       --accent2:#3a7bff;
-
       --shadow: 0 18px 44px rgba(0,0,0,.45);
       --radius:22px;
     }
@@ -29,34 +25,14 @@
       background:
         radial-gradient(1200px 760px at 12% 10%, rgba(58,123,255,.13), transparent 60%),
         radial-gradient(1000px 740px at 85% 20%, rgba(255,102,196,.06), transparent 55%),
-        radial-gradient(1200px 900px at 60% 110%, rgba(106,168,255,.07), transparent 65%),
         linear-gradient(180deg, #070a14 0%, var(--bg) 70%);
       min-height:100vh;
     }
     a{color:var(--accent); text-decoration:none}
     .wrap{max-width:1140px;margin:0 auto;padding:22px 16px 74px}
-    .top{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      margin-bottom:14px;
-    }
-    .brand{
-      display:flex;align-items:center;gap:12px;
-      font-weight:900; letter-spacing:.2px;
-      font-size:28px;
-    }
-    .logo{
-      width:40px;height:40px;border-radius:14px;
-      background:
-        radial-gradient(14px 14px at 30% 30%, rgba(255,255,255,.40), transparent 60%),
-        linear-gradient(180deg, rgba(106,168,255,.95), rgba(58,123,255,.95));
-      box-shadow: 0 10px 26px rgba(58,123,255,.20);
-      border:1px solid rgba(255,255,255,.14);
-    }
-    .chip{
-      font-size:12px;color:var(--muted);
-      padding:7px 10px;border:1px solid var(--line);
-      border-radius:999px;background:rgba(255,255,255,.03)
-    }
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:28px}
+    .logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(180deg, rgba(106,168,255,.95), rgba(58,123,255,.95));border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 26px rgba(58,123,255,.20)}
     .rightTop{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
     .btn{
       border:none; cursor:pointer;
@@ -74,849 +50,313 @@
       border:none;
       box-shadow: 0 12px 30px rgba(58,123,255,.20);
     }
-    .btn.primary:hover{filter:brightness(1.05)}
-    .btn.ghost{background:rgba(255,255,255,.03)}
-    .btn.small{padding:8px 10px;border-radius:12px;font-size:13px}
-    .btn.copy{background:rgba(0,0,0,.20)}
-    .btn.copy:hover{border-color: rgba(255,255,255,.18)}
-    .btn.warn{
-      background: rgba(255,90,106,.10);
-      border:1px solid rgba(255,90,106,.22);
-    }
-    .btn.ok{
-      background: rgba(57,217,138,.12);
-      border:1px solid rgba(57,217,138,.20);
-    }
-
-    .grid{display:grid;grid-template-columns:1fr;gap:14px}
-    @media(min-width:980px){.grid{grid-template-columns:1.15fr .85fr}}
-
-    .card{
-      background: var(--panel);
+    .panel{
+      background:var(--panel);
       border:1px solid var(--line);
-      border-radius: var(--radius);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
       padding:16px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
+      margin-top:14px;
     }
-    .card h2{margin:0 0 10px;font-size:18px}
-    .desc{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.55}
-
-    /* Category (아이콘 + 딥톤) */
-    .categoryGrid{
-      display:grid; grid-template-columns: repeat(2,1fr);
-      gap:10px;
-    }
-    @media(min-width:760px){.categoryGrid{grid-template-columns: repeat(4,1fr)}}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    @media (max-width:980px){ .grid{grid-template-columns:repeat(2,1fr)} }
     .cat{
-      text-align:left;
-      padding:12px 12px;
+      display:flex;align-items:center;gap:10px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.12);
       border-radius:18px;
-      border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      font-weight:900;
-      transition: transform .08s ease, border-color .2s ease, background .2s ease;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      position:relative;
-      overflow:hidden;
+      padding:14px 14px;
+      cursor:pointer;
+      transition:transform .08s ease, border-color .2s ease, background .2s ease;
     }
-    .cat:hover{transform: translateY(-1px); border-color: rgba(106,168,255,.30); background: rgba(255,255,255,.06)}
-    .cat .l{display:flex;align-items:center;gap:10px}
-    .icon{
+    .cat:hover{border-color: rgba(106,168,255,.35); background: rgba(255,255,255,.07)}
+    .cat:active{transform: translateY(1px)}
+    .ico{
       width:34px;height:34px;border-radius:14px;
-      display:grid;place-items:center;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.22);
+      display:flex;align-items:center;justify-content:center;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.10);
       font-size:18px;
-      flex:0 0 auto;
     }
-    .cat .name{display:flex;flex-direction:column;gap:2px}
-    .cat .name small{font-weight:800;color:var(--muted);font-size:12px}
-    .swatch{
-      width:10px;height:10px;border-radius:999px;
-      box-shadow: 0 0 0 4px rgba(255,255,255,.05);
-      flex:0 0 auto;
-      background: var(--dot,#6aa8ff);
-    }
-
-    /* glow를 약하게 */
-    .cat::after{
-      content:"";
-      position:absolute; inset:-90px -70px auto auto;
-      width:170px;height:170px;border-radius:999px;
-      background: var(--glow, rgba(58,123,255,.10));
-      filter: blur(10px);
-      opacity:.55;
-      transform: rotate(12deg);
-    }
-
-    .two{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
-
-    .box{
-      border:1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.03);
-      border-radius: 18px;
-      padding:12px;
-    }
-    .boxTitle{
-      display:flex;justify-content:space-between;align-items:center;gap:10px;
-      margin-bottom:10px;
-    }
-    .count{font-size:12px;color:var(--muted)}
-    .tag{
-      font-size:12px;
-      padding:6px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
-      color:#d6dcff;
-      white-space:nowrap;
-    }
-
-    .list{
-      display:grid; gap:10px;
-      max-height: 420px; overflow:auto; padding-right:4px;
-    }
-
-    /* Card items */
-    .topicCard{
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      padding:12px;
-      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-    }
-    .topicLeft{display:flex;gap:10px;align-items:flex-start}
-    .badge{
-      width:32px;height:32px;border-radius:14px;
-      display:grid;place-items:center;
-      background: rgba(0,0,0,.22);
-      border:1px solid rgba(255,255,255,.10);
-      font-weight:900;color:#cfd6ff;
-      flex:0 0 auto;
-    }
-    .topicText{display:flex;flex-direction:column;gap:6px}
-    .topicTitle{font-size:13px;font-weight:900;line-height:1.35}
-    .topicMeta{display:flex;gap:8px;flex-wrap:wrap}
+    .cat .t{font-weight:900}
+    .cat .s{font-size:12px;color:var(--muted);margin-top:2px}
+    .blogRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
     .pill{
-      font-size:12px;
-      padding:5px 9px;border-radius:999px;
+      padding:9px 12px;border-radius:999px;
       border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.16);
-      color:#d9deff;
+      background:rgba(255,255,255,.05);
+      cursor:pointer;
+      font-weight:900;
     }
-
-    select,input,textarea{
-      width:100%;
-      background: rgba(0,0,0,.22);
+    .pill.active{border-color: rgba(106,168,255,.45); box-shadow:0 10px 26px rgba(58,123,255,.12)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    input, select{
+      padding:12px 12px;border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.25);
       color:var(--text);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius: 14px;
-      padding:11px 12px;
       outline:none;
     }
-    textarea{min-height:100px;resize:vertical}
-    .divider{height:1px;background: rgba(255,255,255,.08); margin:14px 0}
-
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .row > *{flex:1 1 180px}
-
-    .toast{
-      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
-      background:rgba(0,0,0,.58);backdrop-filter: blur(10px);
+    .muted{color:var(--muted);font-size:13px}
+    .h2{font-size:18px;font-weight:900;margin:0 0 10px}
+    .box{
+      background:rgba(255,255,255,.04);
       border:1px solid rgba(255,255,255,.10);
-      padding:10px 12px;border-radius:14px;
-      color:var(--text);font-size:13px;display:none;
-      max-width: 92vw;
-      box-shadow: 0 14px 30px rgba(0,0,0,.35);
-      z-index:50;
+      border-radius:18px;
+      padding:14px;
+      margin-top:12px;
     }
-
-    /* Modal */
-    .modalOverlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.58);
-      display:none;
-      align-items:center; justify-content:center;
-      padding:18px;
-      z-index:60;
-    }
-    .modal{
-      width:min(860px, 96vw);
-      border-radius: 22px;
-      border:1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));
-      box-shadow: 0 24px 70px rgba(0,0,0,.55);
-      backdrop-filter: blur(14px);
-      padding:16px;
-    }
-    .modalTop{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-      margin-bottom:10px;
-    }
-    .modalTitle{font-size:18px;font-weight:900}
-    .modalClose{border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.20)}
-    .modalGrid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:740px){.modalGrid{grid-template-columns:1fr 1fr}}
-    .modalBox{
+    .topicList{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:760px){ .topicList{grid-template-columns:1fr} }
+    .card{
+      background:rgba(0,0,0,.18);
       border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.18);
-      border-radius: 18px;
+      border-radius:16px;
       padding:12px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
-    .modalActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;justify-content:flex-end}
-    .tiny{font-size:12px;color:var(--muted);line-height:1.55}
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:12px;
-      padding:3px 6px;border-radius:8px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      color:#d6dcff;
-    }
+    .card .txt{font-size:13px;color:rgba(238,242,255,.92)}
+    .card .actions{display:flex;gap:8px}
+    .small{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="top">
-      <div class="brand">
-        <div class="logo"></div>
-        <div>
-          BaseOne
-          <div style="margin-top:6px">
-            <span class="chip">눈 편한 다크톤</span>
-            <span class="chip">필터 · 자동추천 · 예약/바로발행</span>
-          </div>
-        </div>
-      </div>
-
+      <div class="brand"><div class="logo"></div>BaseOne</div>
       <div class="rightTop">
-        <a class="btn" href="./settings.html">⚙ 설정</a>
-        <button class="btn primary" onclick="openPlanner()">📅 예약 발행</button>
-        <button class="btn" onclick="openPublishNow()">🚀 바로 발행</button>
+        <a class="btn" href="./settings.html">설정</a>
+        <button class="btn primary" onclick="openSchedule()">예약발행</button>
       </div>
     </div>
 
-    <div class="grid">
-      <!-- LEFT -->
-      <div class="card">
-        <h2>카테고리 선택</h2>
-        <p class="desc">
-          카테고리를 누르면 <b>주제 50개</b>가 생성돼요. 동시에 같은 카테고리로 <b>수익형 주제 추천</b>도 만들 수 있어요.
-        </p>
+    <div class="panel">
+      <div class="h2">카테고리</div>
+      <div class="grid" id="catGrid"></div>
 
-        <div class="categoryGrid" id="cats"></div>
-
-        <div class="divider"></div>
-
-        <div class="two">
-          <div class="box">
-            <div class="boxTitle">
-              <b>주제 50개</b>
-              <span class="count" id="topicCount">0개</span>
-            </div>
-
-            <input id="topicFilter" placeholder="주제 검색 (예: 보험, 다이어트, 노트북)"/>
-
-            <div style="height:10px"></div>
-            <div class="list" id="topics"></div>
-          </div>
-
-          <div class="box">
-            <div class="boxTitle">
-              <b>수익형 주제 100개</b>
-              <span class="count" id="profitCount">0개</span>
-            </div>
-
-            <div class="row" style="margin-bottom:10px">
-              <button class="btn primary" onclick="makeProfitAuto()">카테고리별 자동추천</button>
-              <button class="btn ghost" onclick="makeProfitAll()">전체 랜덤 추천</button>
-              <button class="btn ghost" onclick="clearProfit()">비우기</button>
-            </div>
-
-            <input id="profitFilter" placeholder="수익형 주제 검색 (예: 카드, 환급, 렌탈, 보험)"/>
-
-            <div style="height:10px"></div>
-            <div class="list" id="profit"></div>
-          </div>
-        </div>
+      <div class="blogRow" style="margin-top:16px;">
+        <div class="pill" onclick="setBlog('blogspot')" id="b_blogspot">블로그스팟</div>
+        <div class="pill" onclick="setBlog('naver')" id="b_naver">네이버</div>
+        <div class="pill" onclick="setBlog('tistory')" id="b_tistory">티스토리</div>
       </div>
 
-      <!-- RIGHT -->
-      <div class="card">
-        <h2>발행 준비</h2>
-        <p class="desc">
-          예약/바로발행은 팝업으로 열려요.
-          <br>지금 단계에서는 <b>예약 저장</b>과 <b>발행 데이터 만들기(복사용)</b>까지 완성합니다.
-        </p>
-
-        <div class="box">
-          <div class="topicMeta" style="margin-bottom:10px">
-            <span class="pill">1) 설정에서 블로그 저장</span>
-            <span class="pill">2) 주제 카드 복사</span>
-            <span class="pill">3) 예약 저장 / 바로발행</span>
+      <div class="box">
+        <div class="row" style="justify-content:space-between;gap:12px;">
+          <div>
+            <div class="small">현재 선택</div>
+            <div style="font-weight:900" id="selInfo">블로그: - / 카테고리: -</div>
+            <div class="muted" id="engineInfo">글작성: - / 이미지: -</div>
           </div>
 
-          <button class="btn primary" style="width:100%;margin-bottom:10px" onclick="openPlanner()">📅 예약 발행</button>
-          <button class="btn" style="width:100%" onclick="openPublishNow()">🚀 바로 발행</button>
-
-          <div class="tiny" style="margin-top:10px">
-            * 실제로 “자동 업로드”는 서버/권한(OAuth)이 필요해서 다음 단계에서 연결해요.
-            지금은 <span class="kbd">발행용 글/제목/이미지 프롬프트</span>를 자동 생성해서 저장/복사하는 단계입니다.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 예약발행 Modal -->
-  <div class="modalOverlay" id="plannerOverlay" onclick="closeIfOutside(event,'plannerOverlay')">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modalTop">
-        <div>
-          <div class="modalTitle">예약 발행</div>
-          <div class="tiny">기본 시간: 09:00 / 14:00 / 19:00 (원하면 변경 가능)</div>
-        </div>
-        <button class="btn small modalClose" onclick="closeModal('plannerOverlay')">닫기</button>
-      </div>
-
-      <div class="modalGrid">
-        <div class="modalBox">
-          <div style="font-weight:900;margin-bottom:8px">블로그 선택</div>
-          <select id="blogSelect"></select>
-          <div class="tiny" style="margin-top:8px">settings.html에서 저장한 블로그 목록이 보여요.</div>
-        </div>
-
-        <div class="modalBox">
-          <div style="font-weight:900;margin-bottom:8px">하루 발행 개수</div>
-          <input id="dailyCount" type="number" min="1" value="3"/>
-          <div class="tiny" style="margin-top:8px">예: 3개면 아래 시간 3개를 사용해요.</div>
-        </div>
-
-        <div class="modalBox" style="grid-column:1 / -1">
-          <div style="font-weight:900;margin-bottom:8px">발행 시간(고정)</div>
           <div class="row">
-            <input id="t1" type="time" value="09:00"/>
-            <input id="t2" type="time" value="14:00"/>
-            <input id="t3" type="time" value="19:00"/>
-          </div>
-          <div class="tiny" style="margin-top:8px">
-            하루 발행 개수 1이면 첫번째 시간만, 2면 1~2번째 시간, 3이면 1~3번째 시간을 사용해요.
+            <input id="filter" placeholder="주제 검색(필터)" oninput="renderTopics()" />
+            <button class="btn" onclick="copyAll()">전체 복사</button>
           </div>
         </div>
 
-        <div class="modalBox" style="grid-column:1 / -1">
-          <div style="font-weight:900;margin-bottom:8px">예약 상태</div>
-          <div class="tiny" id="planView">저장된 예약이 없어요.</div>
-        </div>
+        <div style="margin-top:12px;" class="topicList" id="topics"></div>
       </div>
+    </div>
 
-      <div class="modalActions">
-        <button class="btn ghost" onclick="clearSchedule()">예약 삭제</button>
-        <button class="btn" onclick="viewSchedule()">예약 보기</button>
-        <button class="btn primary" onclick="saveSchedule()">예약 저장</button>
+    <div class="panel">
+      <div class="h2">자동 발행</div>
+      <div class="muted">기본: 하루 3개 (오전 9시 / 오후 2시 / 저녁 7시). “바로 발행”은 원하는 시작 시간 + 간격으로 발행할 수 있어요.</div>
+
+      <div class="box">
+        <div class="row" style="margin-top:8px;">
+          <button class="btn primary" onclick="alert('지금은 UI만 완성! 다음 단계에서 실제 자동발행(서버/로그인/API) 연결합니다.')">하루 3개 자동 발행</button>
+          <span class="muted">오전 9시 / 오후 2시 / 저녁 7시</span>
+        </div>
+
+        <div class="row" style="margin-top:14px;">
+          <label style="font-weight:900;">바로 발행</label>
+          <input type="time" id="startTime" value="09:00" />
+          <select id="gapHours">
+            <option value="1">1시간 간격</option>
+            <option value="2" selected>2시간 간격</option>
+            <option value="3">3시간 간격</option>
+            <option value="6">6시간 간격</option>
+            <option value="12">12시간 간격</option>
+          </select>
+          <input type="number" id="instantCount" value="3" min="1" max="30" />
+          <span class="muted">개 발행</span>
+          <button class="btn primary" onclick="instantPublish()">바로 발행</button>
+        </div>
+
+        <div class="muted" id="instantPreview" style="margin-top:10px;"></div>
       </div>
     </div>
   </div>
 
-  <!-- 바로발행 Modal -->
-  <div class="modalOverlay" id="publishOverlay" onclick="closeIfOutside(event,'publishOverlay')">
-    <div class="modal" role="dialog" aria-modal="true">
-      <div class="modalTop">
+  <!-- 예약발행 팝업 -->
+  <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); padding:18px;">
+    <div style="max-width:720px;margin:40px auto;background:rgba(20,24,40,.96);border:1px solid rgba(255,255,255,.12);border-radius:22px;box-shadow:0 18px 44px rgba(0,0,0,.5);padding:16px;">
+      <div class="row" style="justify-content:space-between;">
+        <div style="font-weight:900;font-size:18px;">예약발행</div>
+        <button class="btn" onclick="closeSchedule()">닫기</button>
+      </div>
+
+      <div class="box">
+        <div class="muted">현재는 “UI만” 준비된 상태예요. 다음 단계에서 실제로 글/이미지 생성 + 블로그 자동발행 서버 연결을 붙일게요.</div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn primary" onclick="alert('다음 단계에서 연결됩니다!')">예약 실행</button>
+          <button class="btn" onclick="alert('다음 단계에서 연결됩니다!')">연동확인</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CATS = [
+      {k:"건강", i:"💪", s:"몸/건강"},
+      {k:"컴퓨터/IT", i:"💻", s:"기술/도구"},
+      {k:"자동차", i:"🚗", s:"정비/보험"},
+      {k:"생활/가전", i:"🏠", s:"살림/가전"},
+      {k:"육아", i:"👶", s:"육아/교육"},
+      {k:"돈/재테크", i:"💰", s:"절약/투자"},
+      {k:"여행", i:"✈️", s:"코스/팁"},
+      {k:"요리", i:"🍳", s:"레시피"},
+      {k:"자기계발", i:"✅", s:"습관/목표"},
+      {k:"공부/자격증", i:"📚", s:"시험/루틴"},
+      {k:"반려동물", i:"🐶", s:"케어/용품"},
+      {k:"패션/뷰티", i:"💄", s:"관리/팁"},
+      {k:"취미", i:"🎨", s:"취미/DIY"},
+      {k:"스포츠", i:"⚽", s:"운동/루틴"},
+      {k:"게임", i:"🎮", s:"리뷰/팁"},
+      {k:"영화/드라마", i:"🎬", s:"추천/리뷰"},
+    ];
+
+    let selectedBlog = localStorage.getItem("baseone_selected_blog") || "";
+    let selectedCat  = localStorage.getItem("baseone_selected_cat") || "";
+    let topics = [];
+
+    function loadEngines(){
+      const s = JSON.parse(localStorage.getItem("baseone_settings") || "{}");
+      const textMap = {gemini:"Gemini", chatgpt:"ChatGPT", genspark:"젠스파크"};
+      const imgMap  = {gemini_image:"Gemini 이미지", wisk:"WISK(위스크)", free_stock:"무료 이미지(스톡)"};
+      const text = textMap[s.textProvider] || "-";
+      const img  = imgMap[s.imgProvider] || "-";
+      document.getElementById("engineInfo").textContent = `글작성: ${text} / 이미지: ${img}`;
+    }
+
+    function setBlog(b){
+      selectedBlog = b;
+      localStorage.setItem("baseone_selected_blog", b);
+      ["blogspot","naver","tistory"].forEach(x=>{
+        document.getElementById("b_"+x).classList.toggle("active", x===b);
+      });
+      updateSel();
+    }
+
+    function selectCat(cat){
+      selectedCat = cat;
+      localStorage.setItem("baseone_selected_cat", cat);
+      makeTopics(cat);
+      updateSel();
+    }
+
+    function updateSel(){
+      const blogName = selectedBlog ? (selectedBlog==="blogspot"?"블로그스팟": selectedBlog==="naver"?"네이버":"티스토리") : "-";
+      document.getElementById("selInfo").textContent = `블로그: ${blogName} / 카테고리: ${selectedCat || "-"}`;
+    }
+
+    function makeTopics(category){
+      topics = [];
+      for(let i=1;i<=50;i++){
+        topics.push(`${category} 수익형 글 아이디어 ${i}`);
+      }
+      renderTopics();
+    }
+
+    function renderTopics(){
+      const q = (document.getElementById("filter").value || "").trim().toLowerCase();
+      const list = document.getElementById("topics");
+      const filtered = q ? topics.filter(t=>t.toLowerCase().includes(q)) : topics;
+
+      list.innerHTML = "";
+      filtered.forEach((t)=>{
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <div class="txt">${escapeHtml(t)}</div>
+          <div class="actions">
+            <button class="btn small copy" onclick="copyText('${escapeAttr(t)}')">복사</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function copyText(t){
+      navigator.clipboard.writeText(t);
+      alert("복사 완료!");
+    }
+
+    function copyAll(){
+      if(!topics.length){ alert("먼저 카테고리를 선택하세요!"); return; }
+      navigator.clipboard.writeText(topics.join("\n"));
+      alert("전체 복사 완료!");
+    }
+
+    function openSchedule(){ document.getElementById("modal").style.display="block"; }
+    function closeSchedule(){ document.getElementById("modal").style.display="none"; }
+
+    function instantPublish(){
+      if(!selectedBlog){ alert("먼저 블로그를 선택하세요!"); return; }
+      if(!selectedCat){ alert("먼저 카테고리를 선택하세요!"); return; }
+      if(!topics.length){ alert("주제가 없습니다. 카테고리를 다시 선택해 주세요."); return; }
+
+      const start = document.getElementById("startTime").value || "09:00";
+      const gap   = parseInt(document.getElementById("gapHours").value || "2", 10);
+      const count = Math.max(1, parseInt(document.getElementById("instantCount").value || "1", 10));
+
+      // 미리보기(시간 계산)
+      const times = [];
+      const [hh,mm] = start.split(":").map(Number);
+      let base = new Date();
+      base.setHours(hh, mm, 0, 0);
+
+      for(let i=0;i<count;i++){
+        const d = new Date(base.getTime() + i*gap*60*60*1000);
+        const h = String(d.getHours()).padStart(2,"0");
+        const m = String(d.getMinutes()).padStart(2,"0");
+        times.push(`${h}:${m}`);
+      }
+
+      document.getElementById("instantPreview").textContent =
+        `미리보기: ${times.join(" / ")} 에 ${count}개 발행 (다음 단계에서 실제 발행 연결)`;
+
+      alert("지금은 UI만 완성! 다음 단계에서 실제 글/이미지 생성 + 발행을 연결합니다.");
+    }
+
+    function escapeHtml(s){
+      return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+    }
+    function escapeAttr(s){
+      return s.replaceAll("\\","\\\\").replaceAll("'","\\'");
+    }
+
+    // init
+    const grid = document.getElementById("catGrid");
+    CATS.forEach(c=>{
+      const el = document.createElement("div");
+      el.className="cat";
+      el.onclick = ()=>selectCat(c.k);
+      el.innerHTML = `
+        <div class="ico">${c.i}</div>
         <div>
-          <div class="modalTitle">바로 발행(복사용 데이터 만들기)</div>
-          <div class="tiny">원하는 시간/주제로 “발행 텍스트”를 만들고 복사해서 사용하세요.</div>
-        </div>
-        <button class="btn small modalClose" onclick="closeModal('publishOverlay')">닫기</button>
-      </div>
-
-      <div class="modalGrid">
-        <div class="modalBox">
-          <div style="font-weight:900;margin-bottom:8px">블로그 선택</div>
-          <select id="blogSelect2"></select>
-          <div class="tiny" style="margin-top:8px">선택은 저장용/표시용입니다.</div>
-        </div>
-
-        <div class="modalBox">
-          <div style="font-weight:900;margin-bottom:8px">발행 시간</div>
-          <input id="publishTime" type="datetime-local"/>
-          <div class="tiny" style="margin-top:8px">원하는 날짜/시간을 선택하세요.</div>
-        </div>
-
-        <div class="modalBox" style="grid-column:1 / -1">
-          <div style="font-weight:900;margin-bottom:8px">주제 선택(카드에서 클릭하면 자동 입력)</div>
-          <input id="publishTopic" placeholder="여기에 주제가 들어갑니다 (직접 입력도 가능)"/>
-          <div class="tiny" style="margin-top:8px">주제 카드에서 복사 말고, “바로발행에 넣기”도 가능하도록 해놨어요.</div>
-        </div>
-
-        <div class="modalBox" style="grid-column:1 / -1">
-          <div style="font-weight:900;margin-bottom:8px">발행용 텍스트(복사/붙여넣기)</div>
-          <textarea id="publishPayload" placeholder="아래 [만들기]를 누르면 자동 생성됩니다."></textarea>
-          <div class="row" style="margin-top:10px">
-            <button class="btn ok" onclick="buildPayload()">만들기</button>
-            <button class="btn" onclick="copyPayload()">전체 복사</button>
-            <button class="btn warn" onclick="clearPayload()">비우기</button>
-          </div>
-          <div class="tiny" style="margin-top:10px">
-            * 실제 자동 업로드는 다음 단계(서버/OAuth)에서 연결합니다.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-<script>
-  // ---------- Toast ----------
-  function toast(msg){
-    const t=document.getElementById("toast");
-    t.textContent=msg;
-    t.style.display="block";
-    clearTimeout(window.__t);
-    window.__t=setTimeout(()=>t.style.display="none", 2200);
-  }
-
-  // ---------- Categories meta (딥톤) ----------
-  const CATEGORY_META = [
-    {name:"건강", icon:"💪", sub:"몸/건강", glow:"rgba(57,217,138,.10)", dot:"#2fbf7a"},
-    {name:"컴퓨터/IT", icon:"💻", sub:"기술/도구", glow:"rgba(106,168,255,.12)", dot:"#4f8dff"},
-    {name:"자동차", icon:"🚗", sub:"정비/보험", glow:"rgba(255,168,76,.10)", dot:"#d08a3c"},
-    {name:"생활/가전", icon:"🏠", sub:"살림/가전", glow:"rgba(174,120,255,.10)", dot:"#8a63d8"},
-    {name:"육아", icon:"👶", sub:"육아/교육", glow:"rgba(255,102,196,.08)", dot:"#cc4fa0"},
-    {name:"돈/재테크", icon:"💸", sub:"절약/투자", glow:"rgba(58,123,255,.12)", dot:"#3a7bff"},
-    {name:"여행", icon:"✈️", sub:"코스/팁", glow:"rgba(80,220,255,.08)", dot:"#3aa9c2"},
-    {name:"요리", icon:"🍳", sub:"레시피", glow:"rgba(255,220,80,.08)", dot:"#c6a83a"},
-    {name:"자기계발", icon:"📈", sub:"습관/목표", glow:"rgba(140,255,190,.08)", dot:"#4fbf86"},
-    {name:"공부/자격증", icon:"📚", sub:"시험/루틴", glow:"rgba(255,170,200,.08)", dot:"#c97a95"},
-    {name:"반려동물", icon:"🐶", sub:"케어/용품", glow:"rgba(180,255,120,.08)", dot:"#7abf4f"},
-    {name:"패션/뷰티", icon:"💄", sub:"관리/템", glow:"rgba(255,120,150,.08)", dot:"#c9657a"},
-    {name:"취미", icon:"🎨", sub:"취미/DIY", glow:"rgba(160,200,255,.08)", dot:"#6b92c9"},
-    {name:"스포츠", icon:"⚽", sub:"운동/루틴", glow:"rgba(120,255,220,.08)", dot:"#49bfa8"},
-    {name:"게임", icon:"🎮", sub:"리뷰/팁", glow:"rgba(200,160,255,.08)", dot:"#8e6fd1"},
-    {name:"영화/드라마", icon:"🎬", sub:"추천/리뷰", glow:"rgba(255,200,140,.08)", dot:"#c98f5a"},
-  ];
-
-  // 카테고리 렌더링
-  const catsEl=document.getElementById("cats");
-  CATEGORY_META.forEach((c)=>{
-    const b=document.createElement("button");
-    b.className="cat";
-    b.style.setProperty("--glow", c.glow);
-    b.style.setProperty("--dot", c.dot);
-    b.innerHTML = `
-      <div class="l">
-        <div class="icon">${c.icon}</div>
-        <div class="name">
-          <div>${c.name}</div>
-          <small>${c.sub}</small>
-        </div>
-      </div>
-      <div class="swatch"></div>
-    `;
-    b.onclick=()=>{
-      selectedCategory = c.name;
-      makeTopics(c.name);
-      // 카테고리 선택하면 수익형 자동추천 준비만 (원하면 즉시 생성도 가능)
-      toast(`카테고리 선택: ${c.name}`);
-    };
-    catsEl.appendChild(b);
-  });
-
-  // ---------- Clipboard ----------
-  async function copyText(text){
-    try{
-      await navigator.clipboard.writeText(text);
-      toast("✅ 복사 완료!");
-    }catch(e){
-      const ta=document.createElement("textarea");
-      ta.value=text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      ta.remove();
-      toast("✅ 복사 완료!");
-    }
-  }
-
-  // ---------- State ----------
-  let selectedCategory = "";
-  let topicData = [];   // [{title, category}]
-  let profitData = [];  // [{title, tag, category}]
-
-  // ---------- Topic 50 ----------
-  function makeTopics(category){
-    topicData = [];
-    for(let i=1;i<=50;i++){
-      topicData.push({ title:`${category} 글 아이디어 ${i}`, category });
-    }
-    renderTopics();
-    document.getElementById("topicCount").textContent="50개";
-  }
-
-  function renderTopics(){
-    const filter = (document.getElementById("topicFilter").value || "").trim().toLowerCase();
-    const topics=document.getElementById("topics");
-    topics.innerHTML="";
-
-    const shown = topicData.filter(x => !filter || x.title.toLowerCase().includes(filter));
-    shown.forEach((x, idx)=>{
-      const el=document.createElement("div");
-      el.className="topicCard";
-      el.innerHTML = `
-        <div class="topicLeft">
-          <div class="badge">${idx+1}</div>
-          <div class="topicText">
-            <div class="topicTitle">${escapeHtml(x.title)}</div>
-            <div class="topicMeta">
-              <span class="pill">${escapeHtml(x.category)}</span>
-              <span class="pill">주제</span>
-            </div>
-          </div>
-        </div>
-        <div class="row" style="flex:0 0 auto;gap:8px">
-          <button class="btn small copy" onclick="copyText('${escapeJs(x.title)}')">복사</button>
-          <button class="btn small" onclick="sendToPublishNow('${escapeJs(x.title)}')">바로발행에 넣기</button>
+          <div class="t">${c.k}</div>
+          <div class="s">${c.s}</div>
         </div>
       `;
-      topics.appendChild(el);
+      grid.appendChild(el);
     });
 
-    // 카운트 업데이트
-    document.getElementById("topicCount").textContent = `${shown.length}개`;
-  }
-
-  document.getElementById("topicFilter").addEventListener("input", renderTopics);
-
-  // ---------- Profit 100 (카테고리별 자동추천) ----------
-  const PROFIT_BANK = {
-    "건강":[
-      "다이어트 식단/운동 루틴", "건강검진 항목 해석", "영양제(오메가3/비타민D) 비교",
-      "탈모/두피 관리", "혈당/고혈압 관리", "실비보험 청구 방법", "의료비 환급/세액공제"
-    ],
-    "컴퓨터/IT":[
-      "가성비 노트북 추천", "SSD 업그레이드 가이드", "윈도우 최적화/정리", "공유기/와이파이 세팅",
-      "구독형 소프트웨어 절약", "AI 툴 비교/활용", "모니터/키보드 추천"
-    ],
-    "자동차":[
-      "자동차 보험 비교", "자차/대물/대인 기준", "엔진오일/타이어 교체", "중고차 체크리스트",
-      "블랙박스/내비 추천", "연비 절약 운전법", "정비소 비용 아끼는 법"
-    ],
-    "생활/가전":[
-      "가전(로봇청소기/건조기) 비교", "전기요금 절약", "렌탈 vs 구매", "정수기/공기청정기 추천",
-      "청소/정리 수납", "세탁/빨래 노하우", "이사 체크리스트"
-    ],
-    "육아":[
-      "육아템 추천(카시트/유모차)", "분유/기저귀 비교", "어린이 보험", "육아 지원금/바우처",
-      "아이 교육 앱/교구", "수면/식습관 루틴", "출산/산후조리 정보"
-    ],
-    "돈/재테크":[
-      "신용카드 혜택 최적화", "통신비/구독 절약", "연말정산 환급", "ISA/IRP 기초",
-      "대출 금리 비교", "보험 리모델링", "부업 아이디어"
-    ],
-    "여행":[
-      "항공권 싸게 사는 법", "호텔/숙소 할인", "여행자보험 비교", "렌터카/교통패스",
-      "가성비 코스 추천", "환전/수수료 절약", "면세/쇼핑 팁"
-    ],
-    "요리":[
-      "다이어트 도시락 레시피", "저탄고지/단백질 레시피", "에어프라이어 추천/활용",
-      "밀키트 비교", "식재료 보관법", "주간 장보기 리스트", "칼/팬 등 주방용품 추천"
-    ],
-    "자기계발":[
-      "시간관리/루틴", "자격증 추천", "독서/필사 방법", "생산성 앱 추천",
-      "부업 준비 로드맵", "면접/이직 준비", "습관 만들기"
-    ],
-    "공부/자격증":[
-      "자격증 합격 루틴", "필기/실기 준비", "교재/인강 비교", "시험 일정 정리",
-      "암기법/노트법", "공부 시간표", "취업 연계"
-    ],
-    "반려동물":[
-      "사료/간식 추천", "보험/병원비", "훈련/배변", "영양제",
-      "미용/목욕 용품", "장난감/캣타워", "알러지 관리"
-    ],
-    "패션/뷰티":[
-      "스킨케어 루틴", "선크림/레티놀 비교", "탈모/헤어케어", "다이어트 보조제 비교",
-      "가성비 화장품 추천", "퍼스널컬러", "관리 노하우"
-    ],
-    "취미":[
-      "입문 취미 추천", "장비 구매 가이드", "가성비 세트", "온라인 클래스 추천",
-      "취미로 수익 내기", "DIY 키트", "모임/커뮤니티"
-    ],
-    "스포츠":[
-      "홈트 장비 추천", "헬스 루틴", "러닝화 추천", "부상 방지 스트레칭",
-      "단백질/보충제 비교", "체중감량 루틴", "운동 앱 추천"
-    ],
-    "게임":[
-      "가성비 게이밍 기기", "콘솔/PC 비교", "게임 추천 리스트", "마우스/키보드 추천",
-      "디스코드/스트리밍 세팅", "가챠 과금 절약", "헤드셋 추천"
-    ],
-    "영화/드라마":[
-      "OTT 추천/요금제 비교", "구독료 절약", "작품 추천 리스트", "촬영지/여행 코스",
-      "굿즈/쇼핑", "리뷰 템플릿", "장르별 추천"
-    ],
-  };
-
-  function makeProfitAuto(){
-    const cat = selectedCategory || "돈/재테크";
-    const seeds = PROFIT_BANK[cat] || PROFIT_BANK["돈/재테크"];
-    profitData = [];
-
-    for(let i=1;i<=100;i++){
-      const base = seeds[i % seeds.length];
-      const title = `수익형 주제 ${i}: ${cat} - ${base}`;
-      profitData.push({ title, tag:"수익형", category: cat });
-    }
-    renderProfit();
-    toast(`자동추천 생성 완료: ${cat} 수익형 100개`);
-  }
-
-  // 전체 랜덤(카테고리 상관없이)
-  function makeProfitAll(){
-    const allSeeds = Object.values(PROFIT_BANK).flat();
-    profitData = [];
-    for(let i=1;i<=100;i++){
-      const base = allSeeds[i % allSeeds.length];
-      const title = `수익형 주제 ${i}: ${base}`;
-      profitData.push({ title, tag:"수익형", category:"전체" });
-    }
-    renderProfit();
-    toast("전체 랜덤 수익형 100개 생성!");
-  }
-
-  function renderProfit(){
-    const filter = (document.getElementById("profitFilter").value || "").trim().toLowerCase();
-    const profit=document.getElementById("profit");
-    profit.innerHTML="";
-
-    const shown = profitData.filter(x => !filter || x.title.toLowerCase().includes(filter));
-
-    shown.forEach((x, idx)=>{
-      const el=document.createElement("div");
-      el.className="topicCard";
-      el.innerHTML = `
-        <div class="topicLeft">
-          <div class="badge">${idx+1}</div>
-          <div class="topicText">
-            <div class="topicTitle">${escapeHtml(x.title)}</div>
-            <div class="topicMeta">
-              <span class="pill">${escapeHtml(x.tag)}</span>
-              <span class="pill">${escapeHtml(x.category)}</span>
-            </div>
-          </div>
-        </div>
-        <div class="row" style="flex:0 0 auto;gap:8px">
-          <button class="btn small copy" onclick="copyText('${escapeJs(x.title)}')">복사</button>
-          <button class="btn small" onclick="sendToPublishNow('${escapeJs(x.title)}')">바로발행에 넣기</button>
-        </div>
-      `;
-      profit.appendChild(el);
-    });
-
-    document.getElementById("profitCount").textContent = `${shown.length}개`;
-  }
-
-  document.getElementById("profitFilter").addEventListener("input", renderProfit);
-
-  function clearProfit(){
-    profitData = [];
-    renderProfit();
-    document.getElementById("profitCount").textContent="0개";
-  }
-
-  // ---------- Modals ----------
-  function openPlanner(){
-    document.getElementById("plannerOverlay").style.display="flex";
-    loadBlogsToSelect("blogSelect");
-    refreshPlanView();
-  }
-  function openPublishNow(){
-    document.getElementById("publishOverlay").style.display="flex";
-    loadBlogsToSelect("blogSelect2");
-    // 기본 datetime-local 값: 지금 시간
-    const dt = new Date();
-    const pad = (n)=>String(n).padStart(2,"0");
-    const v = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
-    document.getElementById("publishTime").value = v;
-  }
-  function closeModal(id){
-    document.getElementById(id).style.display="none";
-  }
-  function closeIfOutside(e,id){
-    if(e.target.id === id) closeModal(id);
-  }
-  window.addEventListener("keydown", (e)=>{
-    if(e.key === "Escape"){
-      closeModal("plannerOverlay");
-      closeModal("publishOverlay");
-    }
-  });
-
-  // ---------- Blogs select from settings ----------
-  function loadBlogsToSelect(selectId){
-    const sel=document.getElementById(selectId);
-    sel.innerHTML="";
-    const blogs = JSON.parse(localStorage.getItem("baseone.blogs")||"[]");
-    if(!blogs.length){
-      const opt=document.createElement("option");
-      opt.value="";
-      opt.textContent="설정에서 블로그를 먼저 저장하세요";
-      sel.appendChild(opt);
-      return;
-    }
-    blogs.forEach((b, idx)=>{
-      const opt=document.createElement("option");
-      const type = (b.type||"").toUpperCase();
-      const name = b.name ? b.name : "이름없음";
-      opt.value=idx;
-      opt.textContent=`${type} · ${name} · ${b.url}`;
-      sel.appendChild(opt);
-    });
-  }
-
-  // ---------- Schedule (예약) ----------
-  const LS_PLAN="baseone.plan.v3";
-
-  function saveSchedule(){
-    const blogs = JSON.parse(localStorage.getItem("baseone.blogs")||"[]");
-    const selIdx = document.getElementById("blogSelect").value;
-    const daily = parseInt(document.getElementById("dailyCount").value || "3", 10);
-
-    if(!blogs.length){ toast("설정에서 블로그를 먼저 저장하세요!"); return; }
-    if(selIdx === ""){ toast("블로그를 선택하세요!"); return; }
-    if(!daily || daily < 1){ toast("하루 발행 개수는 1 이상!"); return; }
-
-    const t1=document.getElementById("t1").value || "09:00";
-    const t2=document.getElementById("t2").value || "14:00";
-    const t3=document.getElementById("t3").value || "19:00";
-
-    const times = [t1, t2, t3].slice(0, Math.min(3, daily));
-
-    const picked = blogs[parseInt(selIdx, 10)];
-    const data = {
-      blog: picked,
-      dailyCount: daily,
-      times,
-      savedAt: new Date().toISOString()
-    };
-
-    localStorage.setItem(LS_PLAN, JSON.stringify(data));
-    toast("✅ 예약 저장 완료!");
-    refreshPlanView();
-  }
-
-  function viewSchedule(){
-    const raw = localStorage.getItem(LS_PLAN);
-    if(!raw){ toast("저장된 예약이 없어요"); return; }
-    const d = JSON.parse(raw);
-    alert(
-      "예약 정보\n\n" +
-      "블로그: " + (d.blog.name || "이름없음") + "\n" +
-      "종류: " + d.blog.type + "\n" +
-      "주소: " + d.blog.url + "\n" +
-      "하루 발행: " + d.dailyCount + "개\n" +
-      "시간: " + (d.times||[]).join(", ") + "\n" +
-      "저장시간: " + d.savedAt
-    );
-  }
-
-  function clearSchedule(){
-    localStorage.removeItem(LS_PLAN);
-    toast("예약 삭제 완료");
-    refreshPlanView();
-  }
-
-  function refreshPlanView(){
-    const out = document.getElementById("planView");
-    const raw = localStorage.getItem(LS_PLAN);
-    if(!raw){
-      out.textContent = "저장된 예약이 없어요.";
-      return;
-    }
-    const d = JSON.parse(raw);
-    out.innerHTML =
-      `✅ 저장됨<br>` +
-      `블로그: <b>${escapeHtml(d.blog.name || "이름없음")}</b> (${escapeHtml(d.blog.type)})<br>` +
-      `주소: ${escapeHtml(d.blog.url)}<br>` +
-      `하루 발행: ${escapeHtml(String(d.dailyCount))}개<br>` +
-      `시간: ${escapeHtml((d.times||[]).join(", "))}<br>` +
-      `저장시간: ${escapeHtml(d.savedAt)}`;
-  }
-
-  // ---------- Publish Now ----------
-  function sendToPublishNow(topic){
-    document.getElementById("publishTopic").value = topic;
-    openPublishNow();
-    toast("바로발행 창에 주제 입력됨!");
-  }
-
-  function buildPayload(){
-    const blogIdx = document.getElementById("blogSelect2").value;
-    const blogs = JSON.parse(localStorage.getItem("baseone.blogs")||"[]");
-    const blog = (blogs.length && blogIdx !== "") ? blogs[parseInt(blogIdx,10)] : null;
-
-    const dt = document.getElementById("publishTime").value || "";
-    const topic = (document.getElementById("publishTopic").value || "").trim();
-    if(!topic){ toast("주제를 입력하세요!"); return; }
-
-    // 발행용 텍스트 템플릿(복사용)
-    const title = topic;
-    const imgPrompt = `블로그 썸네일용 고퀄 이미지, 주제: "${topic}", 미니멀, 고대비, 텍스트 없음, 16:9`;
-    const bodyPrompt =
-      `다음 주제로 한국어 블로그 글을 작성해줘.\n`+
-      `- 주제: ${topic}\n`+
-      `- SEO: 제목/소제목(H2,H3), 리스트, 표 1개, FAQ 5개 포함\n`+
-      `- 길이: 1800~2400자\n`+
-      `- 톤: 친절/전문, 초보자도 이해\n`+
-      `- 마지막에 요약과 행동유도(구독/댓글) 넣기\n`;
-
-    const payload =
-`[바로발행 데이터]
-- 발행시간: ${dt}
-- 블로그: ${blog ? (blog.type+" / "+(blog.name||"이름없음")+" / "+blog.url) : "(미선택)"}
-
-[제목]
-${title}
-
-[본문 작성 프롬프트]
-${bodyPrompt}
-
-[이미지 생성 프롬프트]
-${imgPrompt}
-
-[메모]
-- 이미지/글 생성 후, 플랫폼(블로그스팟/네이버/티스토리)에 업로드 연결은 다음 단계에서 자동화(OAuth/서버)로 처리합니다.
-`;
-
-    document.getElementById("publishPayload").value = payload;
-    toast("발행용 텍스트 생성 완료!");
-  }
-
-  function copyPayload(){
-    const v = document.getElementById("publishPayload").value || "";
-    if(!v.trim()){ toast("복사할 내용이 없어요"); return; }
-    copyText(v);
-  }
-
-  function clearPayload(){
-    document.getElementById("publishPayload").value="";
-  }
-
-  // ---------- helpers ----------
-  function escapeJs(s){
-    return String(s)
-      .replaceAll("\\","\\\\")
-      .replaceAll("'","\\'")
-      .replaceAll("\n","\\n")
-      .replaceAll("\r","\\r");
-  }
-  function escapeHtml(s){
-    return String(s)
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-</script>
+    // restore
+    if(selectedBlog) setBlog(selectedBlog);
+    updateSel();
+    if(selectedCat) makeTopics(selectedCat);
+    loadEngines();
+  </script>
 </body>
 </html>
