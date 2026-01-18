@@ -11,15 +11,13 @@
       --panel2: rgba(255,255,255,.08);
       --line: rgba(255,255,255,.10);
       --text:#eef2ff;
-      --muted:#b6c0ff;
-      --muted2:rgba(238,242,255,.70);
+      --muted:rgba(238,242,255,.72);
       --accent:#6aa8ff;
       --accent2:#3a7bff;
-      --pink:#ff66c4;
-      --ok:#39d98a;
-      --bad:#ff5a6a;
       --shadow: 0 18px 44px rgba(0,0,0,.45);
       --radius:22px;
+      --ok:#39d98a;
+      --bad:#ff5a6a;
     }
     *{box-sizing:border-box}
     body{
@@ -33,6 +31,7 @@
         linear-gradient(180deg, #070a14 0%, var(--bg) 65%);
       min-height:100vh;
     }
+    a{color:var(--accent); text-decoration:none}
     .wrap{max-width:1140px;margin:0 auto;padding:22px 16px 74px}
     .top{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -52,7 +51,7 @@
       border:1px solid rgba(255,255,255,.18);
     }
     .chip{
-      font-size:12px;color:var(--muted2);
+      font-size:12px;color:var(--muted);
       padding:7px 10px;border:1px solid var(--line);
       border-radius:999px;background:rgba(255,255,255,.04)
     }
@@ -74,12 +73,10 @@
       box-shadow: 0 12px 30px rgba(58,123,255,.25);
     }
     .btn.primary:hover{filter:brightness(1.05)}
-    .btn.pink{
-      background: linear-gradient(180deg, rgba(255,102,196,1), rgba(216,71,170,1));
-      border:none;
-      box-shadow: 0 12px 30px rgba(255,102,196,.18);
-    }
-
+    .btn.ghost{background:rgba(255,255,255,.04)}
+    .btn.small{padding:8px 10px;border-radius:12px;font-size:13px}
+    .btn.copy{background:rgba(0,0,0,.18)}
+    .btn.copy:hover{border-color: rgba(255,255,255,.20)}
     .grid{display:grid;grid-template-columns:1fr;gap:14px}
     @media(min-width:980px){.grid{grid-template-columns:1.15fr .85fr}}
 
@@ -92,28 +89,50 @@
       backdrop-filter: blur(10px);
     }
     .card h2{margin:0 0 10px;font-size:18px}
-    .desc{margin:0 0 14px;color:var(--muted2);font-size:13px;line-height:1.55}
+    .desc{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.55}
 
+    /* Category (icon + color) */
     .categoryGrid{
       display:grid; grid-template-columns: repeat(2,1fr);
       gap:10px;
     }
     @media(min-width:760px){.categoryGrid{grid-template-columns: repeat(4,1fr)}}
     .cat{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:12px 12px;border-radius:18px;
+      text-align:left;
+      padding:12px 12px;
+      border-radius:18px;
       border:1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.05);
       font-weight:900;
       transition: transform .08s ease, border-color .2s ease, background .2s ease;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      position:relative;
+      overflow:hidden;
     }
     .cat:hover{transform: translateY(-1px); border-color: rgba(106,168,255,.38); background: rgba(255,255,255,.07)}
-    .cat small{color:var(--muted2);font-weight:800}
-    .dot{
-      width:10px;height:10px;border-radius:999px;
-      background: linear-gradient(180deg, var(--accent), var(--accent2));
-      box-shadow: 0 0 0 4px rgba(58,123,255,.12);
+    .cat .l{display:flex;align-items:center;gap:10px}
+    .icon{
+      width:34px;height:34px;border-radius:14px;
+      display:grid;place-items:center;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      font-size:18px;
       flex:0 0 auto;
+    }
+    .cat .name{display:flex;flex-direction:column;gap:2px}
+    .cat .name small{font-weight:800;color:var(--muted);font-size:12px}
+    .swatch{
+      width:10px;height:10px;border-radius:999px;
+      box-shadow: 0 0 0 4px rgba(255,255,255,.06);
+      flex:0 0 auto;
+    }
+    .cat::after{
+      content:"";
+      position:absolute; inset:-80px -60px auto auto;
+      width:160px;height:160px;border-radius:999px;
+      background: var(--glow, rgba(106,168,255,.18));
+      filter: blur(2px);
+      transform: rotate(18deg);
     }
 
     .two{display:grid;grid-template-columns:1fr;gap:12px}
@@ -129,7 +148,7 @@
       display:flex;justify-content:space-between;align-items:center;gap:10px;
       margin-bottom:10px;
     }
-    .count{font-size:12px;color:var(--muted2)}
+    .count{font-size:12px;color:var(--muted)}
     .tag{
       font-size:12px;
       padding:6px 10px;border-radius:999px;
@@ -140,25 +159,36 @@
     }
 
     .list{
-      display:grid; gap:8px;
-      max-height: 390px; overflow:auto; padding-right:4px;
+      display:grid; gap:10px;
+      max-height: 420px; overflow:auto; padding-right:4px;
     }
-    .item{
-      padding:10px 10px;border-radius:16px;
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.08);
-      font-size:13px;
-      display:flex;justify-content:space-between;align-items:center;gap:10px;
+
+    /* Card style items */
+    .topicCard{
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      padding:12px;
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
     }
-    .item:hover{border-color: rgba(255,255,255,.14)}
-    .item .left{display:flex;align-items:center;gap:10px}
+    .topicLeft{display:flex;gap:10px;align-items:flex-start}
     .badge{
-      width:30px;height:30px;border-radius:12px;
+      width:32px;height:32px;border-radius:14px;
       display:grid;place-items:center;
-      background: rgba(0,0,0,.20);
+      background: rgba(0,0,0,.18);
       border:1px solid rgba(255,255,255,.10);
       font-weight:900;color:#cfd6ff;
       flex:0 0 auto;
+    }
+    .topicText{display:flex;flex-direction:column;gap:6px}
+    .topicTitle{font-size:13px;font-weight:900;line-height:1.35}
+    .topicMeta{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{
+      font-size:12px;
+      padding:5px 9px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+      color:#d9deff;
     }
 
     select,input{
@@ -170,7 +200,6 @@
       padding:11px 12px;
       outline:none;
     }
-
     .divider{height:1px;background: rgba(255,255,255,.08); margin:14px 0}
 
     .toast{
@@ -181,6 +210,50 @@
       color:var(--text);font-size:13px;display:none;
       max-width: 92vw;
       box-shadow: 0 14px 30px rgba(0,0,0,.35);
+      z-index:50;
+    }
+
+    /* Modal */
+    .modalOverlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center; justify-content:center;
+      padding:18px;
+      z-index:60;
+    }
+    .modal{
+      width:min(760px, 96vw);
+      border-radius: 22px;
+      border:1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));
+      box-shadow: 0 24px 70px rgba(0,0,0,.55);
+      backdrop-filter: blur(14px);
+      padding:16px;
+    }
+    .modalTop{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      margin-bottom:10px;
+    }
+    .modalTitle{font-size:18px;font-weight:900}
+    .modalClose{border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.18)}
+    .modalGrid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:740px){.modalGrid{grid-template-columns:1fr 1fr}}
+    .modalBox{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      border-radius: 18px;
+      padding:12px;
+    }
+    .modalActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;justify-content:flex-end}
+    .tiny{font-size:12px;color:var(--muted);line-height:1.55}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      padding:3px 6px;border-radius:8px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color:#d6dcff;
     }
   </style>
 </head>
@@ -193,7 +266,7 @@
           BaseOne
           <div style="margin-top:6px">
             <span class="chip">수익형 포스팅 도구</span>
-            <span class="chip">주제 · 예약 · 자동화(다음 단계)</span>
+            <span class="chip">카드형 · 복사 · 팝업예약</span>
           </div>
         </div>
       </div>
@@ -201,7 +274,6 @@
       <div class="rightTop">
         <a class="btn" href="./settings.html">⚙ 설정</a>
         <button class="btn primary" onclick="openPlanner()">📅 예약 발행</button>
-        <button class="btn pink" onclick="scrollToTop()">⬆ 맨위</button>
       </div>
     </div>
 
@@ -209,7 +281,7 @@
       <!-- LEFT -->
       <div class="card">
         <h2>카테고리 선택</h2>
-        <p class="desc">카테고리를 누르면 주제 50개가 만들어져요. (서버 없이도 동작)</p>
+        <p class="desc">카테고리를 누르면 <b>주제 50개</b>가 생성되고, 아래 카드에서 <b>복사</b>할 수 있어요.</p>
 
         <div class="categoryGrid" id="cats"></div>
 
@@ -226,72 +298,81 @@
 
           <div class="box">
             <div class="boxTitle">
-              <b>💰 돈 되는 주제 100개</b>
-              <span class="count" id="moneyCount">0개</span>
+              <b>수익형 주제 100개</b>
+              <span class="count" id="profitCount">0개</span>
             </div>
             <div class="rightTop" style="justify-content:flex-start;margin-bottom:10px">
-              <button class="btn primary" onclick="makeMoney()">추천 생성</button>
-              <button class="btn" onclick="clearMoney()">비우기</button>
+              <button class="btn primary" onclick="makeProfit()">수익형 주제 생성</button>
+              <button class="btn ghost" onclick="clearProfit()">비우기</button>
             </div>
-            <div class="list" id="money"></div>
+            <div class="list" id="profit"></div>
           </div>
         </div>
       </div>
 
       <!-- RIGHT -->
       <div class="card">
-        <h2>발행 설정</h2>
+        <h2>발행 준비</h2>
         <p class="desc">
-          지금은 “예약 저장”까지만. 다음 단계에서 실제 자동 글/이미지 생성 + 블로그 자동 발행으로 연결해요.
+          설정에서 저장한 블로그 목록을 불러와서 선택해요.  
+          예약 발행은 <b>팝업(모달)</b>로 열립니다.
         </p>
 
         <div class="box">
-          <div class="two">
-            <div>
-              <label style="color:var(--muted2);font-size:13px">발행할 블로그(저장된 목록)</label>
-              <select id="blogSelect"></select>
-              <div class="desc" style="margin-top:8px">
-                설정에서 블로그를 저장해두면 여기서 선택할 수 있어요.
-              </div>
-            </div>
-            <div>
-              <label style="color:var(--muted2);font-size:13px">하루 발행 개수</label>
-              <input id="dailyCount" type="number" min="1" value="3"/>
-              <div class="desc" style="margin-top:8px">
-                예: 3개면 하루에 3개씩 예약 저장
-              </div>
-            </div>
+          <div class="topicMeta" style="margin-bottom:10px">
+            <span class="pill">1) 설정에서 블로그 저장</span>
+            <span class="pill">2) 주제/수익형 주제 복사</span>
+            <span class="pill">3) 예약 팝업에서 저장</span>
           </div>
 
-          <div class="rightTop" style="justify-content:flex-start;margin-top:10px">
-            <button class="btn primary" onclick="saveSchedule()">예약 저장</button>
-            <button class="btn" onclick="viewSchedule()">예약 보기</button>
+          <button class="btn primary" style="width:100%" onclick="openPlanner()">📅 예약 발행 열기</button>
+
+          <div class="tiny" style="margin-top:10px">
+            팁: 카드의 <span class="kbd">복사</span> 버튼을 누르면 주제가 클립보드로 복사됩니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modalOverlay" id="modalOverlay" onclick="closeIfOutside(event)">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modalTop">
+        <div>
+          <div class="modalTitle">예약 발행</div>
+          <div class="tiny">지금은 “예약 저장”까지만 진행 (서버 자동화는 다음 단계)</div>
+        </div>
+        <button class="btn small modalClose" onclick="closePlanner()">닫기</button>
+      </div>
+
+      <div class="modalGrid">
+        <div class="modalBox">
+          <div style="font-weight:900;margin-bottom:8px">발행할 블로그 선택</div>
+          <select id="blogSelect"></select>
+          <div class="tiny" style="margin-top:8px">
+            설정(settings.html)에서 블로그를 저장해두면 여기에 표시돼요.
           </div>
         </div>
 
-        <div class="divider"></div>
-
-        <div class="box">
-          <div class="boxTitle">
-            <b>✅ 체크리스트</b>
-            <span class="tag">다음 단계 준비</span>
-          </div>
-
-          <div class="item">
-            <div class="left"><div class="badge">1</div><span>설정에서 블로그/키 저장</span></div>
-            <span class="tag">settings</span>
-          </div>
-
-          <div class="item">
-            <div class="left"><div class="badge">2</div><span>주제 생성 → 예약 저장</span></div>
-            <span class="tag">planner</span>
-          </div>
-
-          <div class="item">
-            <div class="left"><div class="badge">3</div><span>자동 글/이미지/발행 연결</span></div>
-            <span class="tag">2단계</span>
+        <div class="modalBox">
+          <div style="font-weight:900;margin-bottom:8px">하루 발행 개수</div>
+          <input id="dailyCount" type="number" min="1" value="3"/>
+          <div class="tiny" style="margin-top:8px">
+            예: 3개 → 하루에 3개씩 예약 저장
           </div>
         </div>
+
+        <div class="modalBox" style="grid-column:1 / -1">
+          <div style="font-weight:900;margin-bottom:8px">예약 상태</div>
+          <div class="tiny" id="planView">저장된 예약이 없어요.</div>
+        </div>
+      </div>
+
+      <div class="modalActions">
+        <button class="btn ghost" onclick="clearSchedule()">예약 삭제</button>
+        <button class="btn" onclick="viewSchedule()">예약 보기</button>
+        <button class="btn primary" onclick="saveSchedule()">예약 저장</button>
       </div>
     </div>
   </div>
@@ -299,11 +380,7 @@
   <div class="toast" id="toast"></div>
 
 <script>
-  const CATEGORIES = [
-    "건강","컴퓨터/IT","자동차","생활/가전","육아","돈/재테크","여행","요리",
-    "자기계발","공부/자격증","반려동물","패션/뷰티","취미","스포츠","게임","영화/드라마"
-  ];
-
+  // ---------- Toast ----------
   function toast(msg){
     const t=document.getElementById("toast");
     t.textContent=msg;
@@ -312,58 +389,149 @@
     window.__t=setTimeout(()=>t.style.display="none", 2200);
   }
 
-  function scrollToTop(){ window.scrollTo({top:0, behavior:"smooth"}); }
+  // ---------- Categories with icon + color ----------
+  const CATEGORY_META = [
+    {name:"건강", icon:"💪", sub:"몸/건강", glow:"rgba(57,217,138,.22)", dot:"#39d98a"},
+    {name:"컴퓨터/IT", icon:"💻", sub:"기술/도구", glow:"rgba(106,168,255,.22)", dot:"#6aa8ff"},
+    {name:"자동차", icon:"🚗", sub:"정비/보험", glow:"rgba(255,168,76,.18)", dot:"#ffa84c"},
+    {name:"생활/가전", icon:"🏠", sub:"살림/가전", glow:"rgba(174,120,255,.18)", dot:"#ae78ff"},
+    {name:"육아", icon:"👶", sub:"육아/교육", glow:"rgba(255,102,196,.16)", dot:"#ff66c4"},
+    {name:"돈/재테크", icon:"💸", sub:"절약/투자", glow:"rgba(58,123,255,.22)", dot:"#3a7bff"},
+    {name:"여행", icon:"✈️", sub:"코스/팁", glow:"rgba(80,220,255,.16)", dot:"#50dcff"},
+    {name:"요리", icon:"🍳", sub:"레시피", glow:"rgba(255,220,80,.16)", dot:"#ffdc50"},
+    {name:"자기계발", icon:"📈", sub:"습관/목표", glow:"rgba(140,255,190,.14)", dot:"#8cffbe"},
+    {name:"공부/자격증", icon:"📚", sub:"시험/루틴", glow:"rgba(255,170,200,.14)", dot:"#ffaaC8"},
+    {name:"반려동물", icon:"🐶", sub:"케어/용품", glow:"rgba(180,255,120,.14)", dot:"#b4ff78"},
+    {name:"패션/뷰티", icon:"💄", sub:"관리/템", glow:"rgba(255,120,150,.14)", dot:"#ff7896"},
+    {name:"취미", icon:"🎨", sub:"취미/DIY", glow:"rgba(160,200,255,.14)", dot:"#a0c8ff"},
+    {name:"스포츠", icon:"⚽", sub:"운동/루틴", glow:"rgba(120,255,220,.14)", dot:"#78ffdc"},
+    {name:"게임", icon:"🎮", sub:"리뷰/팁", glow:"rgba(200,160,255,.14)", dot:"#c8a0ff"},
+    {name:"영화/드라마", icon:"🎬", sub:"추천/리뷰", glow:"rgba(255,200,140,.14)", dot:"#ffc88c"},
+  ];
 
-  // 카테고리 생성
   const catsEl=document.getElementById("cats");
-  CATEGORIES.forEach((c, idx)=>{
+  CATEGORY_META.forEach((c)=>{
     const b=document.createElement("button");
     b.className="cat";
-    b.innerHTML = `<span><span class="dot"></span> ${c}</span><small>${idx+1}</small>`;
-    b.onclick=()=>makeTopics(c);
+    b.style.setProperty("--glow", c.glow);
+    b.innerHTML = `
+      <div class="l">
+        <div class="icon">${c.icon}</div>
+        <div class="name">
+          <div>${c.name}</div>
+          <small>${c.sub}</small>
+        </div>
+      </div>
+      <div class="swatch" style="background:${c.dot}"></div>
+    `;
+    b.onclick=()=>makeTopics(c.name);
     catsEl.appendChild(b);
   });
 
-  // 주제 50개
+  // ---------- Copy helper ----------
+  async function copyText(text){
+    try{
+      await navigator.clipboard.writeText(text);
+      toast("✅ 복사 완료!");
+    }catch(e){
+      // fallback
+      const ta=document.createElement("textarea");
+      ta.value=text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      toast("✅ 복사 완료!");
+    }
+  }
+
+  // ---------- Topics (50) - card + copy button ----------
   function makeTopics(category){
     const topics=document.getElementById("topics");
     topics.innerHTML="";
     for(let i=1;i<=50;i++){
+      const title = `${category} 글 아이디어 ${i}`;
       const el=document.createElement("div");
-      el.className="item";
-      el.innerHTML = `<div class="left"><div class="badge">${i}</div><span>${category} 글 아이디어 ${i}</span></div><span class="tag">${category}</span>`;
+      el.className="topicCard";
+      el.innerHTML = `
+        <div class="topicLeft">
+          <div class="badge">${i}</div>
+          <div class="topicText">
+            <div class="topicTitle">${title}</div>
+            <div class="topicMeta">
+              <span class="pill">${category}</span>
+              <span class="pill">주제</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn small copy" onclick="copyText('${escapeJs(title)}')">복사</button>
+      `;
       topics.appendChild(el);
     }
     document.getElementById("topicCount").textContent="50개";
     toast(`${category} 주제 50개 생성!`);
   }
 
-  // 돈 되는 주제 100개
-  function makeMoney(){
-    const money=document.getElementById("money");
-    money.innerHTML="";
+  // ---------- Profit topics (100) - card + copy button ----------
+  function makeProfit(){
+    const profit=document.getElementById("profit");
+    profit.innerHTML="";
+
     const samples = [
-      "보험/실비/암보험 비교", "카드 혜택 최적화", "통신비 절약", "전기요금 절약",
-      "정부지원금/복지", "연금/IRP/ISA", "대출 상식", "부업/재택", "세금/환급",
+      "보험(실비/암보험) 비교", "카드 혜택 최적화", "통신비 절약", "전기요금 절약",
+      "정부지원금/복지", "연금(IRP/ISA)", "대출 상식", "부업/재택", "세금/환급",
       "다이어트/건강기능식품", "피부/탈모", "영양제 비교", "육아템 추천", "가전 추천",
-      "자동차 보험/정비", "여행 할인/특가", "자격증/시험", "노트북/가성비", "청소/살림팁"
+      "자동차 보험/정비", "여행 할인/특가", "자격증/시험", "노트북/가성비",
+      "청소/살림팁", "이사/정리", "휴대폰/요금제", "인터넷/TV 결합"
     ];
+
     for(let i=1;i<=100;i++){
       const base = samples[i % samples.length];
+      const title = `수익형 주제 ${i}: ${base}`;
       const el=document.createElement("div");
-      el.className="item";
-      el.innerHTML = `<div class="left"><div class="badge">${i}</div><span>수익형 주제 ${i}: ${base}</span></div><span class="tag">수익</span>`;
-      money.appendChild(el);
+      el.className="topicCard";
+      el.innerHTML = `
+        <div class="topicLeft">
+          <div class="badge">${i}</div>
+          <div class="topicText">
+            <div class="topicTitle">${title}</div>
+            <div class="topicMeta">
+              <span class="pill">수익형</span>
+              <span class="pill">추천</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn small copy" onclick="copyText('${escapeJs(title)}')">복사</button>
+      `;
+      profit.appendChild(el);
     }
-    document.getElementById("moneyCount").textContent="100개";
-    toast("돈 되는 주제 100개 생성!");
-  }
-  function clearMoney(){
-    document.getElementById("money").innerHTML="";
-    document.getElementById("moneyCount").textContent="0개";
+    document.getElementById("profitCount").textContent="100개";
+    toast("수익형 주제 100개 생성!");
   }
 
-  // 블로그 목록 불러오기 (settings.html에서 저장한 baseone.blogs)
+  function clearProfit(){
+    document.getElementById("profit").innerHTML="";
+    document.getElementById("profitCount").textContent="0개";
+  }
+
+  // ---------- Modal planner (popup) ----------
+  const overlay = document.getElementById("modalOverlay");
+  function openPlanner(){
+    overlay.style.display="flex";
+    loadBlogsToSelect();
+    refreshPlanView();
+  }
+  function closePlanner(){
+    overlay.style.display="none";
+  }
+  function closeIfOutside(e){
+    if(e.target === overlay) closePlanner();
+  }
+  window.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape" && overlay.style.display === "flex") closePlanner();
+  });
+
+  // ---------- Blogs list from settings (baseone.blogs) ----------
   function loadBlogsToSelect(){
     const sel=document.getElementById("blogSelect");
     sel.innerHTML="";
@@ -386,10 +554,9 @@
       sel.appendChild(opt);
     });
   }
-  loadBlogsToSelect();
 
-  // 예약 저장 (서버 없이 localStorage)
-  const LS_PLAN="baseone.plan.v1";
+  // ---------- Schedule save (localStorage) ----------
+  const LS_PLAN="baseone.plan.v2";
 
   function saveSchedule(){
     const blogs = JSON.parse(localStorage.getItem("baseone.blogs")||"[]");
@@ -405,6 +572,7 @@
 
     localStorage.setItem(LS_PLAN, JSON.stringify(data));
     toast("✅ 예약 저장 완료!");
+    refreshPlanView();
   }
 
   function viewSchedule(){
@@ -421,7 +589,44 @@
     );
   }
 
-  function openPlanner(){ viewSchedule(); }
+  function clearSchedule(){
+    localStorage.removeItem(LS_PLAN);
+    toast("예약 삭제 완료");
+    refreshPlanView();
+  }
+
+  function refreshPlanView(){
+    const out = document.getElementById("planView");
+    const raw = localStorage.getItem(LS_PLAN);
+    if(!raw){
+      out.textContent = "저장된 예약이 없어요.";
+      return;
+    }
+    const d = JSON.parse(raw);
+    out.innerHTML =
+      `✅ 저장됨<br>` +
+      `블로그: <b>${escapeHtml(d.blog.name || "이름없음")}</b> (${escapeHtml(d.blog.type)})<br>` +
+      `주소: ${escapeHtml(d.blog.url)}<br>` +
+      `하루 발행: ${escapeHtml(String(d.dailyCount))}개<br>` +
+      `저장시간: ${escapeHtml(d.savedAt)}`;
+  }
+
+  // ---------- helpers ----------
+  function escapeJs(s){
+    return String(s)
+      .replaceAll("\\","\\\\")
+      .replaceAll("'","\\'")
+      .replaceAll("\n","\\n")
+      .replaceAll("\r","\\r");
+  }
+  function escapeHtml(s){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
 </script>
 </body>
 </html>
