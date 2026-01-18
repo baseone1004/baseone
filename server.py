@@ -1,64 +1,91 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+import os
 from datetime import datetime
 
+# BaseOne 폴더 경로 (server.py가 있는 폴더)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
-CORS(app)  # index.html(웹)에서 서버로 요청 가능하게 해줌
+CORS(app)  # 로컬 테스트에서 프론트->API 호출 허용
 
+# -----------------------------
+# 1) 프론트 파일 제공 (index.html, style.css, 아이콘 등)
+# -----------------------------
 @app.route("/")
-def home():
-    return "BaseOne 서버 실행중 ✅"
+def home_page():
+    # BaseOne 화면(index.html) 보여주기
+    return send_from_directory(BASE_DIR, "index.html")
 
+@app.route("/style.css")
+def style_css():
+    return send_from_directory(BASE_DIR, "style.css")
+
+@app.route("/baseone.ico")
+def favicon():
+    # 파일이 없으면 404 나도 괜찮음
+    return send_from_directory(BASE_DIR, "baseone.ico")
+
+# 필요하면 다른 파일도 자동 서빙 (예: images 폴더)
+@app.route("/images/<path:filename>")
+def images(filename):
+    return send_from_directory(os.path.join(BASE_DIR, "images"), filename)
+
+
+# -----------------------------
+# 2) API (연동확인 / 글생성 샘플)
+# -----------------------------
 @app.route("/api/blogspot/test")
 def blogspot_test():
-    # 지금은 '서버 연결 확인'만 해줌
     return jsonify({
         "ok": True,
         "message": "서버 연결 OK (실제 Blogger 연동은 OAuth 단계 필요)"
     })
 
-# ✅ 2단계 시작: 주제 받으면 "글/이미지용 데이터" 만들어서 돌려주기
-# 사이트(index.html)에서 POST로 topic을 보내면 JSON을 반환함
 @app.route("/api/generate", methods=["POST"])
 def generate():
-    data = request.get_json(silent=True) or {}
+    """
+    프론트에서 주제/카테고리/블로그를 보내면
+    (지금은) 샘플 글/이미지프롬프트를 만들어서 돌려줌
+    """
+    data = request.get_json(force=True) or {}
     topic = (data.get("topic") or "").strip()
     category = (data.get("category") or "").strip()
     blog = (data.get("blog") or "").strip()
 
     if not topic:
-        return jsonify({"ok": False, "error": "topic(주제)가 비어있어요"}), 400
+        return jsonify({"ok": False, "message": "topic(주제)가 비어있어요."}), 400
 
-    # ✅ 지금은 AI 호출 대신 "템플릿 결과"를 만들어줌
-    # 다음 단계에서 여기만 Gemini 연결로 바꾸면 됨.
-    title = topic
-    image_prompt = f'블로그 썸네일용 고퀄 이미지, 주제: "{topic}", 텍스트 없음, 미니멀, 고대비, 16:9'
-    body_prompt = (
-        "다음 주제로 한국어 블로그 글을 작성해줘.\n"
-        f"- 주제: {topic}\n"
-        f"- 카테고리: {category or '미지정'}\n"
-        "- SEO: 제목/소제목(H2,H3), 리스트, 표 1개, FAQ 5개 포함\n"
-        "- 소제목은 8~9개\n"
-        "- 각 소제목 아래는 700자 이상\n"
-        "- 전체 길이: 14000자 이상\n"
-        "- 톤: 친절/전문, 초보자도 이해\n"
-        "- 마지막에 요약 + 행동유도(구독/댓글)\n"
-        "- HTML로 출력(아이콘 박스/카드/표 스타일 포함)\n"
-    )
+    # ✅ 지금은 샘플(가짜) 결과
+    body_prompt = f"""
+아래 조건으로 블로그 글을 한국어로 작성해줘.
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+- 블로그: {blog}
+- 카테고리: {category}
+- 주제: {topic}
+
+요구사항:
+1) SEO를 고려한 제목 5개 후보
+2) 본문은 H2/H3로 구조화
+3) 표 1개 포함(가능하면)
+4) 마지막에 요약 + 다음 글 추천 3개
+5) 광고/과장 표현은 피하고 초보도 따라할 수 있게
+""".strip()
+
+    image_prompt = f"{category} 주제의 대표 이미지, 주제: {topic}, 깔끔한 썸네일 스타일, 텍스트 없음"
 
     return jsonify({
         "ok": True,
-        "generated_at": now,
         "blog": blog,
         "category": category,
         "topic": topic,
-        "title": title,
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "body_prompt": body_prompt,
-        "image_prompt": image_prompt
+        "image_prompt": image_prompt,
+        "title": topic
     })
 
+
 if __name__ == "__main__":
-    # 외부에서 접속할 필요는 없고, 내 PC에서만 쓰는 거니까 host는 기본 그대로 OK
-    app.run(port=5000, debug=True)
+    # 로컬에서만 실행하는 개발용 서버
+    app.run(host="127.0.0.1", port=5000, debug=True)
