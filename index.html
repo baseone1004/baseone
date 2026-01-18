@@ -1,362 +1,91 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>BaseOne</title>
-  <style>
-    :root{
-      --bg:#0b1020;
-      --panel: rgba(255,255,255,.05);
-      --panel2: rgba(255,255,255,.07);
-      --line: rgba(255,255,255,.10);
-      --text:#eef2ff;
-      --muted:rgba(238,242,255,.68);
-      --accent:#6aa8ff;
-      --accent2:#3a7bff;
-      --shadow: 0 18px 44px rgba(0,0,0,.45);
-      --radius:22px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 760px at 12% 10%, rgba(58,123,255,.13), transparent 60%),
-        radial-gradient(1000px 740px at 85% 20%, rgba(255,102,196,.06), transparent 55%),
-        linear-gradient(180deg, #070a14 0%, var(--bg) 70%);
-      min-height:100vh;
-    }
-    a{color:var(--accent); text-decoration:none}
-    .wrap{max-width:1140px;margin:0 auto;padding:22px 16px 74px}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-    .brand{display:flex;align-items:center;gap:12px;font-weight:900;font-size:28px}
-    .logo{width:40px;height:40px;border-radius:14px;background:linear-gradient(180deg, rgba(106,168,255,.95), rgba(58,123,255,.95));border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 26px rgba(58,123,255,.20)}
-    .rightTop{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-    .btn{
-      border:none; cursor:pointer;
-      padding:10px 12px;border-radius:14px;
-      font-weight:900;
-      background:rgba(255,255,255,.05);
-      color:var(--text);
-      border:1px solid var(--line);
-      transition: transform .08s ease, background .2s ease, border-color .2s ease;
-    }
-    .btn:hover{border-color: rgba(106,168,255,.32); background: rgba(255,255,255,.07)}
-    .btn:active{transform: translateY(1px)}
-    .btn.primary{
-      background: linear-gradient(180deg, rgba(106,168,255,1), rgba(58,123,255,1));
-      border:none;
-      box-shadow: 0 12px 30px rgba(58,123,255,.20);
-    }
-    .panel{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:16px;
-      margin-top:14px;
-    }
-    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    @media (max-width:980px){ .grid{grid-template-columns:repeat(2,1fr)} }
-    .cat{
-      display:flex;align-items:center;gap:10px;
-      background:rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
-      padding:14px 14px;
-      cursor:pointer;
-      transition:transform .08s ease, border-color .2s ease, background .2s ease;
-    }
-    .cat:hover{border-color: rgba(106,168,255,.35); background: rgba(255,255,255,.07)}
-    .cat:active{transform: translateY(1px)}
-    .ico{
-      width:34px;height:34px;border-radius:14px;
-      display:flex;align-items:center;justify-content:center;
-      background: rgba(0,0,0,.25);
-      border:1px solid rgba(255,255,255,.10);
-      font-size:18px;
-    }
-    .cat .t{font-weight:900}
-    .cat .s{font-size:12px;color:var(--muted);margin-top:2px}
-    .blogRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:12px}
-    .pill{
-      padding:9px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.05);
-      cursor:pointer;
-      font-weight:900;
-    }
-    .pill.active{border-color: rgba(106,168,255,.45); box-shadow:0 10px 26px rgba(58,123,255,.12)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    input, select{
-      padding:12px 12px;border-radius:14px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.25);
-      color:var(--text);
-      outline:none;
-    }
-    .muted{color:var(--muted);font-size:13px}
-    .h2{font-size:18px;font-weight:900;margin:0 0 10px}
-    .box{
-      background:rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      padding:14px;
-      margin-top:12px;
-    }
-    .topicList{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media (max-width:760px){ .topicList{grid-template-columns:1fr} }
-    .card{
-      background:rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px;
-      padding:12px;
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-    }
-    .card .txt{font-size:13px;color:rgba(238,242,255,.92)}
-    .card .actions{display:flex;gap:8px}
-    .small{font-size:12px;color:var(--muted)}
-  </style>
+<meta charset="UTF-8">
+<title>BaseOne</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#0b1020;color:#eef2ff}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px}
+.btn{padding:10px 14px;border-radius:10px;border:1px solid #444;background:#1f2a44;color:white;font-weight:bold;cursor:pointer}
+.btn.blue{background:#4f8cff;border:none}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px}
+.cat{background:#1b2238;padding:12px;border-radius:14px;cursor:pointer}
+.box{background:#141a30;margin:16px;padding:14px;border-radius:14px}
+.card{background:#1b2238;padding:10px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand"><div class="logo"></div>BaseOne</div>
-      <div class="rightTop">
-        <a class="btn" href="./settings.html">설정</a>
-        <button class="btn primary" onclick="openSchedule()">예약발행</button>
-      </div>
-    </div>
 
-    <div class="panel">
-      <div class="h2">카테고리</div>
-      <div class="grid" id="catGrid"></div>
-
-      <div class="blogRow" style="margin-top:16px;">
-        <div class="pill" onclick="setBlog('blogspot')" id="b_blogspot">블로그스팟</div>
-        <div class="pill" onclick="setBlog('naver')" id="b_naver">네이버</div>
-        <div class="pill" onclick="setBlog('tistory')" id="b_tistory">티스토리</div>
-      </div>
-
-      <div class="box">
-        <div class="row" style="justify-content:space-between;gap:12px;">
-          <div>
-            <div class="small">현재 선택</div>
-            <div style="font-weight:900" id="selInfo">블로그: - / 카테고리: -</div>
-            <div class="muted" id="engineInfo">글작성: - / 이미지: -</div>
-          </div>
-
-          <div class="row">
-            <input id="filter" placeholder="주제 검색(필터)" oninput="renderTopics()" />
-            <button class="btn" onclick="copyAll()">전체 복사</button>
-          </div>
-        </div>
-
-        <div style="margin-top:12px;" class="topicList" id="topics"></div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="h2">자동 발행</div>
-      <div class="muted">기본: 하루 3개 (오전 9시 / 오후 2시 / 저녁 7시). “바로 발행”은 원하는 시작 시간 + 간격으로 발행할 수 있어요.</div>
-
-      <div class="box">
-        <div class="row" style="margin-top:8px;">
-          <button class="btn primary" onclick="alert('지금은 UI만 완성! 다음 단계에서 실제 자동발행(서버/로그인/API) 연결합니다.')">하루 3개 자동 발행</button>
-          <span class="muted">오전 9시 / 오후 2시 / 저녁 7시</span>
-        </div>
-
-        <div class="row" style="margin-top:14px;">
-          <label style="font-weight:900;">바로 발행</label>
-          <input type="time" id="startTime" value="09:00" />
-          <select id="gapHours">
-            <option value="1">1시간 간격</option>
-            <option value="2" selected>2시간 간격</option>
-            <option value="3">3시간 간격</option>
-            <option value="6">6시간 간격</option>
-            <option value="12">12시간 간격</option>
-          </select>
-          <input type="number" id="instantCount" value="3" min="1" max="30" />
-          <span class="muted">개 발행</span>
-          <button class="btn primary" onclick="instantPublish()">바로 발행</button>
-        </div>
-
-        <div class="muted" id="instantPreview" style="margin-top:10px;"></div>
-      </div>
-    </div>
+<div class="top">
+  <div style="font-size:24px;font-weight:bold">BaseOne</div>
+  <div>
+    <button class="btn blue" onclick="makeMoney()">💰 수익형글</button>
+    <a href="/settings"><button class="btn">설정</button></a>
   </div>
+</div>
 
-  <!-- 예약발행 팝업 -->
-  <div id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); padding:18px;">
-    <div style="max-width:720px;margin:40px auto;background:rgba(20,24,40,.96);border:1px solid rgba(255,255,255,.12);border-radius:22px;box-shadow:0 18px 44px rgba(0,0,0,.5);padding:16px;">
-      <div class="row" style="justify-content:space-between;">
-        <div style="font-weight:900;font-size:18px;">예약발행</div>
-        <button class="btn" onclick="closeSchedule()">닫기</button>
-      </div>
+<div class="grid" id="catGrid"></div>
 
-      <div class="box">
-        <div class="muted">현재는 “UI만” 준비된 상태예요. 다음 단계에서 실제로 글/이미지 생성 + 블로그 자동발행 서버 연결을 붙일게요.</div>
-        <div class="row" style="margin-top:10px;">
-          <button class="btn primary" onclick="alert('다음 단계에서 연결됩니다!')">예약 실행</button>
-          <button class="btn" onclick="alert('다음 단계에서 연결됩니다!')">연동확인</button>
-        </div>
-      </div>
-    </div>
+<div class="box">
+  <div style="display:flex;justify-content:space-between">
+    <b id="titleBox">주제 목록</b>
+    <button class="btn" onclick="copyAll()">전체복사</button>
   </div>
+  <div id="topics"></div>
+</div>
 
-  <script>
-    const CATS = [
-      {k:"건강", i:"💪", s:"몸/건강"},
-      {k:"컴퓨터/IT", i:"💻", s:"기술/도구"},
-      {k:"자동차", i:"🚗", s:"정비/보험"},
-      {k:"생활/가전", i:"🏠", s:"살림/가전"},
-      {k:"육아", i:"👶", s:"육아/교육"},
-      {k:"돈/재테크", i:"💰", s:"절약/투자"},
-      {k:"여행", i:"✈️", s:"코스/팁"},
-      {k:"요리", i:"🍳", s:"레시피"},
-      {k:"자기계발", i:"✅", s:"습관/목표"},
-      {k:"공부/자격증", i:"📚", s:"시험/루틴"},
-      {k:"반려동물", i:"🐶", s:"케어/용품"},
-      {k:"패션/뷰티", i:"💄", s:"관리/팁"},
-      {k:"취미", i:"🎨", s:"취미/DIY"},
-      {k:"스포츠", i:"⚽", s:"운동/루틴"},
-      {k:"게임", i:"🎮", s:"리뷰/팁"},
-      {k:"영화/드라마", i:"🎬", s:"추천/리뷰"},
-    ];
+<script>
+const CATS=["건강","컴퓨터/IT","자동차","생활/가전","육아","돈/재테크","여행","요리","자기계발","공부/자격증","반려동물","패션/뷰티","취미","스포츠","게임","영화/드라마"];
+let topics=[];
 
-    let selectedBlog = localStorage.getItem("baseone_selected_blog") || "";
-    let selectedCat  = localStorage.getItem("baseone_selected_cat") || "";
-    let topics = [];
+const grid=document.getElementById("catGrid");
+CATS.forEach(c=>{
+  const d=document.createElement("div");
+  d.className="cat";
+  d.textContent=c;
+  d.onclick=()=>makeTopics(c);
+  grid.appendChild(d);
+});
 
-    function loadEngines(){
-      const s = JSON.parse(localStorage.getItem("baseone_settings") || "{}");
-      const textMap = {gemini:"Gemini", chatgpt:"ChatGPT", genspark:"젠스파크"};
-      const imgMap  = {gemini_image:"Gemini 이미지", wisk:"WISK(위스크)", free_stock:"무료 이미지(스톡)"};
-      const text = textMap[s.textProvider] || "-";
-      const img  = imgMap[s.imgProvider] || "-";
-      document.getElementById("engineInfo").textContent = `글작성: ${text} / 이미지: ${img}`;
-    }
+function makeTopics(cat){
+  topics=[];
+  for(let i=1;i<=50;i++){
+    topics.push(`${cat} 글 아이디어 ${i}`);   // ← 여기 수정됨
+  }
+  document.getElementById("titleBox").textContent=`${cat} 주제 50개`;
+  render();
+}
 
-    function setBlog(b){
-      selectedBlog = b;
-      localStorage.setItem("baseone_selected_blog", b);
-      ["blogspot","naver","tistory"].forEach(x=>{
-        document.getElementById("b_"+x).classList.toggle("active", x===b);
-      });
-      updateSel();
-    }
+function makeMoney(){
+  topics=[];
+  const base=["보험","카드","통신비","전기요금","대출","부업","세금","연금","다이어트","영양제","가전","육아템","자동차","여행","자격증","노트북","청소","생활팁"];
+  for(let i=1;i<=100;i++){
+    topics.push(`수익형 주제 ${i}: ${base[i%base.length]}`);
+  }
+  document.getElementById("titleBox").textContent="💰 수익형 글 100개";
+  render();
+}
 
-    function selectCat(cat){
-      selectedCat = cat;
-      localStorage.setItem("baseone_selected_cat", cat);
-      makeTopics(cat);
-      updateSel();
-    }
+function render(){
+  const box=document.getElementById("topics");
+  box.innerHTML="";
+  topics.forEach(t=>{
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`<span>${t}</span><button class="btn" onclick="copyText('${t.replace(/'/g,"\\'")}')">복사</button>`;
+    box.appendChild(d);
+  });
+}
 
-    function updateSel(){
-      const blogName = selectedBlog ? (selectedBlog==="blogspot"?"블로그스팟": selectedBlog==="naver"?"네이버":"티스토리") : "-";
-      document.getElementById("selInfo").textContent = `블로그: ${blogName} / 카테고리: ${selectedCat || "-"}`;
-    }
-
-    function makeTopics(category){
-      topics = [];
-      for(let i=1;i<=50;i++){
-        topics.push(`${category} 수익형 글 아이디어 ${i}`);
-      }
-      renderTopics();
-    }
-
-    function renderTopics(){
-      const q = (document.getElementById("filter").value || "").trim().toLowerCase();
-      const list = document.getElementById("topics");
-      const filtered = q ? topics.filter(t=>t.toLowerCase().includes(q)) : topics;
-
-      list.innerHTML = "";
-      filtered.forEach((t)=>{
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <div class="txt">${escapeHtml(t)}</div>
-          <div class="actions">
-            <button class="btn small copy" onclick="copyText('${escapeAttr(t)}')">복사</button>
-          </div>
-        `;
-        list.appendChild(div);
-      });
-    }
-
-    function copyText(t){
-      navigator.clipboard.writeText(t);
-      alert("복사 완료!");
-    }
-
-    function copyAll(){
-      if(!topics.length){ alert("먼저 카테고리를 선택하세요!"); return; }
-      navigator.clipboard.writeText(topics.join("\n"));
-      alert("전체 복사 완료!");
-    }
-
-    function openSchedule(){ document.getElementById("modal").style.display="block"; }
-    function closeSchedule(){ document.getElementById("modal").style.display="none"; }
-
-    function instantPublish(){
-      if(!selectedBlog){ alert("먼저 블로그를 선택하세요!"); return; }
-      if(!selectedCat){ alert("먼저 카테고리를 선택하세요!"); return; }
-      if(!topics.length){ alert("주제가 없습니다. 카테고리를 다시 선택해 주세요."); return; }
-
-      const start = document.getElementById("startTime").value || "09:00";
-      const gap   = parseInt(document.getElementById("gapHours").value || "2", 10);
-      const count = Math.max(1, parseInt(document.getElementById("instantCount").value || "1", 10));
-
-      // 미리보기(시간 계산)
-      const times = [];
-      const [hh,mm] = start.split(":").map(Number);
-      let base = new Date();
-      base.setHours(hh, mm, 0, 0);
-
-      for(let i=0;i<count;i++){
-        const d = new Date(base.getTime() + i*gap*60*60*1000);
-        const h = String(d.getHours()).padStart(2,"0");
-        const m = String(d.getMinutes()).padStart(2,"0");
-        times.push(`${h}:${m}`);
-      }
-
-      document.getElementById("instantPreview").textContent =
-        `미리보기: ${times.join(" / ")} 에 ${count}개 발행 (다음 단계에서 실제 발행 연결)`;
-
-      alert("지금은 UI만 완성! 다음 단계에서 실제 글/이미지 생성 + 발행을 연결합니다.");
-    }
-
-    function escapeHtml(s){
-      return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-    }
-    function escapeAttr(s){
-      return s.replaceAll("\\","\\\\").replaceAll("'","\\'");
-    }
-
-    // init
-    const grid = document.getElementById("catGrid");
-    CATS.forEach(c=>{
-      const el = document.createElement("div");
-      el.className="cat";
-      el.onclick = ()=>selectCat(c.k);
-      el.innerHTML = `
-        <div class="ico">${c.i}</div>
-        <div>
-          <div class="t">${c.k}</div>
-          <div class="s">${c.s}</div>
-        </div>
-      `;
-      grid.appendChild(el);
-    });
-
-    // restore
-    if(selectedBlog) setBlog(selectedBlog);
-    updateSel();
-    if(selectedCat) makeTopics(selectedCat);
-    loadEngines();
-  </script>
+function copyText(t){
+  navigator.clipboard.writeText(t);
+  alert("복사됨!");
+}
+function copyAll(){
+  if(!topics.length){alert("주제 없음");return;}
+  navigator.clipboard.writeText(topics.join("\n"));
+  alert("전체 복사 완료!");
+}
+</script>
 </body>
 </html>
