@@ -1,241 +1,477 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>BaseOne</title>
+  <link rel="icon" href="baseone.ico" />
   <style>
-    body { font-family: sans-serif; text-align: center; background:#f7f7f7; margin:0; }
-    h1 { margin:26px 0 8px; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 0 16px 40px; }
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 820px; margin: 18px auto; }
-    button { padding: 12px; font-size: 14px; border: none; border-radius: 10px; cursor: pointer; background: #4f8fe7; color: white; }
-    button:hover { background:#2f6fd0; }
-    .blogrow { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
-    .blogbtn { background:#666; padding:10px 16px; border-radius:999px; }
-    .active { background:#28a745 !important; }
-    .hint { font-size:13px; color:#555; margin: 10px 0 0; }
-    .bar { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin: 18px 0; }
-    .primary { background:#111a2e; }
-    .primary:hover { background:#0b1220; }
-
-    #result, #topicsBox, #jobBox {
-      max-width: 820px;
-      margin: 18px auto;
-      text-align:left;
-      font-size:14px;
-      background:#fff;
-      border-radius:14px;
-      padding: 14px 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    :root{
+      --bg:#f4f6fb; --card:#ffffff; --txt:#101828; --muted:#667085;
+      --pri:#2f6fed; --pri2:#1f54c7; --btn:#3b82f6; --btn2:#2563eb;
+      --gray:#111827; --gray2:#374151; --line:#e5e7eb;
+      --shadow: 0 10px 30px rgba(16,24,40,.12);
+      --radius: 18px;
     }
-    .small { font-size:12px; color:#777; }
-    ol { padding-left: 20px; }
-    .topic-row { display:flex; gap:10px; align-items:flex-start; margin:8px 0; }
-    .topic-row input { margin-top:3px; }
-    .topic-title { line-height:1.4; }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,sans-serif;background:var(--bg);color:var(--txt)}
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(244,246,251,.85); backdrop-filter: blur(8px);
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:980px;margin:0 auto;padding:18px 16px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{
+      width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--pri),#7c3aed);
+      display:grid;place-items:center;color:white;font-weight:800
+    }
+    .title{font-size:18px;font-weight:800}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{
+      border:1px solid var(--line); background:var(--card);
+      padding:10px 12px;border-radius:999px; cursor:pointer;
+      font-weight:700; color:var(--txt);
+    }
+    .pill.primary{background:var(--pri);border-color:var(--pri);color:#fff}
+    .pill.primary:hover{background:var(--pri2)}
+    .pill:hover{border-color:#cbd5e1}
 
-    .statusline { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
-    .pill { display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; background:#eef2ff; color:#233c9f; }
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .section{padding:18px}
+    .grid{
+      display:grid; grid-template-columns: repeat(4, 1fr);
+      gap:12px; margin-top:14px;
+    }
+    @media (max-width:860px){ .grid{grid-template-columns:repeat(3,1fr)} }
+    @media (max-width:620px){ .grid{grid-template-columns:repeat(2,1fr)} }
+
+    .topic-btn{
+      background:var(--btn); border:none; color:#fff;
+      padding:14px 10px; border-radius:14px; font-weight:800;
+      cursor:pointer; transition:.12s transform;
+    }
+    .topic-btn:hover{background:var(--btn2); transform: translateY(-1px)}
+    .sub{color:var(--muted);font-size:13px;margin-top:6px}
+
+    .blog-row{
+      display:flex; justify-content:center; gap:12px; flex-wrap:wrap;
+      margin:18px 0 6px;
+    }
+    .blog-btn{
+      background:#374151; border:1px solid #374151; color:#fff;
+      padding:12px 18px; border-radius:14px; font-weight:800; cursor:pointer;
+      min-width:140px;
+    }
+    .blog-btn.active{background:#111827;border-color:#111827}
+    .blog-btn:hover{opacity:.92}
+
+    #topics{padding:18px}
+    #topics h2{margin:0 0 10px}
+    ul.topic-list{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+    .topic-item{
+      padding:10px 12px;border:1px solid var(--line);border-radius:12px;
+      background:#fff;color:#111827;font-size:13px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+    }
+    .topic-item button{
+      border:1px solid var(--line); background:#fff; border-radius:10px;
+      padding:8px 10px; cursor:pointer; font-weight:800;
+    }
+    .topic-item button:hover{border-color:#cbd5e1}
+
+    /* modal */
+    .modal-backdrop{
+      position:fixed; inset:0; background:rgba(16,24,40,.55);
+      display:none; align-items:center; justify-content:center; padding:18px; z-index:50;
+    }
+    .modal{width:min(920px,100%); max-height: 90vh; overflow:auto}
+    .modal header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line)}
+    .modal .wrap{padding:14px 16px}
+    .modal-title{font-size:16px;font-weight:900}
+    .x{border:none;background:transparent;font-size:20px;cursor:pointer}
+
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .tab{border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:800}
+    .tab.active{background:var(--pri);border-color:var(--pri);color:#fff}
+
+    .form{padding:16px}
+    .row{display:grid;grid-template-columns: 180px 1fr; gap:12px; align-items:center; margin:10px 0}
+    @media (max-width:720px){ .row{grid-template-columns:1fr} }
+    label{font-weight:900}
+    input, select{
+      width:100%; padding:12px 12px; border:1px solid var(--line); border-radius:12px; outline:none;
+      background:#fff;
+    }
+    input:focus, select:focus{border-color:#93c5fd; box-shadow:0 0 0 4px rgba(59,130,246,.15)}
+    .hint{color:var(--muted); font-size:12px; margin-top:6px}
+    .btnline{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+    .btn{
+      padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#fff; cursor:pointer; font-weight:900;
+    }
+    .btn.primary{background:var(--pri); border-color:var(--pri); color:#fff}
+    .btn.primary:hover{background:var(--pri2)}
+    .btn:hover{border-color:#cbd5e1}
+    .status{margin-top:10px; font-size:12px; color:var(--muted)}
+    .ok{color:#16a34a;font-weight:900}
+    .bad{color:#dc2626;font-weight:900}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>BaseOne</h1>
-    <div class="hint">주제 선택 → 블로그 선택 → <b>주제 50개 만들기</b> → 체크 → <b>대량 글 생성</b></div>
 
-    <!-- 주제 선택 -->
-    <div class="grid" id="catGrid">
-      <button onclick="selectCategory(this,'건강')">건강</button>
-      <button onclick="selectCategory(this,'컴퓨터/IT')">컴퓨터/IT</button>
-      <button onclick="selectCategory(this,'자동차')">자동차</button>
-      <button onclick="selectCategory(this,'생활/가전')">생활/가전</button>
-      <button onclick="selectCategory(this,'육아')">육아</button>
-      <button onclick="selectCategory(this,'돈/재테크')">돈/재테크</button>
-      <button onclick="selectCategory(this,'여행')">여행</button>
-      <button onclick="selectCategory(this,'요리')">요리</button>
-      <button onclick="selectCategory(this,'자기계발')">자기계발</button>
-      <button onclick="selectCategory(this,'공부/자격증')">공부/자격증</button>
-      <button onclick="selectCategory(this,'반려동물')">반려동물</button>
-      <button onclick="selectCategory(this,'패션/뷰티')">패션/뷰티</button>
-      <button onclick="selectCategory(this,'취미')">취미</button>
-      <button onclick="selectCategory(this,'스포츠')">스포츠</button>
-      <button onclick="selectCategory(this,'게임')">게임</button>
-      <button onclick="selectCategory(this,'영화/드라마')">영화/드라마</button>
+<header>
+  <div class="wrap topbar">
+    <div class="brand">
+      <div class="logo">B</div>
+      <div>
+        <div class="title">BaseOne</div>
+        <div class="sub" id="currentTargetText">블로그 대상: (미선택)</div>
+      </div>
     </div>
 
-    <!-- 블로그 선택 -->
-    <div class="blogrow" id="blogRow">
-      <button class="blogbtn" onclick="selectBlog(this,'블로그스팟')">블로그스팟</button>
-      <button class="blogbtn" onclick="selectBlog(this,'네이버')">네이버</button>
-      <button class="blogbtn" onclick="selectBlog(this,'티스토리')">티스토리</button>
+    <div class="actions">
+      <button class="pill" id="btnSettings">설정</button>
+      <button class="pill primary" id="btnBulk">대량글 예약 발행(준비중)</button>
     </div>
+  </div>
+</header>
 
-    <div class="bar">
-      <button class="primary" onclick="generateTopics()">주제 50개 만들기</button>
-      <button onclick="selectAll(true)">전체 선택</button>
-      <button onclick="selectAll(false)">전체 해제</button>
-      <button class="primary" onclick="bulkGenerate()">대량 글 생성(최대 10개)</button>
+<main class="wrap">
+  <div class="card section">
+    <div class="blog-row" aria-label="블로그 선택">
+      <button class="blog-btn" data-blog="blogspot">블로그스팟</button>
+      <button class="blog-btn" data-blog="naver">네이버</button>
+      <button class="blog-btn" data-blog="tistory">티스토리</button>
     </div>
+    <div class="sub" style="text-align:center">먼저 블로그를 선택하고 → 주제를 고르면 50개 주제가 생성됩니다.</div>
 
-    <div id="result">
-      <div class="small">아직 생성 전입니다. 주제/블로그 선택 후 “주제 50개 만들기”를 눌러주세요.</div>
+    <div class="grid" style="margin-top:16px">
+      <button class="topic-btn" data-cat="건강">건강</button>
+      <button class="topic-btn" data-cat="컴퓨터/IT">컴퓨터/IT</button>
+      <button class="topic-btn" data-cat="자동차">자동차</button>
+      <button class="topic-btn" data-cat="생활/가전">생활/가전</button>
+      <button class="topic-btn" data-cat="육아">육아</button>
+      <button class="topic-btn" data-cat="돈/재테크">돈/재테크</button>
+      <button class="topic-btn" data-cat="여행">여행</button>
+      <button class="topic-btn" data-cat="요리">요리</button>
+      <button class="topic-btn" data-cat="자기계발">자기계발</button>
+      <button class="topic-btn" data-cat="공부/자격증">공부/자격증</button>
+      <button class="topic-btn" data-cat="반려동물">반려동물</button>
+      <button class="topic-btn" data-cat="패션/뷰티">패션/뷰티</button>
+      <button class="topic-btn" data-cat="취미">취미</button>
+      <button class="topic-btn" data-cat="스포츠">스포츠</button>
+      <button class="topic-btn" data-cat="게임">게임</button>
+      <button class="topic-btn" data-cat="영화/드라마">영화/드라마</button>
     </div>
-
-    <div id="topicsBox" style="display:none;"></div>
-    <div id="jobBox" style="display:none;"></div>
   </div>
 
+  <div class="card" id="topics" style="margin-top:14px; display:none;">
+    <div class="section">
+      <h2 id="topicsTitle" style="margin:0 0 8px"></h2>
+      <div class="sub" id="topicsSub"></div>
+    </div>
+    <div style="padding:0 18px 18px">
+      <ul class="topic-list" id="topicList"></ul>
+    </div>
+  </div>
+</main>
+
+<!-- Settings Modal -->
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true">
+  <div class="modal card">
+    <header>
+      <div class="wrap topbar">
+        <div class="modal-title">설정</div>
+        <button class="x" id="btnClose">✕</button>
+      </div>
+      <div class="wrap">
+        <div class="tabs">
+          <button class="tab active" data-tab="ai">AI 연결</button>
+          <button class="tab" data-tab="image">이미지</button>
+          <button class="tab" data-tab="blog">블로그</button>
+          <button class="tab" data-tab="system">시스템</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="form" id="tab-ai">
+      <div class="row">
+        <label>Gemini API Key</label>
+        <div>
+          <input id="geminiKey" placeholder="예: AIza... (개인 키)" />
+          <div class="hint">※ 지금은 브라우저에만 저장(localStorage)됩니다. “모든 사용자용”은 서버 저장으로 바꿔야 합니다.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>GenSpark 키/토큰</label>
+        <div>
+          <input id="gensparkKey" placeholder="없으면 비워도 됨" />
+        </div>
+      </div>
+
+      <div class="btnline">
+        <button class="btn primary" id="saveAi">저장</button>
+        <button class="btn" id="testGemini">연동 확인(Gemini)</button>
+      </div>
+      <div class="status" id="aiStatus"></div>
+    </div>
+
+    <div class="form" id="tab-image" style="display:none;">
+      <div class="row">
+        <label>이미지 소스</label>
+        <div>
+          <select id="imageProvider">
+            <option value="gemini">Gemini 이미지(유료/권한 필요)</option>
+            <option value="pexels">Pexels(무료)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>Pexels API Key</label>
+        <div>
+          <input id="pexelsKey" placeholder="pexels 키" />
+        </div>
+      </div>
+
+      <div class="btnline">
+        <button class="btn primary" id="saveImg">저장</button>
+        <button class="btn" id="testPexels">연동 확인(Pexels)</button>
+      </div>
+      <div class="status" id="imgStatus"></div>
+    </div>
+
+    <div class="form" id="tab-blog" style="display:none;">
+      <div class="row">
+        <label>블로그스팟 연동</label>
+        <div>
+          <input id="bloggerSite" placeholder="예: https://내블로그.blogspot.com" />
+          <div class="hint">블로그스팟/네이버/티스토리는 “서버(OAuth)”가 있어야 자동발행이 가능합니다.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <label>티스토리 연동</label>
+        <div><input id="tistorySite" placeholder="예: https://내.tistory.com" /></div>
+      </div>
+
+      <div class="row">
+        <label>네이버 연동</label>
+        <div><input id="naverId" placeholder="네이버 아이디(예: baseone1004)" /></div>
+      </div>
+
+      <div class="btnline">
+        <button class="btn primary" id="saveBlog">저장</button>
+        <button class="btn" id="testBlog">연동 확인(샘플)</button>
+      </div>
+      <div class="status" id="blogStatus"></div>
+    </div>
+
+    <div class="form" id="tab-system" style="display:none;">
+      <div class="row">
+        <label>백엔드 API 주소</label>
+        <div>
+          <input id="backendUrl" placeholder="예: https://api.baseone.ai (없으면 비워둠)" />
+          <div class="hint">연동 확인 버튼은 여기 주소의 API로 요청합니다. 지금은 서버가 없으면 “테스트”는 모의 동작만 합니다.</div>
+        </div>
+      </div>
+
+      <div class="btnline">
+        <button class="btn primary" id="saveSystem">저장</button>
+        <button class="btn" id="resetAll">초기화</button>
+      </div>
+      <div class="status" id="sysStatus"></div>
+    </div>
+
+  </div>
+</div>
+
 <script>
-  let selectedCategory = "";
-  let selectedBlog = "";
-  let currentTopics = []; // 50개 목록
+  // ---------- storage helpers ----------
+  const store = {
+    get() {
+      try { return JSON.parse(localStorage.getItem("baseone_settings") || "{}"); }
+      catch { return {}; }
+    },
+    set(partial) {
+      const cur = store.get();
+      const next = {...cur, ...partial};
+      localStorage.setItem("baseone_settings", JSON.stringify(next));
+      return next;
+    },
+    clear() {
+      localStorage.removeItem("baseone_settings");
+    }
+  };
 
-  function clearActive(containerId, selector) {
-    document.querySelectorAll(containerId + " " + selector).forEach(b => b.classList.remove("active"));
-  }
+  // ---------- UI state ----------
+  let selectedBlog = null;
 
-  function selectCategory(btn, cat) {
-    selectedCategory = cat;
-    clearActive("#catGrid", "button");
-    btn.classList.add("active");
-  }
-
-  function selectBlog(btn, blog) {
+  function setBlog(blog){
     selectedBlog = blog;
-    clearActive("#blogRow", "button");
-    btn.classList.add("active");
-  }
-
-  async function generateTopics() {
-    const result = document.getElementById("result");
-    const topicsBox = document.getElementById("topicsBox");
-    const jobBox = document.getElementById("jobBox");
-    jobBox.style.display = "none";
-
-    if (!selectedCategory || !selectedBlog) {
-      result.innerHTML = "<b>주제와 블로그를 모두 선택해야 합니다.</b>";
-      return;
-    }
-
-    result.innerHTML = "Gemini가 주제를 만드는 중입니다... (잠시만요)";
-    topicsBox.style.display = "none";
-
-    try {
-      const res = await fetch("/api/topics", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ category: selectedCategory, blog: selectedBlog })
-      });
-      const data = await res.json();
-
-      if (!data.ok) {
-        result.innerHTML = "<b>에러:</b> " + (data.error || "알 수 없는 오류");
-        return;
-      }
-
-      currentTopics = data.topics || [];
-      result.innerHTML = `<div class="statusline">
-        <div><span class="pill">${selectedCategory}</span> <span class="pill">${selectedBlog}</span></div>
-        <div class="small">원하는 주제를 체크하고 “대량 글 생성”을 누르세요. (처음은 10개 제한)</div>
-      </div>`;
-
-      let html = `<h3>주제 50개 (체크 선택)</h3>`;
-      html += `<div class="small">※ 생성된 글/이미지는 BaseOne/output 폴더에 저장됩니다.</div>`;
-      html += `<div style="margin-top:10px;">`;
-
-      currentTopics.forEach((t, i) => {
-        html += `
-          <div class="topic-row">
-            <input type="checkbox" class="topicCheck" data-idx="${i}">
-            <div class="topic-title">${t}</div>
-          </div>`;
-      });
-
-      html += `</div>`;
-      topicsBox.innerHTML = html;
-      topicsBox.style.display = "block";
-    } catch (e) {
-      result.innerHTML = "<b>연결 실패</b>: 서버가 켜져 있는지 확인하세요. (server.py 실행 중이어야 함)";
-    }
-  }
-
-  function selectAll(on) {
-    document.querySelectorAll(".topicCheck").forEach(ch => ch.checked = on);
-  }
-
-  function getSelectedTopics() {
-    const selected = [];
-    document.querySelectorAll(".topicCheck").forEach(ch => {
-      if (ch.checked) {
-        const idx = parseInt(ch.getAttribute("data-idx"), 10);
-        if (!isNaN(idx) && currentTopics[idx]) selected.push(currentTopics[idx]);
-      }
+    document.querySelectorAll(".blog-btn").forEach(b=>{
+      b.classList.toggle("active", b.dataset.blog === blog);
     });
-    return selected;
+    const label = blog === "blogspot" ? "블로그스팟" : blog === "naver" ? "네이버" : "티스토리";
+    document.getElementById("currentTargetText").textContent = `블로그 대상: ${label}`;
   }
 
-  async function bulkGenerate() {
-    const jobBox = document.getElementById("jobBox");
-    const selected = getSelectedTopics();
-
-    if (!selectedCategory || !selectedBlog) {
-      alert("주제/블로그를 먼저 선택하세요.");
+  function makeTopics(category){
+    if(!selectedBlog){
+      alert("먼저 블로그(블로그스팟/네이버/티스토리) 중 하나를 선택해주세요.");
       return;
     }
-    if (selected.length === 0) {
-      alert("최소 1개는 체크해야 해요.");
-      return;
-    }
+    const box = document.getElementById("topics");
+    box.style.display = "block";
+    document.getElementById("topicsTitle").textContent = `${category} 주제 50개`;
+    document.getElementById("topicsSub").textContent = `선택된 블로그: ${selectedBlog}`;
 
-    jobBox.style.display = "block";
-    jobBox.innerHTML = "글/이미지 생성 시작... (잠시만요)";
-
-    try {
-      const res = await fetch("/api/start_generate", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ category: selectedCategory, blog: selectedBlog, topics: selected })
-      });
-      const data = await res.json();
-      if (!data.ok) {
-        jobBox.innerHTML = "<b>에러:</b> " + (data.error || "알 수 없는 오류");
-        return;
-      }
-
-      const jobId = data.job_id;
-      await pollJob(jobId);
-    } catch (e) {
-      jobBox.innerHTML = "<b>실패</b>: 서버/네트워크를 확인하세요.";
-    }
-  }
-
-  async function pollJob(jobId) {
-    const jobBox = document.getElementById("jobBox");
-    while (true) {
-      const res = await fetch(`/api/job/${jobId}`);
-      const data = await res.json();
-      if (!data.ok) {
-        jobBox.innerHTML = "<b>작업 조회 실패:</b> " + (data.error || "");
-        return;
-      }
-      const job = data.job;
-      const logs = (job.logs || []).slice(-10).map(x => `<div class="small">- ${x}</div>`).join("");
-      jobBox.innerHTML = `
-        <h3>대량 생성 진행</h3>
-        <div class="small">상태: <b>${job.status}</b> · 진행: ${job.done}/${job.total}</div>
-        <div style="margin-top:8px;">${logs}</div>
-        <div class="small" style="margin-top:10px;">완료되면 BaseOne/output 폴더에 HTML이 저장돼요.</div>
+    const list = document.getElementById("topicList");
+    list.innerHTML = "";
+    for(let i=1;i<=50;i++){
+      const topic = `${category} 관련 글 아이디어 ${i}`;
+      const li = document.createElement("li");
+      li.className = "topic-item";
+      li.innerHTML = `
+        <span>${topic}</span>
+        <button type="button">발행(준비중)</button>
       `;
-
-      if (job.status === "done" || job.status === "error") {
-        if (job.status === "done") {
-          jobBox.innerHTML += `<div style="margin-top:12px;"><b>완료!</b> output 폴더를 열어 확인하세요.</div>`;
-        }
-        return;
-      }
-      await new Promise(r => setTimeout(r, 1200));
+      list.appendChild(li);
     }
   }
+
+  // ---------- Modal ----------
+  const modal = document.getElementById("modalBackdrop");
+  document.getElementById("btnSettings").onclick = () => {
+    modal.style.display = "flex";
+    hydrateSettings();
+  };
+  document.getElementById("btnClose").onclick = () => modal.style.display = "none";
+  modal.addEventListener("click", (e)=>{ if(e.target === modal) modal.style.display="none"; });
+
+  function showTab(name){
+    document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.tab===name));
+    ["ai","image","blog","system"].forEach(x=>{
+      document.getElementById("tab-"+x).style.display = (x===name) ? "block" : "none";
+    });
+  }
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>showTab(t.dataset.tab));
+
+  function hydrateSettings(){
+    const s = store.get();
+    document.getElementById("geminiKey").value = s.geminiKey || "";
+    document.getElementById("gensparkKey").value = s.gensparkKey || "";
+    document.getElementById("imageProvider").value = s.imageProvider || "pexels";
+    document.getElementById("pexelsKey").value = s.pexelsKey || "";
+    document.getElementById("bloggerSite").value = s.bloggerSite || "";
+    document.getElementById("tistorySite").value = s.tistorySite || "";
+    document.getElementById("naverId").value = s.naverId || "";
+    document.getElementById("backendUrl").value = s.backendUrl || "";
+    document.getElementById("aiStatus").textContent = "";
+    document.getElementById("imgStatus").textContent = "";
+    document.getElementById("blogStatus").textContent = "";
+    document.getElementById("sysStatus").textContent = "";
+  }
+
+  // ---------- Save buttons ----------
+  document.getElementById("saveAi").onclick = () => {
+    store.set({
+      geminiKey: document.getElementById("geminiKey").value.trim(),
+      gensparkKey: document.getElementById("gensparkKey").value.trim(),
+    });
+    document.getElementById("aiStatus").innerHTML = `<span class="ok">저장 완료</span>`;
+  };
+
+  document.getElementById("saveImg").onclick = () => {
+    store.set({
+      imageProvider: document.getElementById("imageProvider").value,
+      pexelsKey: document.getElementById("pexelsKey").value.trim(),
+    });
+    document.getElementById("imgStatus").innerHTML = `<span class="ok">저장 완료</span>`;
+  };
+
+  document.getElementById("saveBlog").onclick = () => {
+    store.set({
+      bloggerSite: document.getElementById("bloggerSite").value.trim(),
+      tistorySite: document.getElementById("tistorySite").value.trim(),
+      naverId: document.getElementById("naverId").value.trim(),
+    });
+    document.getElementById("blogStatus").innerHTML = `<span class="ok">저장 완료</span>`;
+  };
+
+  document.getElementById("saveSystem").onclick = () => {
+    store.set({ backendUrl: document.getElementById("backendUrl").value.trim() });
+    document.getElementById("sysStatus").innerHTML = `<span class="ok">저장 완료</span>`;
+  };
+
+  document.getElementById("resetAll").onclick = () => {
+    if(confirm("정말로 설정을 초기화할까요?")) {
+      store.clear();
+      hydrateSettings();
+      document.getElementById("sysStatus").innerHTML = `<span class="ok">초기화 완료</span>`;
+    }
+  };
+
+  // ---------- Test buttons (현재는 '서버 있으면 호출', 없으면 안내) ----------
+  async function callApi(path, payload){
+    const s = store.get();
+    const base = (s.backendUrl || "").trim();
+    if(!base){
+      return { ok:false, message:"백엔드 API 주소가 비어있습니다. (설정 > 시스템에서 입력)" };
+    }
+    const res = await fetch(base.replace(/\/$/,"") + path, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload || {})
+    });
+    const data = await res.json().catch(()=> ({}));
+    return { ok: res.ok, ...data };
+  }
+
+  document.getElementById("testGemini").onclick = async () => {
+    const s = store.get();
+    const st = document.getElementById("aiStatus");
+    st.textContent = "연동 확인 중...";
+    // 백엔드가 있으면: /api/test/gemini 호출
+    const r = await callApi("/api/test/gemini", { geminiKey: s.geminiKey || "" });
+    st.innerHTML = r.ok
+      ? `<span class="ok">연동 성공</span> ${r.message ? " - " + r.message : ""}`
+      : `<span class="bad">연동 실패</span> ${r.message ? " - " + r.message : ""}`;
+  };
+
+  document.getElementById("testPexels").onclick = async () => {
+    const s = store.get();
+    const st = document.getElementById("imgStatus");
+    st.textContent = "연동 확인 중...";
+    const r = await callApi("/api/test/pexels", { pexelsKey: s.pexelsKey || "" });
+    st.innerHTML = r.ok
+      ? `<span class="ok">연동 성공</span> ${r.message ? " - " + r.message : ""}`
+      : `<span class="bad">연동 실패</span> ${r.message ? " - " + r.message : ""}`;
+  };
+
+  document.getElementById("testBlog").onclick = async () => {
+    const s = store.get();
+    const st = document.getElementById("blogStatus");
+    st.textContent = "연동 확인 중...";
+    const r = await callApi("/api/test/blog", {
+      bloggerSite: s.bloggerSite || "",
+      tistorySite: s.tistorySite || "",
+      naverId: s.naverId || ""
+    });
+    st.innerHTML = r.ok
+      ? `<span class="ok">연동 성공</span> ${r.message ? " - " + r.message : ""}`
+      : `<span class="bad">연동 실패</span> ${r.message ? " - " + r.message : ""}`;
+  };
+
+  // ---------- Bind buttons ----------
+  document.querySelectorAll(".blog-btn").forEach(b => b.onclick=()=>setBlog(b.dataset.blog));
+  document.querySelectorAll(".topic-btn").forEach(b => b.onclick=()=>makeTopics(b.dataset.cat));
+
+  // restore previously selected blog (optional)
+  const saved = store.get();
+  if(saved.selectedBlog) setBlog(saved.selectedBlog);
 </script>
 
 </body>
