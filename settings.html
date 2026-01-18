@@ -1,109 +1,258 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>BaseOne 설정</title>
   <style>
-    body{background:#141626;color:#eee;font-family:sans-serif;padding:20px}
-    h1{color:#7db4ff}
-    .box{background:#1f2240;border-radius:10px;padding:15px;margin-bottom:15px}
-    input{width:100%;padding:8px;margin:4px 0}
-    button{padding:8px 12px;margin:4px;border:none;border-radius:6px;cursor:pointer}
-    .add{background:#4e8ef7;color:white}
-    .save{background:#3fa46a;color:white}
-    .test{background:#777;color:white}
-    .bad{color:#ff8a8a}
-    .ok{color:#8affb0}
+    :root{
+      --bg:#0b1020;
+      --panel: rgba(255,255,255,.06);
+      --line: rgba(255,255,255,.10);
+      --text:#eef2ff;
+      --muted:rgba(238,242,255,.70);
+      --accent:#6aa8ff;
+      --shadow: 0 18px 44px rgba(0,0,0,.45);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial, sans-serif;
+      background:
+        radial-gradient(1200px 760px at 12% 10%, rgba(58,123,255,.13), transparent 60%),
+        linear-gradient(180deg, #070a14 0%, var(--bg) 70%);
+    }
+    .wrap{max-width:980px;margin:0 auto;padding:26px 16px 70px}
+    h1{margin:0 0 14px;font-size:26px}
+    .sub{color:var(--muted);margin-bottom:18px}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    @media (min-width:900px){ .grid{grid-template-columns:1fr 1fr} }
+    .card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+    label{font-weight:800}
+    input, select{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.25);
+      color:var(--text);
+      outline:none;
+    }
+    .hint{color:var(--muted);font-size:13px;line-height:1.5}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .btn{
+      border:none; cursor:pointer;
+      padding:11px 12px;border-radius:14px;
+      font-weight:900;
+      background:rgba(255,255,255,.07);
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(106,168,255,1), rgba(58,123,255,1));
+      border:none;
+    }
+    .pill{
+      display:inline-block;
+      padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      margin-left:6px;
+    }
+    .ok{color:#52e7a6;font-weight:900}
+    .bad{color:#ff6b7a;font-weight:900}
+    .divider{height:1px;background:var(--line);margin:14px 0}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <h1>BaseOne 설정</h1>
+    <div class="sub">여기서 API/연동 정보를 저장해두면, 본인 브라우저에만 저장되어 계속 사용할 수 있어요. (다른 사람에게는 공유되지 않음)</div>
 
-<h1>BaseOne 설정</h1>
-<a href="index.html" style="color:#aaa">← 메인으로</a>
+    <div class="grid">
+      <div class="card">
+        <h2 style="margin:0 0 6px;">글작성</h2>
+        <div class="hint">원하는 글작성 엔진을 선택하고, 필요하면 키를 저장하세요.</div>
 
-<div class="box">
-  <h3>블로그스팟 (최대 10개)</h3>
-  <div id="blogspotList"></div>
-  <button class="add" onclick="addBlog('blogspot')">블로그스팟 추가</button>
-</div>
-
-<div class="box">
-  <h3>네이버 (최대 3개)</h3>
-  <div id="naverList"></div>
-  <button class="add" onclick="addBlog('naver')">네이버 추가</button>
-</div>
-
-<div class="box">
-  <h3>티스토리 (최대 10개)</h3>
-  <div id="tistoryList"></div>
-  <button class="add" onclick="addBlog('tistory')">티스토리 추가</button>
-</div>
-
-<button class="save" onclick="saveBlogs()">전체 저장</button>
-
-<script>
-const LIMIT={blogspot:10,naver:3,tistory:10};
-let blogs = JSON.parse(localStorage.getItem("baseone.blogs")||"[]");
-
-function render(){
-  ["blogspot","naver","tistory"].forEach(type=>{
-    const box=document.getElementById(type+"List");
-    box.innerHTML="";
-    blogs.filter(b=>b.type===type).forEach((b,i)=>{
-      box.innerHTML+=`
-        <div>
-          <input placeholder="이름" value="${b.name||""}" oninput="bname('${type}',${i},this.value)">
-          <input placeholder="주소" value="${b.url||""}" oninput="burl('${type}',${i},this.value)">
-          <button class="test" onclick="testBlog('${type}',${i})">연동확인</button>
-          <span id="st_${type}_${i}"></span>
+        <div class="row">
+          <label for="textProvider">글작성 엔진</label>
+          <select id="textProvider">
+            <option value="gemini">Gemini</option>
+            <option value="chatgpt">ChatGPT</option>
+            <option value="genspark">젠스파크</option>
+          </select>
         </div>
-      `;
-    });
-  });
-}
 
-function addBlog(type){
-  if(blogs.filter(b=>b.type===type).length>=LIMIT[type]){
-    alert(type+" 최대 개수 초과"); return;
-  }
-  blogs.push({type,name:"",url:""});
-  render();
-}
+        <div class="row">
+          <label for="geminiKey">Gemini API Key</label>
+          <input id="geminiKey" placeholder="예: AI Studio에서 만든 키" />
+        </div>
 
-function bname(type,idx,val){
-  blogs.filter(b=>b.type===type)[idx].name=val;
-}
-function burl(type,idx,val){
-  blogs.filter(b=>b.type===type)[idx].url=val;
-}
+        <div class="row">
+          <label for="chatgptKey">ChatGPT API Key</label>
+          <input id="chatgptKey" placeholder="(나중에 연결 시 사용)" />
+        </div>
 
-function saveBlogs(){
-  localStorage.setItem("baseone.blogs",JSON.stringify(blogs));
-  alert("저장 완료");
-}
+        <div class="row">
+          <label for="gensparkKey">젠스파크 Key</label>
+          <input id="gensparkKey" placeholder="(나중에 연결 시 사용)" />
+        </div>
 
-async function testBlog(type,idx){
-  const b = blogs.filter(x=>x.type===type)[idx];
-  const out=document.getElementById(`st_${type}_${idx}`);
-  if(!b.url){ out.innerHTML="<span class='bad'>주소 없음</span>"; return;}
+        <div class="divider"></div>
+        <div class="hint">
+          <span class="mono">연동확인</span>은 지금은 “키가 저장되어 있는지”만 확인해요.  
+          실제 호출 테스트는 다음 단계에서 버튼으로 붙일 수 있어요.
+        </div>
 
-  if(type!=="blogspot"){
-    out.innerHTML="<span class='ok'>형식만 확인</span>";
-    return;
-  }
+        <div class="btns">
+          <button class="btn primary" onclick="saveSettings()">저장</button>
+          <button class="btn" onclick="testText()">글작성 연동확인</button>
+          <span id="textStatus" class="pill">상태: -</span>
+        </div>
+      </div>
 
-  out.innerHTML="서버 확인중...";
-  try{
-    const r = await fetch("http://127.0.0.1:5000/api/blogspot/test");
-    const d = await r.json();
-    out.innerHTML = d.ok ? `<span class="ok">${d.message}</span>` :
-                           `<span class="bad">${d.error}</span>`;
-  }catch(e){
-    out.innerHTML="<span class='bad'>서버 꺼짐</span>";
-  }
-}
+      <div class="card">
+        <h2 style="margin:0 0 6px;">이미지 생성</h2>
+        <div class="hint">이미지 생성 엔진을 선택하세요. (WISK 추가됨)</div>
 
-render();
-</script>
+        <div class="row">
+          <label for="imgProvider">이미지 엔진</label>
+          <select id="imgProvider">
+            <option value="gemini_image">Gemini 이미지</option>
+            <option value="wisk">WISK(위스크)</option>
+            <option value="free_stock">무료 이미지(스톡)</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="imgKey">이미지 API Key (선택)</label>
+          <input id="imgKey" placeholder="Gemini/WISK 등 필요시 입력" />
+        </div>
+
+        <div class="row">
+          <label for="pexelsKey">Pexels API Key (무료 스톡)</label>
+          <input id="pexelsKey" placeholder="무료 이미지 검색용" />
+        </div>
+
+        <div class="btns">
+          <button class="btn primary" onclick="saveSettings()">저장</button>
+          <button class="btn" onclick="testImage()">이미지 연동확인</button>
+          <span id="imgStatus" class="pill">상태: -</span>
+        </div>
+
+        <div class="divider"></div>
+        <div class="hint">
+          ✅ WISK는 “추가 옵션”으로 넣어둔 거고, 실제로 API 호출을 연결하려면
+          WISK가 제공하는 API/키 방식에 맞춰 서버 연결(다음 단계)이 필요해요.
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px;">
+      <h2 style="margin:0 0 6px;">블로그 연동 (저장만)</h2>
+      <div class="hint">블로그 주소/ID를 저장해두는 화면이에요. 실제 자동발행은 다음 단계에서 API/로그인 방식에 따라 붙여요.</div>
+
+      <div class="row">
+        <label>블로그스팟 주소</label>
+        <input id="bloggerUrl" placeholder="예: https://내블로그.blogspot.com" />
+      </div>
+      <div class="row">
+        <label>네이버 블로그 주소</label>
+        <input id="naverUrl" placeholder="예: https://blog.naver.com/아이디" />
+      </div>
+      <div class="row">
+        <label>티스토리 주소</label>
+        <input id="tistoryUrl" placeholder="예: https://내블로그.tistory.com" />
+      </div>
+
+      <div class="btns">
+        <button class="btn primary" onclick="saveSettings()">저장</button>
+        <button class="btn" onclick="testBlog()">연동확인</button>
+        <span id="blogStatus" class="pill">상태: -</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function loadSettings(){
+      const s = JSON.parse(localStorage.getItem("baseone_settings") || "{}");
+
+      document.getElementById("textProvider").value = s.textProvider || "gemini";
+      document.getElementById("geminiKey").value = s.geminiKey || "";
+      document.getElementById("chatgptKey").value = s.chatgptKey || "";
+      document.getElementById("gensparkKey").value = s.gensparkKey || "";
+
+      document.getElementById("imgProvider").value = s.imgProvider || "gemini_image";
+      document.getElementById("imgKey").value = s.imgKey || "";
+      document.getElementById("pexelsKey").value = s.pexelsKey || "";
+
+      document.getElementById("bloggerUrl").value = s.bloggerUrl || "";
+      document.getElementById("naverUrl").value = s.naverUrl || "";
+      document.getElementById("tistoryUrl").value = s.tistoryUrl || "";
+    }
+
+    function saveSettings(){
+      const s = {
+        textProvider: document.getElementById("textProvider").value,
+        geminiKey: document.getElementById("geminiKey").value.trim(),
+        chatgptKey: document.getElementById("chatgptKey").value.trim(),
+        gensparkKey: document.getElementById("gensparkKey").value.trim(),
+
+        imgProvider: document.getElementById("imgProvider").value,
+        imgKey: document.getElementById("imgKey").value.trim(),
+        pexelsKey: document.getElementById("pexelsKey").value.trim(),
+
+        bloggerUrl: document.getElementById("bloggerUrl").value.trim(),
+        naverUrl: document.getElementById("naverUrl").value.trim(),
+        tistoryUrl: document.getElementById("tistoryUrl").value.trim(),
+      };
+      localStorage.setItem("baseone_settings", JSON.stringify(s));
+      alert("저장 완료! (이 브라우저에만 저장됩니다)");
+    }
+
+    function setStatus(id, ok, msg){
+      const el = document.getElementById(id);
+      el.textContent = "상태: " + msg;
+      el.style.borderColor = ok ? "rgba(57,217,138,.35)" : "rgba(255,90,106,.35)";
+      el.style.background = ok ? "rgba(57,217,138,.12)" : "rgba(255,90,106,.10)";
+      el.style.color = ok ? "#52e7a6" : "#ff6b7a";
+    }
+
+    function testText(){
+      const s = JSON.parse(localStorage.getItem("baseone_settings") || "{}");
+      const p = s.textProvider || "gemini";
+      if(p === "gemini") setStatus("textStatus", !!s.geminiKey, s.geminiKey ? "Gemini 키 있음" : "Gemini 키 없음");
+      if(p === "chatgpt") setStatus("textStatus", !!s.chatgptKey, s.chatgptKey ? "ChatGPT 키 있음" : "ChatGPT 키 없음");
+      if(p === "genspark") setStatus("textStatus", !!s.gensparkKey, s.gensparkKey ? "젠스파크 키 있음" : "젠스파크 키 없음");
+    }
+
+    function testImage(){
+      const s = JSON.parse(localStorage.getItem("baseone_settings") || "{}");
+      const p = s.imgProvider || "gemini_image";
+      if(p === "free_stock") setStatus("imgStatus", !!s.pexelsKey, s.pexelsKey ? "Pexels 키 있음" : "Pexels 키 없음");
+      if(p === "gemini_image") setStatus("imgStatus", !!s.imgKey, s.imgKey ? "Gemini 이미지 키 있음" : "Gemini 이미지 키 없음(선택)");
+      if(p === "wisk") setStatus("imgStatus", !!s.imgKey, s.imgKey ? "WISK 키 있음" : "WISK 키 없음(선택)");
+    }
+
+    function testBlog(){
+      const s = JSON.parse(localStorage.getItem("baseone_settings") || "{}");
+      const ok = !!(s.bloggerUrl || s.naverUrl || s.tistoryUrl);
+      setStatus("blogStatus", ok, ok ? "저장된 주소 있음" : "저장된 주소 없음");
+    }
+
+    loadSettings();
+  </script>
 </body>
 </html>
