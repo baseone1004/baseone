@@ -1,97 +1,373 @@
-<button onclick="location.href='settings.html'">설정</button>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>BaseOne</title>
   <style>
-    body { font-family: sans-serif; text-align: center; }
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 700px; margin: 20px auto; }
-    button { padding: 12px; font-size: 14px; cursor: pointer; border-radius: 6px; border: none; background:#4a90e2; color:white; }
-    button.gray { background:#666; }
-    #topicsBox, #moneyBox {
-      border:2px solid #ddd; border-radius:10px; padding:15px;
-      max-width:700px; margin:20px auto; text-align:left;
+    :root{
+      --bg:#0f1222;
+      --panel:#171a2f;
+      --panel2:#1c2040;
+      --line:rgba(255,255,255,.08);
+      --text:#e9ecff;
+      --muted:#aeb6e6;
+      --accent:#4c8dff;
+      --accent2:#2f6cff;
+      --ok:#37c46b;
+      --bad:#ff5a6a;
+      --shadow: 0 14px 34px rgba(0,0,0,.35);
+      --radius:18px;
     }
-    li { font-size:13px; margin:3px 0; }
-    .publish-box { margin:20px; }
-    input { padding:6px; width:60px; text-align:center; }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 15% 5%, rgba(76,141,255,.20), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(255,255,255,.06), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+    a{color:var(--accent); text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:22px 16px 70px}
+    .top{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      margin-bottom:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:900; letter-spacing:.2px;
+      font-size:26px; color:#9fc0ff;
+    }
+    .chip{
+      font-size:12px;color:var(--muted);
+      padding:6px 10px;border:1px solid var(--line);
+      border-radius:999px;background:rgba(255,255,255,.03)
+    }
+    .btn{
+      border:none; cursor:pointer;
+      padding:10px 12px;border-radius:12px;
+      font-weight:800;
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      border:1px solid var(--line);
+    }
+    .btn.primary{
+      background:linear-gradient(180deg, var(--accent), var(--accent2));
+      border:none;
+    }
+    .btn:active{transform:translateY(1px)}
+    .grid{
+      display:grid; grid-template-columns:1fr; gap:14px;
+    }
+    @media (min-width: 980px){
+      .grid{grid-template-columns: 1.1fr .9fr;}
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    .card h2{margin:0 0 10px;font-size:18px}
+    .desc{margin:0 0 14px; color:var(--muted); font-size:13px; line-height:1.5}
+    .categoryGrid{
+      display:grid; grid-template-columns: repeat(2, 1fr);
+      gap:10px;
+    }
+    @media (min-width: 760px){
+      .categoryGrid{grid-template-columns: repeat(4, 1fr);}
+    }
+    .cat{
+      padding:12px 10px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      font-weight:800;
+    }
+    .cat:hover{border-color:rgba(76,141,255,.45)}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    select, input{
+      width:100%;
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+    }
+    .two{display:grid;grid-template-columns:1fr;gap:10px}
+    @media (min-width: 760px){ .two{grid-template-columns:1fr 1fr} }
+    .box{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:12px;
+    }
+    .boxTitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .count{font-size:12px;color:var(--muted)}
+    .list{
+      display:grid; gap:8px;
+      max-height: 380px; overflow:auto; padding-right:4px;
+    }
+    .item{
+      padding:10px 10px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      font-size:13px;
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .tag{
+      font-size:12px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      color:#cfd0ff;background:rgba(0,0,0,.12);
+      white-space:nowrap;
+    }
+    .toast{
+      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+      background:rgba(0,0,0,.55);backdrop-filter: blur(10px);
+      border:1px solid var(--line);
+      padding:10px 12px;border-radius:12px;
+      color:var(--text);font-size:13px;display:none;
+      max-width: 92vw;
+    }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">BaseOne <span class="chip">수익형 포스팅 도구</span></div>
+      <div class="row">
+        <a class="btn" href="./settings.html">⚙ 설정</a>
+        <button class="btn primary" onclick="openPlanner()">📅 예약 발행</button>
+      </div>
+    </div>
 
-<h1>BaseOne</h1>
+    <div class="grid">
+      <!-- LEFT: 주제 -->
+      <div class="card">
+        <h2>카테고리 선택</h2>
+        <p class="desc">카테고리를 누르면 주제 50개가 자동으로 생성됩니다. (서버 없이도 동작)</p>
 
-<div class="grid">
-  <button onclick="makeTopics('건강')">건강</button>
-  <button onclick="makeTopics('컴퓨터/IT')">컴퓨터/IT</button>
-  <button onclick="makeTopics('자동차')">자동차</button>
-  <button onclick="makeTopics('생활/가전')">생활/가전</button>
-  <button onclick="makeTopics('육아')">육아</button>
-  <button onclick="makeTopics('돈/재테크')">돈/재테크</button>
-  <button onclick="makeTopics('여행')">여행</button>
-  <button onclick="makeTopics('요리')">요리</button>
-  <button onclick="makeTopics('자기계발')">자기계발</button>
-  <button onclick="makeTopics('공부/자격증')">공부/자격증</button>
-  <button onclick="makeTopics('반려동물')">반려동물</button>
-  <button onclick="makeTopics('패션/뷰티')">패션/뷰티</button>
-  <button onclick="makeTopics('취미')">취미</button>
-  <button onclick="makeTopics('스포츠')">스포츠</button>
-  <button onclick="makeTopics('게임')">게임</button>
-  <button onclick="makeTopics('영화/드라마')">영화/드라마</button>
-</div>
+        <div class="categoryGrid" id="cats"></div>
 
-<h3>블로그 선택</h3>
-<button class="gray" onclick="selectBlog('블로그스팟')">블로그스팟</button>
-<button class="gray" onclick="selectBlog('네이버')">네이버</button>
-<button class="gray" onclick="selectBlog('티스토리')">티스토리</button>
+        <div style="height:14px"></div>
 
-<div id="selectedBlog" style="margin:10px;font-weight:bold;"></div>
+        <div class="two">
+          <div class="box">
+            <div class="boxTitle">
+              <b>주제 50개</b>
+              <span class="count" id="topicCount">0개</span>
+            </div>
+            <div class="list" id="topics"></div>
+          </div>
 
-<div id="topicsBox"></div>
-<div id="moneyBox"></div>
+          <div class="box">
+            <div class="boxTitle">
+              <b>💰 돈 되는 주제 100개</b>
+              <span class="count" id="moneyCount">0개</span>
+            </div>
+            <div class="row" style="margin-bottom:10px">
+              <button class="btn primary" onclick="makeMoney()">추천 생성</button>
+              <button class="btn" onclick="clearMoney()">비우기</button>
+            </div>
+            <div class="list" id="money"></div>
+          </div>
+        </div>
+      </div>
 
-<div class="publish-box">
-  <h3>자동 발행</h3>
-  <button onclick="autoPublish()">하루에 3개 자동 발행</button>
-  <br><br>
-  하루 발행 개수:
-  <input type="number" id="countInput" value="3" min="1">
-  <button onclick="customPublish()">이 개수로 발행</button>
-  <div id="publishResult" style="margin-top:10px;color:green;"></div>
-</div>
+      <!-- RIGHT: 발행 -->
+      <div class="card">
+        <h2>발행 설정</h2>
+        <p class="desc">
+          지금 단계는 “예약 저장”까지. 다음 단계에서 실제 자동 발행(블로그스팟/네이버/티스토리)로 연결합니다.
+        </p>
+
+        <div class="box">
+          <div class="two">
+            <div>
+              <label style="color:var(--muted);font-size:13px">발행할 블로그(저장된 목록)</label>
+              <select id="blogSelect"></select>
+              <div class="desc" style="margin-top:8px">
+                설정에서 블로그를 저장해두면 여기서 선택할 수 있어요.
+              </div>
+            </div>
+            <div>
+              <label style="color:var(--muted);font-size:13px">하루 발행 개수</label>
+              <input id="dailyCount" type="number" min="1" value="3"/>
+              <div class="desc" style="margin-top:8px">
+                예: 3개면 하루에 3개씩 예약 발행
+              </div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary" onclick="saveSchedule()">예약 저장</button>
+            <button class="btn" onclick="viewSchedule()">예약 보기</button>
+          </div>
+        </div>
+
+        <div class="box" style="margin-top:14px">
+          <div class="boxTitle">
+            <b>오늘 할 일</b>
+            <span class="tag">다음 단계: 실제 자동발행</span>
+          </div>
+          <div class="item">
+            <span>① 설정에서 블로그/키 저장</span>
+            <span class="tag">settings.html</span>
+          </div>
+          <div class="item">
+            <span>② 주제 생성 → 예약 저장</span>
+            <span class="tag">index.html</span>
+          </div>
+          <div class="item">
+            <span>③ 다음 단계에서 자동 글/이미지/발행 연결</span>
+            <span class="tag">server</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
 <script>
-let currentBlog = "";
+  // ---------- UI 데이터 ----------
+  const CATEGORIES = [
+    "건강","컴퓨터/IT","자동차","생활/가전","육아","돈/재테크","여행","요리",
+    "자기계발","공부/자격증","반려동물","패션/뷰티","취미","스포츠","게임","영화/드라마"
+  ];
 
-function selectBlog(name){
-  currentBlog = name;
-  document.getElementById("selectedBlog").innerText = "선택한 블로그: " + name;
-}
-
-function makeTopics(category){
-  let box = document.getElementById("topicsBox");
-  let html = `<h3>${category} 주제 50개</h3><ol>`;
-  for(let i=1;i<=50;i++){
-    html += `<li>${category} 관련 글 아이디어 ${i}</li>`;
+  // ---------- 토스트 ----------
+  function toast(msg){
+    const t=document.getElementById("toast");
+    t.textContent=msg;
+    t.style.display="block";
+    clearTimeout(window.__t);
+    window.__t=setTimeout(()=>t.style.display="none", 2200);
   }
-  html += "</ol>";
-  box.innerHTML = html;
-}
 
-function autoPublish(){
-  if(!currentBlog){ alert("블로그를 먼저 선택하세요!"); return; }
-  document.getElementById("publishResult").innerText =
-    currentBlog + "에 하루 3개씩 자동 발행 설정 완료!";
-}
+  // ---------- 카테고리 버튼 생성 ----------
+  const catsEl = document.getElementById("cats");
+  CATEGORIES.forEach(c=>{
+    const b=document.createElement("button");
+    b.className="cat";
+    b.textContent=c;
+    b.onclick=()=>makeTopics(c);
+    catsEl.appendChild(b);
+  });
 
-function customPublish(){
-  if(!currentBlog){ alert("블로그를 먼저 선택하세요!"); return; }
-  let n = document.getElementById("countInput").value;
-  document.getElementById("publishResult").innerText =
-    currentBlog + "에 하루 " + n + "개 발행 설정 완료!";
-}
+  // ---------- 주제 50개 ----------
+  function makeTopics(category){
+    const topics=document.getElementById("topics");
+    topics.innerHTML="";
+    for(let i=1;i<=50;i++){
+      const el=document.createElement("div");
+      el.className="item";
+      el.innerHTML=`<span>${category} 글 아이디어 ${i}</span><span class="tag">${category}</span>`;
+      topics.appendChild(el);
+    }
+    document.getElementById("topicCount").textContent="50개";
+    toast(`${category} 주제 50개 생성!`);
+  }
+
+  // ---------- 돈 되는 주제 100개 ----------
+  function makeMoney(){
+    const money=document.getElementById("money");
+    money.innerHTML="";
+    const samples = [
+      "보험/실비/암보험 비교", "카드 혜택 최적화", "통신비 절약", "전기요금 절약",
+      "정부지원금/복지", "연금/IRP/ISA", "대출 상식", "부업/재택", "세금/환급",
+      "다이어트/건강기능식품", "피부/탈모", "영양제 비교", "육아템 추천", "가전 추천"
+    ];
+    for(let i=1;i<=100;i++){
+      const base = samples[i % samples.length];
+      const el=document.createElement("div");
+      el.className="item";
+      el.innerHTML=`<span>수익형 주제 ${i}: ${base}</span><span class="tag">수익</span>`;
+      money.appendChild(el);
+    }
+    document.getElementById("moneyCount").textContent="100개";
+    toast("돈 되는 주제 100개 생성!");
+  }
+  function clearMoney(){
+    document.getElementById("money").innerHTML="";
+    document.getElementById("moneyCount").textContent="0개";
+  }
+
+  // ---------- 설정(블로그 목록) 불러오기 ----------
+  function loadBlogsToSelect(){
+    const sel=document.getElementById("blogSelect");
+    sel.innerHTML="";
+
+    const blogs = JSON.parse(localStorage.getItem("baseone.blogs")||"[]");
+    if(!blogs.length){
+      const opt=document.createElement("option");
+      opt.value="";
+      opt.textContent="설정에서 블로그를 먼저 저장하세요";
+      sel.appendChild(opt);
+      return;
+    }
+
+    blogs.forEach((b, idx)=>{
+      const opt=document.createElement("option");
+      const label = `${(b.type||"").toUpperCase()} · ${b.name ? b.name : "이름없음"} · ${b.url}`;
+      opt.value=idx;
+      opt.textContent=label;
+      sel.appendChild(opt);
+    });
+  }
+  loadBlogsToSelect();
+
+  // ---------- 예약 저장(서버 없이 localStorage에 저장만) ----------
+  const LS_PLAN="baseone.plan.v1";
+
+  function saveSchedule(){
+    const blogs = JSON.parse(localStorage.getItem("baseone.blogs")||"[]");
+    const selIdx = document.getElementById("blogSelect").value;
+    const daily = parseInt(document.getElementById("dailyCount").value || "3", 10);
+
+    if(!blogs.length){
+      toast("설정에서 블로그를 먼저 저장하세요!");
+      return;
+    }
+    if(selIdx === ""){
+      toast("블로그를 선택하세요!");
+      return;
+    }
+    if(!daily || daily < 1){
+      toast("하루 발행 개수는 1 이상!");
+      return;
+    }
+
+    const picked = blogs[parseInt(selIdx, 10)];
+    const data = { blog: picked, dailyCount: daily, savedAt: new Date().toISOString() };
+
+    localStorage.setItem(LS_PLAN, JSON.stringify(data));
+    toast("✅ 예약 저장 완료!");
+  }
+
+  function viewSchedule(){
+    const raw = localStorage.getItem(LS_PLAN);
+    if(!raw){ toast("저장된 예약이 없어요"); return; }
+    const data = JSON.parse(raw);
+    alert(
+      "예약 정보\n\n" +
+      "블로그: " + (data.blog.name || "이름없음") + "\n" +
+      "종류: " + data.blog.type + "\n" +
+      "주소: " + data.blog.url + "\n" +
+      "하루 발행: " + data.dailyCount + "개\n" +
+      "저장시간: " + data.savedAt
+    );
+  }
+
+  function openPlanner(){
+    viewSchedule();
+  }
 </script>
-
 </body>
 </html>
