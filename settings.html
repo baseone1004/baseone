@@ -1,70 +1,275 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>BaseOne 설정</title>
 <style>
-body{margin:0;font-family:sans-serif;background:#121826;color:#e5ecff}
-.box{background:#1a2240;margin:16px;padding:14px;border-radius:14px}
-input{width:100%;padding:10px;border-radius:10px;border:1px solid #333;background:#0f1530;color:white;margin-top:6px}
-button{margin-top:10px;padding:10px;border:none;border-radius:10px;background:#4f8cff;color:white;font-weight:bold;cursor:pointer}
-.small{font-size:12px;color:#b8c2ff}
+  :root{
+    --bg:#0b1020; --panel:#121a33; --panel2:#0f1530;
+    --line:rgba(255,255,255,.10);
+    --text:#eaf0ff; --sub:#b9c6ff;
+    --blue:#4f8cff; --blue2:#2f6bff;
+    --green:#2dd4bf; --warn:#fbbf24;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(1200px 800px at 20% 10%, #1a2a5a 0%, var(--bg) 45%), var(--bg); color:var(--text)}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:980px;margin:0 auto;padding:18px}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#4f8cff,#2dd4bf);display:grid;place-items:center;font-weight:900}
+  .title{font-size:22px;font-weight:900}
+  .pill{padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);color:var(--sub);font-size:12px}
+  .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:800}
+  .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));border:none}
+  .btn.ghost{background:transparent}
+  .grid{display:grid;grid-template-columns:1fr;gap:12px}
+  @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:14px}
+  h2{margin:0 0 10px _prof;font-size:16px}
+  h3{margin:16px 0 10px;font-size:15px}
+  .small{font-size:12px;color:var(--sub);line-height:1.5}
+  label{display:block;font-size:12px;color:var(--sub);margin-top:10px;margin-bottom:6px}
+  input,select,textarea{
+    width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(15,21,48,.8);color:var(--text);outline:none
+  }
+  textarea{min-height:88px;resize:vertical}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .cols{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:900px){.cols{grid-template-columns:1fr 1fr}}
+  .hint{border-left:3px solid var(--green);padding:10px 12px;border-radius:12px;background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.25)}
+  .warn{border-left:3px solid var(--warn);padding:10px 12px;border-radius:12px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25)}
+  .list{margin:8px 0 0 0;padding-left:18px;color:var(--sub);font-size:12px;line-height:1.6}
+  .muted{opacity:.85}
+  .inputsGrid{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:900px){.inputsGrid{grid-template-columns:1fr 1fr}}
+  .foot{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .ok{color:#9ff5d2;font-weight:800}
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<div class="box">
-  <h2>글 작성 API 설정</h2>
+  <div class="top">
+    <div class="brand">
+      <div class="logo">B</div>
+      <div>
+        <div class="title">BaseOne 설정</div>
+        <div class="small">내 PC(브라우저)에만 저장돼요. 다른 사람은 자기 키를 넣어야만 사용 가능합니다.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a href="./index.html"><button class="btn">← 메인</button></a>
+      <button class="btn primary" onclick="saveAll()">💾 저장</button>
+    </div>
+  </div>
 
-  <label>Gemini API Key</label>
-  <input id="gemini">
+  <div class="warn small">
+    ⚠️ <b>중요</b>: GitHub Pages에서는 보안상 <b>127.0.0.1 서버 호출이 막힐 수 있어요</b>.  
+    실제 AI 생성/발행 기능은 <b>로컬에서 server.py 실행</b>했을 때 가장 안정적입니다.
+  </div>
 
-  <label>ChatGPT API Key</label>
-  <input id="openai">
+  <div class="grid" style="margin-top:12px">
 
-  <label>Genspark API Key</label>
-  <input id="genspark">
+    <div class="card">
+      <h2>1) 글 작성 API 키</h2>
+      <div class="cols">
+        <div>
+          <label>Gemini API Key</label>
+          <input id="gemini_key" placeholder="예: AIza..." />
+          <div class="hint small">
+            <b>Gemini 발급 방법</b>
+            <ul class="list">
+              <li>Google AI Studio 접속</li>
+              <li><b>API 키</b> 메뉴 → <b>API 키 만들기</b></li>
+              <li>생성된 키를 복사해서 여기에 붙여넣기</li>
+            </ul>
+          </div>
+        </div>
 
-  <button onclick="save()">저장</button>
-  <div class="small" id="msg"></div>
-</div>
+        <div>
+          <label>ChatGPT API Key (OpenAI)</label>
+          <input id="openai_key" placeholder="예: sk-..." />
+          <div class="hint small">
+            <b>ChatGPT(OpenAI) 발급 방법</b>
+            <ul class="list">
+              <li>OpenAI 계정 로그인</li>
+              <li>API Keys에서 <b>Create new secret key</b></li>
+              <li>키를 복사해서 여기에 붙여넣기</li>
+            </ul>
+          </div>
+        </div>
 
-<div class="box">
-  <h2>이미지 생성 API</h2>
+        <div>
+          <label>Genspark API Key</label>
+          <input id="genspark_key" placeholder="Genspark 키" />
+          <div class="hint small">
+            <b>Genspark 발급 방법</b>
+            <ul class="list">
+              <li>Genspark 개발자/설정 페이지 접속</li>
+              <li>API Key 생성 후 복사</li>
+              <li>여기에 붙여넣기</li>
+            </ul>
+          </div>
+        </div>
 
-  <label>Gemini Image Key</label>
-  <input id="gemini_img">
+        <div>
+          <label>기본 글 작성 엔진</label>
+          <select id="text_provider">
+            <option value="gemini">Gemini</option>
+            <option value="chatgpt">ChatGPT</option>
+            <option value="genspark">Genspark</option>
+          </select>
+          <div class="small muted" style="margin-top:8px">
+            (현재 단계에서는 UI/저장 중심, 다음 단계에서 서버가 실제 API 호출하도록 연결합니다.)
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <label>Wisk API Key</label>
-  <input id="wisk">
+    <div class="card">
+      <h2>2) 이미지 생성 API 키</h2>
+      <div class="cols">
+        <div>
+          <label>Gemini Image Key</label>
+          <input id="gemini_img_key" placeholder="Gemini 이미지 키(같은 키 사용 가능)" />
+          <div class="small muted" style="margin-top:8px">
+            일반적으로 Gemini 텍스트 키와 동일 키로도 사용 가능합니다(권한/요금제에 따라 제한될 수 있음).
+          </div>
+        </div>
+        <div>
+          <label>Wisk Key</label>
+          <input id="wisk_key" placeholder="Wisk 키" />
+          <div class="hint small">
+            <b>Wisk 발급 방법</b>
+            <ul class="list">
+              <li>Wisk 서비스 로그인</li>
+              <li>API / Developer 메뉴에서 키 생성</li>
+              <li>복사해서 붙여넣기</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-  <button onclick="save()">저장</button>
-</div>
+      <div class="row" style="margin-top:10px">
+        <div class="small">기본 이미지 엔진</div>
+        <select id="img_provider" style="max-width:260px">
+          <option value="gemini">Gemini</option>
+          <option value="wisk">Wisk</option>
+        </select>
+      </div>
+    </div>
 
-<div class="box">
-  <a href="/"><button>메인으로</button></a>
+    <div class="card">
+      <h2>3) 블로그 연결 (주소 저장)</h2>
+      <div class="small">
+        지금은 “주소 저장” 단계야. 실제 자동발행(로그인/OAuth)은 다음 단계에서 붙여.
+      </div>
+
+      <h3>블로그스팟 (최대 10개)</h3>
+      <div class="inputsGrid" id="blogspot_box"></div>
+
+      <h3>네이버 (최대 3개)</h3>
+      <div class="inputsGrid" id="naver_box"></div>
+
+      <h3>티스토리 (최대 10개)</h3>
+      <div class="inputsGrid" id="tistory_box"></div>
+
+      <div class="foot">
+        <button class="btn primary" onclick="saveAll()">💾 저장</button>
+        <span id="msg" class="small"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>4) 서버 주소</h2>
+      <label>로컬 서버 주소</label>
+      <input id="backend" placeholder="예: http://127.0.0.1:5000" />
+      <div class="small muted" style="margin-top:8px">
+        기본값은 <b>http://127.0.0.1:5000</b> 입니다. 서버를 켜면 메인에서 AI 생성 테스트를 할 수 있어요.
+      </div>
+      <button class="btn" onclick="testServer()">서버 연결 확인</button>
+      <div id="serverMsg" class="small"></div>
+    </div>
+
+  </div>
 </div>
 
 <script>
-function save(){
-  const data={
-    gemini:gemini.value,
-    openai:openai.value,
-    genspark:genspark.value,
-    gemini_img:gemini_img.value,
-    wisk:wisk.value
-  };
-  localStorage.setItem("baseone_settings",JSON.stringify(data));
-  msg.textContent="저장 완료!";
+const KEY = "baseone_settings_v3";
+
+function makeInputs(containerId, prefix, count){
+  const box = document.getElementById(containerId);
+  for(let i=1;i<=count;i++){
+    const wrap = document.createElement("div");
+    wrap.innerHTML = `
+      <label>${prefix} ${i} 주소</label>
+      <input id="${prefix}_${i}" placeholder="https://..." />
+    `;
+    box.appendChild(wrap);
+  }
 }
+
+makeInputs("blogspot_box","blogspot",10);
+makeInputs("naver_box","naver",3);
+makeInputs("tistory_box","tistory",10);
+
+function saveAll(){
+  const data = {
+    gemini_key: gemini_key.value.trim(),
+    openai_key: openai_key.value.trim(),
+    genspark_key: genspark_key.value.trim(),
+    text_provider: text_provider.value,
+    gemini_img_key: gemini_img_key.value.trim(),
+    wisk_key: wisk_key.value.trim(),
+    img_provider: img_provider.value,
+    backend: backend.value.trim() || "http://127.0.0.1:5000",
+    blogspot: [],
+    naver: [],
+    tistory: []
+  };
+
+  for(let i=1;i<=10;i++) data.blogspot.push((document.getElementById(`blogspot_${i}`).value||"").trim());
+  for(let i=1;i<=3;i++) data.naver.push((document.getElementById(`naver_${i}`).value||"").trim());
+  for(let i=1;i<=10;i++) data.tistory.push((document.getElementById(`tistory_${i}`).value||"").trim());
+
+  localStorage.setItem(KEY, JSON.stringify(data));
+  msg.innerHTML = `<span class="ok">저장 완료 ✅</span>`;
+}
+
 (function load(){
-  const d=JSON.parse(localStorage.getItem("baseone_settings")||"{}");
-  gemini.value=d.gemini||"";
-  openai.value=d.openai||"";
-  genspark.value=d.genspark||"";
-  gemini_img.value=d.gemini_img||"";
-  wisk.value=d.wisk||"";
+  const d = JSON.parse(localStorage.getItem(KEY) || "{}");
+  gemini_key.value = d.gemini_key || "";
+  openai_key.value = d.openai_key || "";
+  genspark_key.value = d.genspark_key || "";
+  text_provider.value = d.text_provider || "gemini";
+  gemini_img_key.value = d.gemini_img_key || "";
+  wisk_key.value = d.wisk_key || "";
+  img_provider.value = d.img_provider || "gemini";
+  backend.value = d.backend || "http://127.0.0.1:5000";
+
+  (d.blogspot||[]).forEach((v,i)=>{ const el=document.getElementById(`blogspot_${i+1}`); if(el) el.value=v||"";});
+  (d.naver||[]).forEach((v,i)=>{ const el=document.getElementById(`naver_${i+1}`); if(el) el.value=v||"";});
+  (d.tistory||[]).forEach((v,i)=>{ const el=document.getElementById(`tistory_${i+1}`); if(el) el.value=v||"";});
 })();
+
+async function testServer(){
+  const base = (backend.value || "http://127.0.0.1:5000").trim();
+  serverMsg.textContent = "확인 중...";
+  try{
+    const res = await fetch(base + "/");
+    const txt = await res.text();
+    serverMsg.innerHTML = `<span class="ok">연결 OK ✅</span><div class="small muted" style="margin-top:6px">${escapeHtml(txt).slice(0,120)}</div>`;
+  }catch(e){
+    serverMsg.innerHTML = `<span style="color:#ffb4b4;font-weight:800">연결 실패 ❌</span> <span class="small">서버를 켜고 다시 시도하세요.</span>`;
+  }
+}
+
+function escapeHtml(s){
+  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+}
 </script>
 </body>
 </html>
