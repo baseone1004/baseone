@@ -1,383 +1,92 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="UTF-8">
 <title>BaseOne</title>
 <style>
-  :root{
-    --bg:#0b1020; --panel:#121a33; --panel2:#0f1530;
-    --line:rgba(255,255,255,.10);
-    --text:#eaf0ff; --sub:#b9c6ff;
-    --blue:#4f8cff; --blue2:#2f6bff;
-    --green:#2dd4bf;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);
-    background:radial-gradient(1200px 800px at 20% 10%, #1a2a5a 0%, var(--bg) 45%), var(--bg);
-  }
-  a{color:inherit;text-decoration:none}
-  .wrap{max-width:1100px;margin:0 auto;padding:18px}
-  .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-  .brand{display:flex;align-items:center;gap:10px}
-  .logo{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,#4f8cff,#2dd4bf);display:grid;place-items:center;font-weight:900}
-  .title{font-size:26px;font-weight:900}
-  .pill{padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.04);color:var(--sub);font-size:12px}
-  .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:800}
-  .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));border:none}
-  .btn.gray{background:rgba(255,255,255,.08)}
-  .panel{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:14px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-  .small{font-size:12px;color:var(--sub);line-height:1.5}
-  input,select{
-    padding:10px;border-radius:12px;border:1px solid var(--line);
-    background:rgba(15,21,48,.85);color:var(--text);outline:none;min-width:220px
-  }
-  .cats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
-  @media(max-width:900px){.cats{grid-template-columns:repeat(2,1fr)}}
-  .cat{
-    border:1px solid var(--line);border-radius:18px;padding:14px;cursor:pointer;
-    background:linear-gradient(135deg, rgba(79,140,255,.12), rgba(45,212,191,.06));
-    transition:.15s transform ease,.15s background ease
-  }
-  .cat:hover{transform:translateY(-2px);background:linear-gradient(135deg, rgba(79,140,255,.18), rgba(45,212,191,.10))}
-  .catTop{display:flex;align-items:center;gap:10px}
-  .icon{width:36px;height:36px;border-radius:14px;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:18px}
-  .catName{font-weight:900}
-  .catDesc{font-size:12px;color:var(--sub);margin-top:6px}
-  .list{margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px}
-  .item{
-    border:1px solid var(--line);border-radius:16px;padding:12px;
-    background:rgba(18,26,51,.70);display:flex;gap:10px;justify-content:space-between;align-items:center
-  }
-  .itemLeft{min-width:0}
-  .itemTitle{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .itemMeta{font-size:12px;color:var(--sub);margin-top:4px}
-  .chip{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--sub);font-size:12px}
-  /* modal */
-  .modalBg{display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); padding:18px;}
-  .modal{max-width:920px;margin:40px auto;background:rgba(18,26,51,.92);backdrop-filter: blur(10px);
-    border:1px solid var(--line);border-radius:18px;padding:14px}
-  textarea{
-    width:100%;min-height:180px;background:rgba(15,21,48,.9);border:1px solid var(--line);
-    border-radius:14px;color:var(--text);padding:10px;resize:vertical
-  }
-  .ok{color:#9ff5d2;font-weight:800}
-  .warn{color:#ffb4b4;font-weight:800}
+body{margin:0;font-family:sans-serif;background:#0b1020;color:#eef2ff}
+.top{display:flex;justify-content:space-between;align-items:center;padding:16px;flex-wrap:wrap}
+.btn{padding:10px 14px;border-radius:10px;border:none;background:#4f8cff;color:white;font-weight:bold;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+.cat{background:#1b2238;padding:16px;border-radius:14px;text-align:center;font-weight:bold;cursor:pointer}
+.box{background:#141a30;margin:16px;padding:14px;border-radius:14px}
+.card{background:#1b2238;padding:10px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between}
+.small{font-size:13px;color:#cfd6ff}
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="top">
-    <div class="brand">
-      <div class="logo">B</div>
-      <div>
-        <div class="title">BaseOne</div>
-        <div class="small">카테고리/수익형 주제를 카드로 만들고, 복사하거나(또는 로컬 서버로) AI 생성 테스트를 할 수 있어요.</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <span class="pill" id="serverPill">서버: -</span>
-      <a href="./settings.html"><button class="btn">설정</button></a>
-      <button class="btn primary" onclick="makeMoney()">💰 수익형 주제 100</button>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="row">
-      <div>
-        <div style="font-weight:900">주제 생성</div>
-        <div class="small" id="selInfo">아래에서 카테고리를 선택하세요.</div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <input id="filter" placeholder="주제 검색(필터)" oninput="renderList()">
-        <button class="btn" onclick="copyAll()">전체복사</button>
-        <button class="btn primary" onclick="aiGenerateSelected()">✨ AI 생성(선택 주제)</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="cats" id="catGrid"></div>
-
-  <div class="panel" style="margin-top:12px">
-    <div class="row">
-      <div>
-        <div class="chip" id="boxTitle">주제 목록</div>
-        <div class="small" id="boxSub">선택한 주제가 여기 카드로 나와요.</div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <select id="blogSelect">
-          <option value="">블로그 선택(저장된 주소)</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="list" id="list"></div>
-  </div>
-
+<div class="top">
+  <div style="font-size:24px;font-weight:bold">BaseOne</div>
+  <button class="btn" onclick="makeMoney()">💰 수익형 주제 100</button>
 </div>
 
-<!-- 결과 모달 -->
-<div class="modalBg" id="modalBg">
-  <div class="modal">
-    <div class="row">
-      <b>AI 생성 결과</b>
-      <button class="btn gray" onclick="closeModal()">닫기</button>
-    </div>
+<div class="box">
+  <b>카테고리를 선택하세요</b>
+</div>
 
-    <div class="panel" style="margin-top:12px">
-      <div class="row">
-        <div>
-          <div class="small">제목</div>
-          <div style="font-weight:900" id="outTitle">-</div>
-          <div class="small" id="outMeta">-</div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn" onclick="copyText(document.getElementById('outTitle').textContent)">제목 복사</button>
-          <button class="btn" onclick="copyText(document.getElementById('outImage').value)">이미지 프롬프트 복사</button>
-          <button class="btn primary" onclick="copyText(document.getElementById('outBody').value)">본문 프롬프트 복사</button>
-        </div>
-      </div>
-    </div>
+<!-- 카테고리 영역 -->
+<div class="grid" id="catGrid"></div>
 
-    <div class="panel" style="margin-top:12px">
-      <div class="small"><b>이미지 프롬프트</b></div>
-      <textarea id="outImage"></textarea>
-    </div>
-
-    <div class="panel" style="margin-top:12px">
-      <div class="small"><b>본문 프롬프트</b></div>
-      <textarea id="outBody"></textarea>
-    </div>
-  </div>
+<div class="box">
+  <b id="titleBox">주제 목록</b>
+  <div class="small" id="selInfo">카테고리를 선택하세요</div>
+  <div id="topics"></div>
 </div>
 
 <script>
-const CATS = [
-  {n:"건강", i:"🩺", d:"체중/식단/수면/영양"},
-  {n:"컴퓨터/IT", i:"💻", d:"PC/앱/보안/AI"},
-  {n:"자동차", i:"🚗", d:"정비/보험/연비"},
-  {n:"생활/가전", i:"🏠", d:"청소/가전/절약"},
-  {n:"육아", i:"🍼", d:"육아템/교육/일상"},
-  {n:"돈/재테크", i:"💳", d:"절약/세금/투자"},
-  {n:"여행", i:"✈️", d:"코스/준비/팁"},
-  {n:"요리", i:"🍳", d:"레시피/재료/보관"},
-  {n:"자기계발", i:"📈", d:"습관/루틴/목표"},
-  {n:"공부/자격증", i:"📚", d:"시험/공부법"},
-  {n:"반려동물", i:"🐶", d:"케어/용품"},
-  {n:"패션/뷰티", i:"💄", d:"관리/코디"},
-  {n:"취미", i:"🎨", d:"취미/DIY"},
-  {n:"스포츠", i:"⚽", d:"운동/루틴"},
-  {n:"게임", i:"🎮", d:"리뷰/팁"},
-  {n:"영화/드라마", i:"🎬", d:"추천/리뷰"},
-];
+const CATS=["건강","컴퓨터/IT","자동차","생활/가전","육아","돈/재테크","여행","요리","자기계발","공부/자격증","반려동물","패션/뷰티","취미","스포츠","게임","영화/드라마"];
+let topics=[];
+let selectedCat="";
 
-const SETTINGS_KEY = "baseone_settings_v3";
-let topics = [];
-let selectedTopic = "";
-let selectedCat = "";
-
-async function aiGenerateSelected(){
-  if(!selectedTopic){ 
-    alert("먼저 주제를 선택하세요!"); 
-    return; 
-  }
-
-  // 설정값 불러오기
-  const s = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
-  const backend = (s.backend || "http://127.0.0.1:5000").trim();
-
-  const payload = {
-    topic: selectedTopic,
-    category: selectedCat,
-    blog: document.getElementById("blogSelect").value || "local",
-
-    // 글작성 엔진
-    textProvider: s.text_provider || "gemini",
-
-    // ✅ 이미지 엔진(무료 Pexels 포함)
-    img_provider: s.img_provider || "pexels",
-    pexels_key: s.pexels_key || ""
-  };
-
-  try{
-    const res = await fetch(backend + "/api/generate", {
-      method:"POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(payload)
-    });
-
-    if(!res.ok){
-      const t = await res.text();
-      alert("생성 실패: " + t);
-      return;
-    }
-
-    const data = await res.json();
-    openModal(data);
-
-  }catch(e){
-    alert("서버 연결 실패!\n\n서버가 켜져 있는지 확인하세요.\npython server.py");
-  }
-}
-
-
-  // 저장된 블로그 주소를 드롭다운에 넣기
-  const sel = document.getElementById("blogSelect");
-  sel.innerHTML = `<option value="">블로그 선택(저장된 주소)</option>`;
-  const add = (arr,label) => (arr||[]).filter(Boolean).forEach((u,idx)=>{
-    const opt = document.createElement("option");
-    opt.value = u;
-    opt.textContent = `${label} ${idx+1} - ${u}`;
-    sel.appendChild(opt);
-  });
-  add(s.blogspot,"블로그스팟");
-  add(s.naver,"네이버");
-  add(s.tistory,"티스토리");
-}
-loadSettings();
-
-const catGrid = document.getElementById("catGrid");
+const grid=document.getElementById("catGrid");
 CATS.forEach(c=>{
   const d=document.createElement("div");
   d.className="cat";
-  d.innerHTML = `
-    <div class="catTop">
-      <div class="icon">${c.i}</div>
-      <div style="min-width:0">
-        <div class="catName">${c.n}</div>
-        <div class="catDesc">${c.d}</div>
-      </div>
-    </div>
-  `;
-  d.onclick=()=>makeTopics(c.n);
-  catGrid.appendChild(d);
+  d.textContent=c;
+  d.onclick=()=>makeTopics(c);
+  grid.appendChild(d);
 });
 
-function setInfo(){
-  document.getElementById("selInfo").textContent =
-    selectedTopic ? `선택 주제: ${selectedTopic}` : "아래에서 카테고리를 선택하세요.";
-}
-
 function makeTopics(cat){
-  selectedCat = cat;
-  topics = [];
+  selectedCat=cat;
+  topics=[];
   for(let i=1;i<=50;i++){
     topics.push(`${cat} 글 아이디어 ${i}`);
   }
-  selectedTopic = topics[0] || "";
-  document.getElementById("boxTitle").textContent = `${cat} 주제 50개`;
-  document.getElementById("boxSub").textContent = "카드를 눌러 선택/복사할 수 있어요.";
-  setInfo();
-  renderList();
+  document.getElementById("titleBox").textContent=`${cat} 주제 50개`;
+  document.getElementById("selInfo").textContent=`선택 카테고리: ${cat}`;
+  render();
 }
 
 function makeMoney(){
-  selectedCat = "수익형";
   topics=[];
-  const buckets=["보험","대출","카드","통신비","전기요금","세금","연금","부업","다이어트","영양제","가전","육아템","자동차","여행","자격증","노트북","청소","생활팁"];
+  selectedCat="수익형";
   for(let i=1;i<=100;i++){
-    topics.push(`수익형 주제 ${i}: ${buckets[i%buckets.length]}`);
+    topics.push(`수익형 주제 ${i}`);
   }
-  selectedTopic = topics[0] || "";
-  document.getElementById("boxTitle").textContent = `💰 수익형 주제 100개`;
-  document.getElementById("boxSub").textContent = "수익형 주제를 카드로 정리했어요.";
-  setInfo();
-  renderList();
+  document.getElementById("titleBox").textContent="💰 수익형 주제 100개";
+  document.getElementById("selInfo").textContent="선택 카테고리: 수익형";
+  render();
 }
 
-function renderList(){
-  const q=(document.getElementById("filter").value||"").trim().toLowerCase();
-  const list=document.getElementById("list");
+function render(){
+  const list=document.getElementById("topics");
   list.innerHTML="";
-  const filtered = q ? topics.filter(t=>t.toLowerCase().includes(q)) : topics;
-
-  filtered.forEach(t=>{
-    const el=document.createElement("div");
-    el.className="item";
-    el.innerHTML=`
-      <div class="itemLeft">
-        <div class="itemTitle">${escapeHtml(t)}</div>
-        <div class="itemMeta">${selectedCat ? "카테고리: "+selectedCat : ""}</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" onclick="setSelected('${escapeAttr(t)}')">선택</button>
-        <button class="btn" onclick="copyText('${escapeAttr(t)}')">복사</button>
-      </div>
-    `;
-    list.appendChild(el);
+  topics.forEach(t=>{
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`<div>${t}</div><button class="btn" onclick="copyText('${t}')">복사</button>`;
+    list.appendChild(d);
   });
-}
-
-function setSelected(t){
-  selectedTopic = t;
-  setInfo();
 }
 
 function copyText(t){
   navigator.clipboard.writeText(t);
   alert("복사 완료!");
 }
-
-function copyAll(){
-  if(!topics.length){alert("주제 없음");return;}
-  navigator.clipboard.writeText(topics.join("\n"));
-  alert("전체 복사 완료!");
-}
-
-async function aiGenerateSelected(){
-  if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
-
-  const s = JSON.parse(localStorage.getItem(SETTINGS_KEY)||"{}");
-  const backend = (s.backend || "http://127.0.0.1:5000").trim();
-
-  // 현재 단계: 서버에서 프롬프트 생성(테스트)
-  const payload = {
-    topic: selectedTopic,
-    category: selectedCat,
-    blog: document.getElementById("blogSelect").value || "local",
-    textProvider: s.text_provider || "gemini"
-  };
-
-  try{
-    const res = await fetch(backend + "/api/generate", {
-      method:"POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(payload)
-    });
-
-    if(!res.ok){
-      const t = await res.text();
-      alert("생성 실패: " + t);
-      return;
-    }
-    const data = await res.json();
-    openModal(data);
-  }catch(e){
-    alert("서버 연결 실패!\n\n로컬에서 server.py를 켜고 다시 시도하세요.");
-  }
-}
-
-function openModal(data){
-  document.getElementById("outTitle").textContent = data.title || "-";
-  document.getElementById("outMeta").innerHTML =
-    `주제: <span class="ok">${escapeHtml(data.topic||"")}</span> / 카테고리: ${escapeHtml(data.category||"")} / 시간: ${escapeHtml(data.generated_at||"")}`;
-  document.getElementById("outImage").value = data.image_prompt || "";
-  document.getElementById("outBody").value = data.body_prompt || "";
-  document.getElementById("modalBg").style.display="block";
-}
-function closeModal(){ document.getElementById("modalBg").style.display="none"; }
-
-function escapeHtml(s){
-  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-}
-function escapeAttr(s){
-  return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
-}
-
-renderList();
 </script>
+
 </body>
 </html>
