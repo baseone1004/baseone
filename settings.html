@@ -1,489 +1,109 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="UTF-8">
   <title>BaseOne 설정</title>
   <style>
-    :root{
-      --bg:#141626;
-      --panel:#1c2036;
-      --panel2:#222744;
-      --text:#e9ecff;
-      --muted:#aeb6e6;
-      --accent:#4c8dff;
-      --accent2:#2f6cff;
-      --line:rgba(255,255,255,.08);
-      --shadow: 0 10px 30px rgba(0,0,0,.25);
-      --radius:16px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial, sans-serif;
-      background: radial-gradient(1200px 700px at 20% 10%, rgba(76,141,255,.18), transparent 60%),
-                  radial-gradient(900px 600px at 80% 30%, rgba(255,255,255,.06), transparent 55%),
-                  var(--bg);
-      color:var(--text);
-    }
-    a{color:var(--accent)}
-    .wrap{max-width:980px;margin:0 auto;padding:24px 16px 56px}
-    .top{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      margin-bottom:16px;
-    }
-    .brand{
-      display:flex;align-items:center;gap:12px;
-      font-weight:800;font-size:26px;letter-spacing:.2px;
-      color:#9fc0ff;
-    }
-    .chip{
-      font-size:12px;color:var(--muted);
-      padding:6px 10px;border:1px solid var(--line);
-      border-radius:999px;background:rgba(255,255,255,.03)
-    }
-    .grid{
-      display:grid;grid-template-columns:1fr;gap:14px;
-    }
-    @media (min-width: 980px){
-      .grid{grid-template-columns: 1.15fr .85fr;}
-    }
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:16px;
-    }
-    .card h2{
-      margin:0 0 10px 0;font-size:18px;
-    }
-    .desc{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 14px}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{
-      border:none;cursor:pointer;
-      padding:10px 12px;border-radius:12px;
-      font-weight:700;
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      border:1px solid var(--line);
-    }
-    .btn.primary{
-      background:linear-gradient(180deg, var(--accent), var(--accent2));
-      border:none;
-    }
-    .btn.danger{
-      background:rgba(255,80,80,.12);
-      border:1px solid rgba(255,80,80,.25);
-      color:#ffd6d6;
-    }
-    .btn.small{padding:8px 10px;border-radius:10px;font-size:13px}
-    .btn:active{transform:translateY(1px)}
-    .field{
-      display:grid;gap:6px;margin-bottom:10px;
-    }
-    label{font-size:13px;color:var(--muted)}
-    input, textarea, select{
-      width:100%;
-      background:rgba(0,0,0,.18);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 12px;
-      outline:none;
-    }
-    input::placeholder, textarea::placeholder{color:rgba(233,236,255,.35)}
-    textarea{min-height:90px;resize:vertical}
-    .hr{height:1px;background:var(--line);margin:14px 0}
-    .list{
-      display:grid;gap:10px;
-    }
-    .item{
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:12px;
-    }
-    .itemTop{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      margin-bottom:8px;
-    }
-    .itemTitle{font-weight:800}
-    .pill{
-      font-size:12px;color:var(--muted);
-      padding:4px 8px;border:1px solid var(--line);
-      border-radius:999px;background:rgba(255,255,255,.02)
-    }
-    .two{
-      display:grid;grid-template-columns:1fr;gap:10px;
-    }
-    @media (min-width: 760px){
-      .two{grid-template-columns:1fr 1fr}
-    }
-    .hint{
-      font-size:12px;color:var(--muted);line-height:1.5
-    }
-    .ok{color:#bfffd0}
-    .bad{color:#ffd0d0}
-    .footerBtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .toast{
-      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
-      background:rgba(0,0,0,.55);backdrop-filter: blur(10px);
-      border:1px solid var(--line);
-      padding:10px 12px;border-radius:12px;
-      color:var(--text);font-size:13px;display:none;
-      max-width: 90vw;
-    }
+    body{background:#141626;color:#eee;font-family:sans-serif;padding:20px}
+    h1{color:#7db4ff}
+    .box{background:#1f2240;border-radius:10px;padding:15px;margin-bottom:15px}
+    input{width:100%;padding:8px;margin:4px 0}
+    button{padding:8px 12px;margin:4px;border:none;border-radius:6px;cursor:pointer}
+    .add{background:#4e8ef7;color:white}
+    .save{background:#3fa46a;color:white}
+    .test{background:#777;color:white}
+    .bad{color:#ff8a8a}
+    .ok{color:#8affb0}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">BaseOne <span class="chip">설정</span></div>
-      <div class="row">
-        <a class="btn small" href="./index.html">← 메인으로</a>
-        <button class="btn small" onclick="resetAll()">초기화</button>
-      </div>
-    </div>
 
-    <div class="grid">
-      <!-- LEFT -->
-      <div class="card">
-        <h2>글작성(키 저장)</h2>
-        <p class="desc">
-          여기에 입력한 값은 <b>이 컴퓨터의 이 브라우저에만</b> 저장됩니다. (다른 사람은 자기 키를 자기 브라우저에 저장)
-        </p>
+<h1>BaseOne 설정</h1>
+<a href="index.html" style="color:#aaa">← 메인으로</a>
 
-        <div class="two">
-          <div class="field">
-            <label>Gemini API Key</label>
-            <input id="geminiKey" placeholder="예) AI Studio에서 만든 키" />
-          </div>
-          <div class="field">
-            <label>ChatGPT API Key</label>
-            <input id="openaiKey" placeholder="예) sk-..." />
-          </div>
-          <div class="field">
-            <label>Genspark Key (선택)</label>
-            <input id="gensparkKey" placeholder="있으면 입력" />
-          </div>
-          <div class="field">
-            <label>이미지 생성 방식</label>
-            <select id="imageProvider">
-              <option value="gemini">Gemini 이미지(권한/유료일 수 있음)</option>
-              <option value="free">무료 이미지(예: Pexels 등)</option>
-              <option value="nanobanana_pro">Nano Banana Pro (추가 예정)</option>
-            </select>
-            <div class="hint">※ “Gemini 이미지”는 계정/프로젝트/모델 권한에 따라 안 될 수 있어요.</div>
-          </div>
+<div class="box">
+  <h3>블로그스팟 (최대 10개)</h3>
+  <div id="blogspotList"></div>
+  <button class="add" onclick="addBlog('blogspot')">블로그스팟 추가</button>
+</div>
+
+<div class="box">
+  <h3>네이버 (최대 3개)</h3>
+  <div id="naverList"></div>
+  <button class="add" onclick="addBlog('naver')">네이버 추가</button>
+</div>
+
+<div class="box">
+  <h3>티스토리 (최대 10개)</h3>
+  <div id="tistoryList"></div>
+  <button class="add" onclick="addBlog('tistory')">티스토리 추가</button>
+</div>
+
+<button class="save" onclick="saveBlogs()">전체 저장</button>
+
+<script>
+const LIMIT={blogspot:10,naver:3,tistory:10};
+let blogs = JSON.parse(localStorage.getItem("baseone.blogs")||"[]");
+
+function render(){
+  ["blogspot","naver","tistory"].forEach(type=>{
+    const box=document.getElementById(type+"List");
+    box.innerHTML="";
+    blogs.filter(b=>b.type===type).forEach((b,i)=>{
+      box.innerHTML+=`
+        <div>
+          <input placeholder="이름" value="${b.name||""}" oninput="bname('${type}',${i},this.value)">
+          <input placeholder="주소" value="${b.url||""}" oninput="burl('${type}',${i},this.value)">
+          <button class="test" onclick="testBlog('${type}',${i})">연동확인</button>
+          <span id="st_${type}_${i}"></span>
         </div>
+      `;
+    });
+  });
+}
 
-        <div class="footerBtns">
-          <button class="btn primary" onclick="saveKeys()">저장</button>
-          <button class="btn" onclick="testKeys()">연동확인(간단 체크)</button>
-        </div>
+function addBlog(type){
+  if(blogs.filter(b=>b.type===type).length>=LIMIT[type]){
+    alert(type+" 최대 개수 초과"); return;
+  }
+  blogs.push({type,name:"",url:""});
+  render();
+}
 
-        <div class="hr"></div>
+function bname(type,idx,val){
+  blogs.filter(b=>b.type===type)[idx].name=val;
+}
+function burl(type,idx,val){
+  blogs.filter(b=>b.type===type)[idx].url=val;
+}
 
-        <h2>블로그 연결 (여러 개 저장)</h2>
-        <p class="desc">
-          블로그는 “주소”를 여러 개 저장해두고, 메인(index)에서 선택해서 쓰는 방식으로 시작할게요.
-          (실제 자동 발행/로그인은 다음 단계에서 추가)
-        </p>
+function saveBlogs(){
+  localStorage.setItem("baseone.blogs",JSON.stringify(blogs));
+  alert("저장 완료");
+}
 
-        <div class="list" id="blogList"></div>
+async function testBlog(type,idx){
+  const b = blogs.filter(x=>x.type===type)[idx];
+  const out=document.getElementById(`st_${type}_${idx}`);
+  if(!b.url){ out.innerHTML="<span class='bad'>주소 없음</span>"; return;}
 
-        <div class="footerBtns">
-          <button class="btn" onclick="addBlog('blogspot')">블로그스팟 추가</button>
-          <button class="btn" onclick="addBlog('naver')">네이버 추가</button>
-          <button class="btn" onclick="addBlog('tistory')">티스토리 추가</button>
-          <button class="btn primary" onclick="saveBlogs()">블로그 저장</button>
-        </div>
+  if(type!=="blogspot"){
+    out.innerHTML="<span class='ok'>형식만 확인</span>";
+    return;
+  }
 
-        <div class="hint" style="margin-top:10px">
-          제한: 블로그스팟 10개 / 네이버 3개 / 티스토리 10개
-        </div>
-      </div>
+  out.innerHTML="서버 확인중...";
+  try{
+    const r = await fetch("http://127.0.0.1:5000/api/blogspot/test");
+    const d = await r.json();
+    out.innerHTML = d.ok ? `<span class="ok">${d.message}</span>` :
+                           `<span class="bad">${d.error}</span>`;
+  }catch(e){
+    out.innerHTML="<span class='bad'>서버 꺼짐</span>";
+  }
+}
 
-      <!-- RIGHT -->
-      <div class="card">
-        <h2>도움말</h2>
-        <p class="desc">
-          지금 단계는 “설정 저장 + 여러 블로그 주소 저장”까지입니다.  
-          다음 단계에서 메인 화면(index.html)에 “저장된 블로그 목록 불러오기/선택”을 연결할게요.
-        </p>
-
-        <div class="item">
-          <div class="itemTop">
-            <div class="itemTitle">연동확인 버튼은 뭘 해요?</div>
-            <div class="pill">초간단 체크</div>
-          </div>
-          <div class="hint">
-            브라우저에 값이 저장되어 있는지 확인하고, 빈 값이면 경고해줍니다.<br/>
-            (실제 API 호출 테스트는 보안/정책 때문에 “백엔드(서버)”가 필요해서 다음 단계에서 합니다.)
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="itemTop">
-            <div class="itemTitle">왜 백엔드 주소를 없앴나요?</div>
-            <div class="pill">요청대로</div>
-          </div>
-          <div class="hint">
-            지금은 “모든 사람이 자기 키를 저장해서 쓰는 화면”이 우선이라, 백엔드 주소 입력칸은 제거했습니다.<br/>
-            나중에 “자동 발행”을 하려면 서버가 필요해서, 그때 다시 “숨김 옵션”으로 넣어줄 수 있어요.
-          </div>
-        </div>
-
-        <div class="item">
-          <div class="itemTop">
-            <div class="itemTitle">실제 자동 발행은 가능한가요?</div>
-            <div class="pill">가능(단계 필요)</div>
-          </div>
-          <div class="hint">
-            블로그스팟은 API로 가능하고,<br/>
-            네이버/티스토리는 로그인/권한 방식이 달라서 “연동(토큰/권한)” 단계를 만들어야 합니다.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <script>
-    const LS_KEYS = "baseone.keys.v1";
-    const LS_BLOGS = "baseone.blogs.v1";
-
-    const LIMITS = {
-      blogspot: 10,
-      naver: 3,
-      tistory: 10
-    };
-
-    function toast(msg){
-      const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.style.display = "block";
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(()=> t.style.display="none", 2400);
-    }
-
-    function loadAll(){
-      // keys
-      const savedKeys = JSON.parse(localStorage.getItem(LS_KEYS) || "{}");
-      document.getElementById("geminiKey").value = savedKeys.geminiKey || "";
-      document.getElementById("openaiKey").value = savedKeys.openaiKey || "";
-      document.getElementById("gensparkKey").value = savedKeys.gensparkKey || "";
-      document.getElementById("imageProvider").value = savedKeys.imageProvider || "gemini";
-
-      // blogs
-      const blogs = JSON.parse(localStorage.getItem(LS_BLOGS) || "[]");
-      renderBlogs(blogs);
-    }
-
-    function saveKeys(){
-      const data = {
-        geminiKey: document.getElementById("geminiKey").value.trim(),
-        openaiKey: document.getElementById("openaiKey").value.trim(),
-        gensparkKey: document.getElementById("gensparkKey").value.trim(),
-        imageProvider: document.getElementById("imageProvider").value
-      };
-      localStorage.setItem(LS_KEYS, JSON.stringify(data));
-      toast("✅ 글작성(키) 저장 완료");
-    }
-
-    function testKeys(){
-      const savedKeys = JSON.parse(localStorage.getItem(LS_KEYS) || "{}");
-      const g = !!(savedKeys.geminiKey && savedKeys.geminiKey.length > 10);
-      const o = !!(savedKeys.openaiKey && savedKeys.openaiKey.length > 10);
-      const gs = !!(savedKeys.gensparkKey && savedKeys.gensparkKey.length > 3);
-
-      let msg = "연동확인: ";
-      msg += g ? "Gemini OK, " : "Gemini 없음, ";
-      msg += o ? "ChatGPT OK, " : "ChatGPT 없음, ";
-      msg += gs ? "Genspark OK" : "Genspark 없음";
-      toast(msg);
-    }
-
-    function getBlogs(){
-      return JSON.parse(localStorage.getItem(LS_BLOGS) || "[]");
-    }
-
-    function saveBlogs(){
-      const list = [];
-      document.querySelectorAll(".blogItem").forEach(el=>{
-        const type = el.getAttribute("data-type");
-        const name = el.querySelector(".bName").value.trim();
-        const url = el.querySelector(".bUrl").value.trim();
-        const memo = el.querySelector(".bMemo").value.trim();
-        if(url){ // url 있는 것만 저장
-          list.push({type, name, url, memo});
-        }
-      });
-
-      // limit check
-      const counts = {blogspot:0, naver:0, tistory:0};
-      list.forEach(b=> counts[b.type]++);
-      for(const k of Object.keys(LIMITS)){
-        if(counts[k] > LIMITS[k]){
-          toast(`❌ ${labelType(k)}는 최대 ${LIMITS[k]}개까지 저장 가능`);
-          return;
-        }
-      }
-
-      localStorage.setItem(LS_BLOGS, JSON.stringify(list));
-      toast("✅ 블로그 저장 완료");
-    }
-
-    function labelType(type){
-      if(type==="blogspot") return "블로그스팟";
-      if(type==="naver") return "네이버";
-      if(type==="tistory") return "티스토리";
-      return type;
-    }
-
-    function addBlog(type){
-      const blogs = getBlogs();
-      const count = blogs.filter(b=>b.type===type).length;
-      if(count >= LIMITS[type]){
-        toast(`❌ ${labelType(type)}는 최대 ${LIMITS[type]}개까지`);
-        return;
-      }
-      blogs.push({
-        type,
-        name: "",
-        url: "",
-        memo: ""
-      });
-      renderBlogs(blogs);
-      // 저장은 버튼으로
-    }
-
-    function removeBlog(idx){
-      const blogs = getBlogs();
-      blogs.splice(idx, 1);
-      localStorage.setItem(LS_BLOGS, JSON.stringify(blogs));
-      renderBlogs(blogs);
-      toast("삭제됨(저장 반영)");
-    }
-
-    function renderBlogs(blogs){
-      // render uses LS as source of truth; update LS to match screen for add case
-      localStorage.setItem(LS_BLOGS, JSON.stringify(blogs));
-
-      const box = document.getElementById("blogList");
-      box.innerHTML = "";
-
-      if(blogs.length === 0){
-        const empty = document.createElement("div");
-        empty.className = "item";
-        empty.innerHTML = `
-          <div class="itemTop">
-            <div class="itemTitle">아직 저장된 블로그가 없어요</div>
-            <div class="pill">추가 버튼 눌러주세요</div>
-          </div>
-          <div class="hint">아래 “블로그스팟/네이버/티스토리 추가”를 눌러 주소를 저장해보세요.</div>
-        `;
-        box.appendChild(empty);
-        return;
-      }
-
-      blogs.forEach((b, idx)=>{
-        const el = document.createElement("div");
-        el.className = "item blogItem";
-        el.setAttribute("data-type", b.type);
-
-        el.innerHTML = `
-          <div class="itemTop">
-            <div class="itemTitle">${labelType(b.type)} #${idx+1}</div>
-            <div class="row">
-              <span class="pill">${labelType(b.type)}</span>
-              <button class="btn small danger" type="button" onclick="removeBlog(${idx})">삭제</button>
-            </div>
-          </div>
-
-          <div class="two">
-            <div class="field">
-              <label>이름(내가 구분용)</label>
-              <input class="bName" placeholder="예) 내 블로그1" value="${escapeHtml(b.name||"")}" />
-            </div>
-            <div class="field">
-              <label>블로그 주소(URL)</label>
-              <input class="bUrl" placeholder="예) https://내블로그주소" value="${escapeHtml(b.url||"")}" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label>메모(선택)</label>
-            <input class="bMemo" placeholder="예) 요리/레시피용" value="${escapeHtml(b.memo||"")}" />
-          </div>
-
-          <div class="row">
-            <button class="btn small" type="button" onclick="quickCheck(${idx})">연동확인(주소 확인)</button>
-            <span class="hint" id="chk_${idx}"></span>
-          </div>
-        `;
-        box.appendChild(el);
-      });
-    }
-
-    function quickCheck(idx){
-      const items = document.querySelectorAll(".blogItem");
-      const el = items[idx];
-      if(!el) return;
-
-      const type = el.getAttribute("data-type");
-      const url = el.querySelector(".bUrl").value.trim();
-      const out = document.getElementById("chk_"+idx);
-
-      if(!url){
-        out.innerHTML = `<span class="bad">주소가 비어있어요</span>`;
-        return;
-      }
-      try{
-        const u = new URL(url);
-        if(!(u.protocol === "http:" || u.protocol === "https:")){
-          out.innerHTML = `<span class="bad">http/https 주소만 가능</span>`;
-          return;
-        }
-        // 매우 간단한 도메인 힌트
-        if(type==="blogspot" && !u.hostname.includes("blogspot") && !u.hostname.includes("blogger")){
-          out.innerHTML = `<span class="ok">형식 OK</span> <span class="hint">(블로그스팟 도메인이 아닐 수도 있어요)</span>`;
-          return;
-        }
-        if(type==="naver" && !u.hostname.includes("naver") && !u.hostname.includes("blog.me")){
-          out.innerHTML = `<span class="ok">형식 OK</span> <span class="hint">(네이버 도메인이 아닐 수도 있어요)</span>`;
-          return;
-        }
-        if(type==="tistory" && !u.hostname.includes("tistory")){
-          out.innerHTML = `<span class="ok">형식 OK</span> <span class="hint">(티스토리 도메인이 아닐 수도 있어요)</span>`;
-          return;
-        }
-        out.innerHTML = `<span class="ok">OK</span>`;
-      }catch(e){
-        out.innerHTML = `<span class="bad">주소 형식이 이상해요</span>`;
-      }
-    }
-
-    function escapeHtml(str){
-      return (str || "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function resetAll(){
-      if(!confirm("정말 초기화할까요? (저장된 키/블로그 모두 삭제)")) return;
-      localStorage.removeItem(LS_KEYS);
-      localStorage.removeItem(LS_BLOGS);
-      loadAll();
-      toast("초기화 완료");
-    }
-
-    loadAll();
-  </script>
+render();
+</script>
 </body>
 </html>
