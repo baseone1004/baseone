@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BaseOne - 설정</title>
+  <style>
+    :root{
+      --bg:#1f2030;
+      --panel:#2a2b3e;
+      --panel2:#31324a;
+      --text:#e9e9f2;
+      --muted:#b7b7c8;
+      --primary:#4b8bff;
+      --border:#3a3b55;
+      --ok:#37c46b;
+      --danger:#ff5a6a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: radial-gradient(1200px 600px at 50% 0%, #2a2b4a 0%, var(--bg) 55%);
+      color:var(--text);
+    }
+    .wrap{max-width:980px;margin:0 auto;padding:28px 18px 60px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .title{font-size:28px;font-weight:800;letter-spacing:.2px}
+    .btn{
+      border:0; cursor:pointer; padding:10px 14px; border-radius:10px;
+      background:var(--primary); color:white; font-weight:700;
+    }
+    .btn.secondary{background:#3c3d55}
+    .btn.danger{background:var(--danger)}
+    .btn:active{transform:translateY(1px)}
+    .grid{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+    @media (min-width: 920px){
+      .grid{grid-template-columns: 1fr 1fr}
+      .span2{grid-column:1 / span 2}
+    }
+    .card{
+      background: linear-gradient(180deg, var(--panel) 0%, #242538 100%);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:16px 16px 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.28);
+    }
+    .card h2{
+      margin:0 0 10px; font-size:16px; letter-spacing:.2px
+    }
+    .hint{color:var(--muted); font-size:12px; margin:0 0 12px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .field{
+      width:100%;
+      display:flex; flex-direction:column; gap:6px;
+      margin-bottom:10px;
+    }
+    label{font-size:12px;color:var(--muted)}
+    input{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: #1c1d2b;
+      color: var(--text);
+      outline:none;
+    }
+    input::placeholder{color:#8e8faa}
+    .small{font-size:12px;color:var(--muted)}
+    .list{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:8px;
+      margin-top:8px;
+    }
+    .item{
+      background: linear-gradient(180deg, var(--panel2) 0%, #2a2b3f 100%);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .item .idx{
+      width:34px; height:34px; border-radius:10px;
+      display:grid; place-items:center;
+      background:#23243a; border:1px solid var(--border);
+      font-weight:800; color:#cfd0ff;
+      flex:0 0 auto;
+    }
+    .item .cols{flex:1; display:grid; grid-template-columns: 1fr; gap:8px}
+    @media (min-width: 700px){
+      .item .cols{grid-template-columns: 1fr 1fr}
+    }
+    .item .tools{display:flex; gap:8px; flex:0 0 auto}
+    .pill{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      background:#23243a; border:1px solid var(--border);
+      color:#cfd0ff;
+    }
+    .status{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      background:#23243a; border:1px solid var(--border);
+      color:#cfd0ff;
+      display:inline-flex; gap:6px; align-items:center;
+      margin-left:auto;
+    }
+    .status.ok{border-color: rgba(55,196,107,.5); color:#bff3d0}
+    .status.bad{border-color: rgba(255,90,106,.5); color:#ffd1d6}
+    a.link{color:#bcd4ff;text-decoration:none}
+    .footerbar{
+      position:fixed; left:0; right:0; bottom:0;
+      background: rgba(20,20,30,.72);
+      backdrop-filter: blur(10px);
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:10px 14px;
+      display:flex; justify-content:center; gap:10px;
+    }
+    .note{
+      margin-top:12px;
+      font-size:12px; color:var(--muted); line-height:1.5;
+    }
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <div class="title">BaseOne 설정</div>
+        <div class="small">여기 저장된 값은 <b>이 브라우저(이 PC)</b>에만 저장됩니다.</div>
+      </div>
+      <div class="row">
+        <button class="btn secondary" onclick="goHome()">메인으로</button>
+        <button class="btn" onclick="saveAll()">저장</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- 블로그 연결 -->
+      <div class="card span2">
+        <h2>블로그 연결 (여러 개 저장)</h2>
+        <p class="hint">
+          블로그스팟 10개 / 네이버 3개 / 티스토리 10개까지 저장 가능.<br>
+          (지금은 “저장/불러오기”까지만 구현. 실제 자동발행 연동은 다음 단계에서 OAuth/토큰이 필요해요.)
+        </p>
+
+        <div id="blogWrap"></div>
+
+        <div class="note">
+          ✅ “연동 확인”은 현재는 <span class="mono">주소 형식 체크</span>만 합니다.  
+          실제 글 발행 확인은 <b>각 서비스 로그인(OAuth)</b>이 들어가야 가능해요.
+        </div>
+      </div>
+
+      <!-- 기타 API 저장 예시(나중에 연결용) -->
+      <div class="card">
+        <h2>글작성 API 키(예시)</h2>
+        <p class="hint">나중에 연결할 수 있도록 키를 저장만 해둡니다.</p>
+        <div class="field">
+          <label>Gemini API Key</label>
+          <input id="geminiKey" placeholder="예) AI Studio에서 발급받은 키" />
+        </div>
+        <div class="field">
+          <label>ChatGPT API Key (추후)</label>
+          <input id="chatgptKey" placeholder="예) 나중에 추가" />
+        </div>
+        <div class="field">
+          <label>젠스파크 Key (추후)</label>
+          <input id="gensparkKey" placeholder="예) 나중에 추가" />
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>이미지 API 키(예시)</h2>
+        <p class="hint">무료 이미지(Pexels 등) / Gemini 이미지 키 등 저장용</p>
+        <div class="field">
+          <label>Pexels API Key</label>
+          <input id="pexelsKey" placeholder="예) PEXELS_API_KEY" />
+        </div>
+        <div class="field">
+          <label>Gemini 이미지(별도 키 필요 없음)</label>
+          <input value="Gemini 글작성 키와 동일(같은 API Key)" disabled />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footerbar">
+    <button class="btn secondary" onclick="resetAll()">전체 초기화</button>
+    <button class="btn" onclick="saveAll()">저장</button>
+  </div>
+
+<script>
+  // ====== BLOG SLOTS 정의 ======
+  const BLOG_CONFIG = [
+    { key: "blogspot", label: "블로그스팟", max: 10, placeholder: "예) https://내블로그.blogspot.com" },
+    { key: "naver",    label: "네이버",     max: 3,  placeholder: "예) https://blog.naver.com/아이디" },
+    { key: "tistory",  label: "티스토리",   max: 10, placeholder: "예) https://내블로그.tistory.com" },
+  ];
+
+  const LS_KEY = "baseone_settings_v1";
+
+  function goHome(){
+    // GitHub Pages에서도 동작: 같은 폴더의 index.html로 이동
+    location.href = "index.html";
+  }
+
+  function buildBlogUI(){
+    const wrap = document.getElementById("blogWrap");
+    wrap.innerHTML = "";
+
+    BLOG_CONFIG.forEach(cfg => {
+      const section = document.createElement("div");
+      section.style.margin = "14px 0 18px";
+
+      const head = document.createElement("div");
+      head.className = "row";
+      head.innerHTML = `
+        <span class="pill">${cfg.label} 최대 ${cfg.max}개</span>
+        <span class="small">각 줄에 블로그 주소/이름을 저장하세요.</span>
+      `;
+      section.appendChild(head);
+
+      const list = document.createElement("div");
+      list.className = "list";
+
+      for(let i=1;i<=cfg.max;i++){
+        const item = document.createElement("div");
+        item.className = "item";
+
+        item.innerHTML = `
+          <div class="idx">${i}</div>
+          <div class="cols">
+            <div class="field" style="margin:0">
+              <label>${cfg.label} ${i} - 이름(선택)</label>
+              <input id="${cfg.key}_name_${i}" placeholder="예) 메인블로그, 서브1" />
+            </div>
+            <div class="field" style="margin:0">
+              <label>${cfg.label} ${i} - 주소</label>
+              <input id="${cfg.key}_url_${i}" placeholder="${cfg.placeholder}" />
+            </div>
+          </div>
+          <div class="tools">
+            <button class="btn secondary" onclick="testBlog('${cfg.key}', ${i})">연동 확인</button>
+          </div>
+          <span id="${cfg.key}_status_${i}" class="status">대기</span>
+        `;
+
+        list.appendChild(item);
+      }
+
+      section.appendChild(list);
+      wrap.appendChild(section);
+    });
+  }
+
+  // ====== 저장/불러오기 ======
+  function loadAll(){
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+
+    let data;
+    try { data = JSON.parse(raw); } catch(e){ return; }
+
+    // blog slots
+    BLOG_CONFIG.forEach(cfg => {
+      for(let i=1;i<=cfg.max;i++){
+        const nameEl = document.getElementById(`${cfg.key}_name_${i}`);
+        const urlEl  = document.getElementById(`${cfg.key}_url_${i}`);
+        if(nameEl) nameEl.value = data?.blogs?.[cfg.key]?.[i-1]?.name || "";
+        if(urlEl)  urlEl.value  = data?.blogs?.[cfg.key]?.[i-1]?.url  || "";
+      }
+    });
+
+    // api keys
+    setVal("geminiKey", data?.keys?.gemini || "");
+    setVal("chatgptKey", data?.keys?.chatgpt || "");
+    setVal("gensparkKey", data?.keys?.genspark || "");
+    setVal("pexelsKey", data?.keys?.pexels || "");
+  }
+
+  function saveAll(){
+    const data = { blogs:{}, keys:{} };
+
+    BLOG_CONFIG.forEach(cfg => {
+      data.blogs[cfg.key] = [];
+      for(let i=1;i<=cfg.max;i++){
+        const name = getVal(`${cfg.key}_name_${i}`).trim();
+        const url  = getVal(`${cfg.key}_url_${i}`).trim();
+        data.blogs[cfg.key].push({ name, url });
+      }
+    });
+
+    data.keys.gemini   = getVal("geminiKey").trim();
+    data.keys.chatgpt  = getVal("chatgptKey").trim();
+    data.keys.genspark = getVal("gensparkKey").trim();
+    data.keys.pexels   = getVal("pexelsKey").trim();
+
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    alert("저장 완료! (이 PC/브라우저에만 저장됩니다)");
+  }
+
+  function resetAll(){
+    if(!confirm("정말 전체 초기화할까요? 저장된 설정이 삭제됩니다.")) return;
+    localStorage.removeItem(LS_KEY);
+    location.reload();
+  }
+
+  function getVal(id){
+    const el = document.getElementById(id);
+    return el ? el.value : "";
+  }
+  function setVal(id, v){
+    const el = document.getElementById(id);
+    if(el) el.value = v;
+  }
+
+  // ====== 연동 확인(현재: URL 형식 체크만) ======
+  function testBlog(type, idx){
+    const url = getVal(`${type}_url_${idx}`).trim();
+    const status = document.getElementById(`${type}_status_${idx}`);
+
+    if(!url){
+      setStatus(status, false, "주소 없음");
+      return;
+    }
+
+    const ok = isValidUrl(url);
+
+    // 서비스별 간단 규칙(대충 체크)
+    if(ok){
+      if(type === "blogspot" && !url.includes("blogspot.")) {
+        setStatus(status, false, "blogspot 주소 아님");
+        return;
+      }
+      if(type === "naver" && !(url.includes("blog.naver.com") || url.includes("naver.com"))) {
+        setStatus(status, false, "네이버 주소 아님");
+        return;
+      }
+      if(type === "tistory" && !url.includes("tistory.com")) {
+        setStatus(status, false, "tistory 주소 아님");
+        return;
+      }
+      setStatus(status, true, "형식 OK");
+    } else {
+      setStatus(status, false, "주소 형식 오류");
+    }
+  }
+
+  function isValidUrl(s){
+    try { new URL(s); return true; } catch(e){ return false; }
+  }
+
+  function setStatus(el, ok, text){
+    if(!el) return;
+    el.textContent = ok ? `✅ ${text}` : `❌ ${text}`;
+    el.classList.remove("ok","bad");
+    el.classList.add(ok ? "ok" : "bad");
+  }
+
+  // init
+  buildBlogUI();
+  loadAll();
+</script>
+</body>
+</html>
