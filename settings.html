@@ -11,6 +11,7 @@
     --text:#eaf0ff; --sub:#b9c6ff;
     --blue:#4f8cff; --blue2:#2f6bff;
     --green:#2dd4bf; --warn:#fbbf24;
+    --red:#ff6b6b;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(1200px 800px at 20% 10%, #1a2a5a 0%, var(--bg) 45%), var(--bg); color:var(--text)}
@@ -22,6 +23,7 @@
   .title{font-size:22px;font-weight:900}
   .btn{padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:800}
   .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue2));border:none}
+  .btn.danger{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.35);color:#ffd1d1}
   .grid{display:grid;grid-template-columns:1fr;gap:12px}
   @media(min-width:900px){.grid{grid-template-columns:1fr 1fr}}
   .card{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));border:1px solid var(--line);border-radius:18px;padding:14px}
@@ -39,10 +41,24 @@
   .hint{border-left:3px solid var(--green);padding:10px 12px;border-radius:12px;background:rgba(45,212,191,.08);border:1px solid rgba(45,212,191,.25)}
   .warn{border-left:3px solid var(--warn);padding:10px 12px;border-radius:12px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25)}
   .list{margin:8px 0 0 0;padding-left:18px;color:var(--sub);font-size:12px;line-height:1.6}
-  .inputsGrid{display:grid;grid-template-columns:1fr;gap:10px}
-  @media(min-width:900px){.inputsGrid{grid-template-columns:1fr 1fr}}
   .foot{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .ok{color:#9ff5d2;font-weight:800}
+
+  /* ✅ 동적 리스트 UI */
+  .dynBox{margin-top:10px;display:flex;flex-direction:column;gap:10px}
+  .dynItem{
+    display:flex; gap:10px; align-items:center;
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:10px;
+  }
+  .dynItem input{flex:1; margin:0}
+  .pill{
+    display:inline-block;padding:6px 10px;border-radius:999px;
+    background:rgba(15,21,48,.75);border:1px solid var(--line);
+    color:var(--sub);font-size:12px
+  }
 </style>
 </head>
 <body>
@@ -167,16 +183,37 @@
 
     <div class="card">
       <h2>3) 블로그 연결 (주소 저장)</h2>
-      <div class="small">지금은 “주소 저장” 단계. 실제 자동발행(OAuth/토큰)은 다음 단계에서 붙여요.</div>
+      <div class="small">✅ 이제는 “+추가” 버튼으로 필요한 만큼만 입력칸이 늘어나요.</div>
 
-      <h3>블로그스팟 (최대 10개)</h3>
-      <div class="inputsGrid" id="blogspot_box"></div>
+      <h3>블로그스팟 <span class="pill">최대 10개</span></h3>
+      <div class="row">
+        <div class="small">주소를 넣고 +추가로 늘리세요.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="addBlogRow('blogspot')">+ 추가</button>
+          <button class="btn danger" onclick="clearBlogRows('blogspot')">전체삭제</button>
+        </div>
+      </div>
+      <div class="dynBox" id="blogspot_box"></div>
 
-      <h3>네이버 (최대 3개)</h3>
-      <div class="inputsGrid" id="naver_box"></div>
+      <h3 style="margin-top:18px">네이버 <span class="pill">최대 3개</span></h3>
+      <div class="row">
+        <div class="small">네이버 글쓰기 URL/블로그 주소를 저장하는 단계</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="addBlogRow('naver')">+ 추가</button>
+          <button class="btn danger" onclick="clearBlogRows('naver')">전체삭제</button>
+        </div>
+      </div>
+      <div class="dynBox" id="naver_box"></div>
 
-      <h3>티스토리 (최대 10개)</h3>
-      <div class="inputsGrid" id="tistory_box"></div>
+      <h3 style="margin-top:18px">티스토리 <span class="pill">최대 10개</span></h3>
+      <div class="row">
+        <div class="small">티스토리 블로그 주소를 저장하는 단계</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" onclick="addBlogRow('tistory')">+ 추가</button>
+          <button class="btn danger" onclick="clearBlogRows('tistory')">전체삭제</button>
+        </div>
+      </div>
+      <div class="dynBox" id="tistory_box"></div>
 
       <div class="foot">
         <button class="btn primary" onclick="saveAll()">💾 저장</button>
@@ -196,67 +233,96 @@
 </div>
 
 <script>
-const KEY = "baseone_settings_v3";      // 설정창 자체 저장
-const KEY_V2 = "baseone_settings_v2";   // ✅ 메인(index.html)이 읽는 키
+const KEY = "baseone_settings_v3"; // 설정창 저장
+const KEY_V2 = "baseone_settings_v2"; // ✅ 메인(index.html)이 읽는 키
 
-function makeInputs(containerId, prefix, count){
-  const box = document.getElementById(containerId);
-  for(let i=1;i<=count;i++){
-    const wrap = document.createElement("div");
-    wrap.innerHTML = `
-      <label>${prefix} ${i} 주소</label>
-      <input id="${prefix}_${i}" placeholder="https://..." />
-    `;
-    box.appendChild(wrap);
-  }
+const LIMITS = { blogspot: 10, naver: 3, tistory: 10 };
+
+function rowTemplate(type, idx, value){
+  const labelMap = { blogspot:"블로그스팟", naver:"네이버", tistory:"티스토리" };
+  const safeVal = (value || "").replaceAll('"','&quot;');
+  return `
+    <div class="dynItem" data-type="${type}">
+      <div style="min-width:86px;font-weight:800">${labelMap[type]} ${idx}</div>
+      <input class="dynInput" placeholder="https://..." value="${safeVal}" />
+      <button class="btn danger" onclick="removeRow(this)">삭제</button>
+    </div>
+  `;
 }
 
-makeInputs("blogspot_box","blogspot",10);
-makeInputs("naver_box","naver",3);
-makeInputs("tistory_box","tistory",10);
+function getBox(type){ return document.getElementById(type + "_box"); }
+
+function countRows(type){
+  return getBox(type).querySelectorAll('.dynItem').length;
+}
+
+function renumber(type){
+  const items = getBox(type).querySelectorAll('.dynItem');
+  items.forEach((item,i)=>{
+    const labelMap = { blogspot:"블로그스팟", naver:"네이버", tistory:"티스토리" };
+    item.querySelector('div').textContent = `${labelMap[type]} ${i+1}`;
+  });
+}
+
+function addBlogRow(type, value=""){
+  const box = getBox(type);
+  const n = countRows(type);
+  if(n >= LIMITS[type]){
+    alert(`최대 ${LIMITS[type]}개까지 가능합니다.`);
+    return;
+  }
+  box.insertAdjacentHTML("beforeend", rowTemplate(type, n+1, value));
+}
+
+function removeRow(btn){
+  const item = btn.closest('.dynItem');
+  const type = item.getAttribute('data-type');
+  item.remove();
+  renumber(type);
+}
+
+function clearBlogRows(type){
+  if(!confirm("정말 전체 삭제할까요?")) return;
+  getBox(type).innerHTML = "";
+  // 최소 1칸은 남겨두기(편의)
+  addBlogRow(type, "");
+}
+
+function collectValues(type){
+  const items = getBox(type).querySelectorAll('.dynItem .dynInput');
+  return Array.from(items).map(i=> (i.value||"").trim()).filter(Boolean);
+}
 
 function saveAll(){
   const data = {
-    gemini_key: (gemini_key.value || "").trim(),
-    openai_key: (openai_key.value || "").trim(),
-    genspark_key: (genspark_key.value || "").trim(),
+    gemini_key: gemini_key.value.trim(),
+    openai_key: openai_key.value.trim(),
+    genspark_key: genspark_key.value.trim(),
     text_provider: text_provider.value,
-    gemini_img_key: (gemini_img_key.value || "").trim(),
-    wisk_key: (wisk_key.value || "").trim(),
-    pexels_key: (pexels_key.value || "").trim(),
+    gemini_img_key: gemini_img_key.value.trim(),
+    wisk_key: wisk_key.value.trim(),
+    pexels_key: pexels_key.value.trim(),
     img_provider: img_provider.value,
-    backend: (backend.value || "").trim() || "http://127.0.0.1:5000",
-    blogspot: [],
-    naver: [],
-    tistory: []
+    backend: backend.value.trim() || "http://127.0.0.1:5000",
+    blogspot: collectValues("blogspot"),
+    naver: collectValues("naver"),
+    tistory: collectValues("tistory")
   };
 
-  for(let i=1;i<=10;i++){
-    data.blogspot.push(((document.getElementById(`blogspot_${i}`)?.value) || "").trim());
-  }
-  for(let i=1;i<=3;i++){
-    data.naver.push(((document.getElementById(`naver_${i}`)?.value) || "").trim());
-  }
-  for(let i=1;i<=10;i++){
-    data.tistory.push(((document.getElementById(`tistory_${i}`)?.value) || "").trim());
-  }
-
-  // 1) 기존 settings 저장 (v3)
   localStorage.setItem(KEY, JSON.stringify(data));
+  msg.innerHTML = `<span class="ok">저장 완료 ✅</span>`;
 
-  // ✅ 2) 메인(index) 호환 저장 (v2)
+  // ✅ 메인(index.html)이 읽는 v2 포맷도 같이 저장
   const v2 = {
     blogs: {
-      blogspot: data.blogspot.filter(v => v),
-      naver: data.naver.filter(v => v),
-      tistory: data.tistory.filter(v => v)
+      blogspot: (data.blogspot || []),
+      naver: (data.naver || []),
+      tistory: (data.tistory || [])
     },
     imgProvider: data.img_provider || "pexels",
     pexelsKey: data.pexels_key || ""
   };
   localStorage.setItem(KEY_V2, JSON.stringify(v2));
-
-  msg.innerHTML = `<span class="ok">저장 완료 ✅ (메인 연동 OK)</span>`;
 }
 
 (function load(){
@@ -272,18 +338,19 @@ function saveAll(){
   img_provider.value = d.img_provider || "pexels";
   backend.value = d.backend || "http://127.0.0.1:5000";
 
-  (d.blogspot||[]).forEach((v,i)=>{
-    const el = document.getElementById(`blogspot_${i+1}`);
-    if(el) el.value = v || "";
-  });
-  (d.naver||[]).forEach((v,i)=>{
-    const el = document.getElementById(`naver_${i+1}`);
-    if(el) el.value = v || "";
-  });
-  (d.tistory||[]).forEach((v,i)=>{
-    const el = document.getElementById(`tistory_${i+1}`);
-    if(el) el.value = v || "";
-  });
+  // ✅ 동적 리스트: 저장된 값만큼만 생성 (없으면 1칸)
+  const bs = (d.blogspot && d.blogspot.length) ? d.blogspot : [""];
+  const nv = (d.naver && d.naver.length) ? d.naver : [""];
+  const ts = (d.tistory && d.tistory.length) ? d.tistory : [""];
+
+  getBox("blogspot").innerHTML = "";
+  bs.slice(0, LIMITS.blogspot).forEach(v => addBlogRow("blogspot", v));
+
+  getBox("naver").innerHTML = "";
+  nv.slice(0, LIMITS.naver).forEach(v => addBlogRow("naver", v));
+
+  getBox("tistory").innerHTML = "";
+  ts.slice(0, LIMITS.tistory).forEach(v => addBlogRow("tistory", v));
 })();
 
 async function testServer(){
@@ -298,9 +365,5 @@ async function testServer(){
   }
 }
 </script>
-
 </body>
 </html>
-
-
-
