@@ -368,38 +368,60 @@
   }
 
   // ====== AI 생성(서버 호출) ======
-  async function aiGenerateSelected(){
-    if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
+async function aiGenerateSelected(){
+  if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
 
-    const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
-    const payload = {
-      topic: selectedTopic,
-      category: selectedCat,
-      blog: "local",
-      img_provider: (s.imgProvider || "pexels"),
-      pexels_key: (s.pexelsKey || "")
-    };
+  addGenLog("서버 연결 확인 중… (http://127.0.0.1:5000)");
+  addGenLog(`선택 주제: ${selectedTopic}`);
+  addGenLog(`카테고리: ${selectedCat || "-"}`);
 
-    try{
-      const res = await fetch("http://127.0.0.1:5000/api/generate", {
-        method:"POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
-      });
+  const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
+  const payload = {
+    topic: selectedTopic,
+    category: selectedCat,
+    blog: "local",
+    img_provider: (s.imgProvider || "pexels"),
+    pexels_key: (s.pexelsKey || "")
+  };
 
-      if(!res.ok){
-        const t = await res.text();
-        alert("생성 실패: " + t);
-        return;
-      }
+  addGenLog("AI 생성 요청 준비 완료");
+  addGenLog(`이미지 엔진: ${payload.img_provider}`);
 
-      const data = await res.json();
-      openModal(data);
+  try{
+    addGenLog("AI 생성 요청 보내는 중…");
 
-    }catch(e){
-      alert("서버 연결 실패! 서버가 켜져 있는지 확인하세요.\n\n(서버 실행: python server.py)");
+    const res = await fetch("http://127.0.0.1:5000/api/generate", {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    if(!res.ok){
+      const t = await res.text();
+      addGenErr("AI 생성 실패: " + t);
+      alert("생성 실패: " + t);
+      return;
     }
+
+    addGenLog("응답 수신 중…");
+    const data = await res.json();
+
+    if(data.image_url){
+      addGenOk("이미지 URL 찾음 ✅");
+      addGenLog(data.image_url);
+    }else{
+      addGenLog("이미지 URL 없음(검색 결과 0건일 수 있음)");
+    }
+
+    addGenOk("글작성 프롬프트 생성 완료 ✅ (모달로 결과 표시)");
+    openModal(data);
+
+  }catch(e){
+    addGenErr("서버 연결 실패! 서버가 켜져 있는지 확인하세요. (python server.py)");
+    alert("서버 연결 실패! 서버가 켜져 있는지 확인하세요.\n\n(서버 실행: python server.py)");
   }
+}
+
 
   function openModal(data){
     document.getElementById("outTitle").textContent = data.title || "-";
@@ -491,4 +513,40 @@
 </script>
 </body>
 </html>
+function showGenBox(){
+  const box = document.getElementById("genBox");
+  box.style.display = "block";
+}
+
+function addGenLog(msg){
+  showGenBox();
+  const log = document.getElementById("genLog");
+  const t = new Date();
+  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+  log.innerHTML += `<div>🟦 <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+function addGenOk(msg){
+  showGenBox();
+  const log = document.getElementById("genLog");
+  const t = new Date();
+  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+  log.innerHTML += `<div style="color:#9ff5d2">✅ <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+function addGenErr(msg){
+  showGenBox();
+  const log = document.getElementById("genLog");
+  const t = new Date();
+  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+  log.innerHTML += `<div style="color:#ffb4b4">❌ <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+
+function clearGenLog(){
+  document.getElementById("genLog").innerHTML = "";
+}
+
 
