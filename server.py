@@ -8,46 +8,23 @@ import requests
 app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
-# Render에서 디스크는 임시일 수 있어요.
-# 그래도 "요청 저장"은 파일로 남기되, 나중에 DB로 바꾸면 됩니다.
 PUBLISH_FILE = "publish_queue.json"
-
 
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-
-# -----------------------------
-# 정적 페이지 라우팅 (index/settings)
-# -----------------------------
 @app.route("/")
 def home():
-    # API 서버 접속 시 index.html이 있으면 보여줌
-    # (없으면 문구만 보여주도록 fallback)
-    if os.path.exists("index.html"):
-        return send_from_directory(".", "index.html")
     return "BaseOne API 서버 실행중"
-
-
-@app.route("/settings")
-def settings():
-    if os.path.exists("settings.html"):
-        return send_from_directory(".", "settings.html")
-    return "settings.html 파일이 없습니다", 404
-
 
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "time": now_str()})
 
-
-# -----------------------------
-# Pexels 무료 이미지 검색
-# -----------------------------
+# ---------- Pexels 이미지 ----------
 def pexels_search_image_url(pexels_key: str, query: str) -> str:
     if not pexels_key:
         return ""
-
     url = "https://api.pexels.com/v1/search"
     headers = {"Authorization": pexels_key}
     params = {"query": query, "per_page": 1, "orientation": "landscape", "size": "large"}
@@ -65,11 +42,7 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
     except Exception:
         return ""
 
-
-# -----------------------------
-# 글 생성(현재는 "프롬프트" 생성)
-# 다음 단계에서 Gemini/ChatGPT/Genspark 실제 호출로 교체
-# -----------------------------
+# ---------- 프롬프트 생성 ----------
 def make_body_prompt(topic: str, category: str) -> str:
     return f"""너는 수익형 정보블로그 작가다.
 아래 조건으로 '{topic}' 글을 한국어로 작성해줘.
@@ -85,14 +58,10 @@ def make_body_prompt(topic: str, category: str) -> str:
 ※ 출력은 블로그에 붙여넣기 좋은 HTML로 작성해줘.
 """.strip()
 
-
 def make_image_prompt(topic: str, category: str) -> str:
     return f'{category} 관련 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
 
-
-# -----------------------------
-# Queue 저장/로드
-# -----------------------------
+# ---------- 큐 저장 ----------
 def load_queue():
     if not os.path.exists(PUBLISH_FILE):
         return []
@@ -102,19 +71,14 @@ def load_queue():
     except Exception:
         return []
 
-
 def save_queue(items):
     with open(PUBLISH_FILE, "w", encoding="utf-8") as f:
         json.dump(items, f, ensure_ascii=False, indent=2)
 
-
-# -----------------------------
-# API: 글/이미지 프롬프트 생성
-# -----------------------------
+# ---------- API: generate ----------
 @app.route("/api/generate", methods=["POST"])
 def api_generate():
     payload = request.get_json(silent=True) or {}
-
     topic = (payload.get("topic") or "").strip()
     category = (payload.get("category") or "").strip() or "정보"
 
@@ -144,10 +108,7 @@ def api_generate():
         "image_url": image_url
     })
 
-
-# -----------------------------
-# API: 예약 발행(요청 저장)
-# -----------------------------
+# ---------- API: 예약 발행 요청 저장 ----------
 @app.route("/api/publish/schedule", methods=["POST"])
 def api_publish_schedule():
     payload = request.get_json(silent=True) or {}
@@ -179,16 +140,9 @@ def api_publish_schedule():
     q.append(item)
     save_queue(q)
 
-    return jsonify({
-        "ok": True,
-        "message": f"예약 발행 요청 저장 완료 ✅ ({blog_type})",
-        "saved": item
-    })
+    return jsonify({"ok": True, "message": "예약 발행 요청 저장 완료 ✅", "saved": item})
 
-
-# -----------------------------
-# API: 즉시 발행(간격 적용) 요청 저장
-# -----------------------------
+# ---------- API: 즉시 발행(간격) 요청 저장 ----------
 @app.route("/api/publish/now", methods=["POST"])
 def api_publish_now():
     payload = request.get_json(silent=True) or {}
@@ -197,7 +151,6 @@ def api_publish_now():
     blog_url = (payload.get("blog_url") or "").strip()
     category = (payload.get("category") or "").strip() or "정보"
     topic = (payload.get("topic") or "").strip()
-
     start_time = (payload.get("start_time") or "").strip() or "09:00"
     interval_hours = str(payload.get("interval_hours") or "1").strip()
 
@@ -221,25 +174,14 @@ def api_publish_now():
     q.append(item)
     save_queue(q)
 
-    return jsonify({
-        "ok": True,
-        "message": f"즉시 발행(간격) 요청 저장 완료 ✅ ({blog_type})",
-        "saved": item
-    })
+    return jsonify({"ok": True, "message": "즉시 발행(간격) 요청 저장 완료 ✅", "saved": item})
 
-
-# -----------------------------
-# (선택) 저장된 발행 요청 목록 보기
-# -----------------------------
+# ---------- API: 저장된 요청 보기 ----------
 @app.route("/api/publish/list", methods=["GET"])
 def api_publish_list():
     q = load_queue()
     return jsonify({"ok": True, "count": len(q), "items": q})
 
-
-# -----------------------------
-# Render 실행
-# -----------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
