@@ -5,34 +5,30 @@ import json
 from datetime import datetime
 import requests
 
-# 현재 파일(server.py)이 있는 폴더 경로
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-app = Flask(__name__, static_folder=BASE_DIR, static_url_path="")
+app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
-PUBLISH_FILE = os.path.join(BASE_DIR, "publish_queue.json")
+PUBLISH_FILE = "publish_queue.json"
 
 
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-# ✅ 메인 화면: index.html 제공
-@app.route("/", methods=["GET"])
+# ✅ 메인: index.html 띄우기
+@app.route("/")
 def home():
-    return send_from_directory(BASE_DIR, "index.html")
+    return send_from_directory(".", "index.html")
 
 
-# ✅ 설정 화면: settings.html 제공
-@app.route("/settings", methods=["GET"])
-@app.route("/settings.html", methods=["GET"])
-def settings_page():
-    return send_from_directory(BASE_DIR, "settings.html")
+# ✅ 설정: settings.html 띄우기
+@app.route("/settings")
+def settings():
+    return send_from_directory(".", "settings.html")
 
 
 # ✅ 헬스 체크
-@app.route("/health", methods=["GET"])
+@app.route("/health")
 def health():
     return jsonify({"ok": True, "time": now_str()})
 
@@ -205,12 +201,6 @@ def api_publish_now():
 def api_publish_list():
     q = load_queue()
     return jsonify({"ok": True, "count": len(q), "items": q})
-
-
-# ✅ 혹시 /favicon.ico 같은 요청이 와도 에러 안 나게
-@app.route("/favicon.ico")
-def favicon():
-    return "", 204
 
 
 if __name__ == "__main__":
