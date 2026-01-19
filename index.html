@@ -23,7 +23,12 @@
   .small{font-size:13px;color:#cfd6ff}
   .card{background:#0f1530;border:1px solid rgba(255,255,255,.10);padding:12px;border-radius:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 
-  .topicScroll{max-height:360px;overflow-y:auto;padding-right:6px;margin-top:10px}
+  .topicScroll{
+    max-height: 360px;
+    overflow-y: auto;
+    padding-right: 6px;
+    margin-top: 10px;
+  }
   .topicScroll::-webkit-scrollbar{width:10px}
   .topicScroll::-webkit-scrollbar-thumb{background:#273455;border-radius:10px}
   .topicScroll::-webkit-scrollbar-track{background:#0f1530;border-radius:10px}
@@ -150,7 +155,6 @@
 
 </div>
 
-<!-- 결과 모달 -->
 <div class="modalBg" id="modalBg">
   <div class="modal">
     <div class="row" style="justify-content:space-between">
@@ -184,19 +188,13 @@
 </div>
 
 <script>
-  // ====== 공통 유틸 ======
-  function escapeHtml(s){
-    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-  }
-  function escapeAttr(s){
-    return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
-  }
-
-  // ====== 서버 주소(backend) 읽기 ======
+  // =========================
+  // ✅ 추가된 것(필수): API_BASE 자동 읽기 + 화면 표시
+  // =========================
   function getApiBase(){
     const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
     const base = (d.backend || "http://127.0.0.1:5000").trim();
-    return base.replace(/\/+$/,"");
+    return base.replace(/\/+$/,""); // 끝의 / 제거
   }
   const API_BASE = getApiBase();
 
@@ -205,7 +203,19 @@
     if(el) el.textContent = API_BASE;
   });
 
-  // ====== 로그 ======
+  // =========================
+  // 유틸
+  // =========================
+  function escapeHtml(s){
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+  function escapeAttr(s){
+    return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
+  }
+
+  // =========================
+  // 로그
+  // =========================
   function showGenBox(){
     const box = document.getElementById("genBox");
     if(box) box.style.display = "block";
@@ -224,7 +234,9 @@
   function addGenErr(msg){ addGenLine("❌","#ffb4b4",msg); }
   function clearGenLog(){ const log=document.getElementById("genLog"); if(log) log.innerHTML=""; }
 
-  // ====== 카테고리 ======
+  // =========================
+  // 카테고리
+  // =========================
   const CATS=[
     {k:"건강", s:"운동·영양·생활관리"},
     {k:"컴퓨터/IT", s:"유틸·보안·가이드"},
@@ -263,7 +275,9 @@
     grid.appendChild(d);
   });
 
-  // ====== 블로그 목록(설정에서 읽기) ======
+  // =========================
+  // 블로그 목록(설정에서 읽기)
+  // =========================
   function loadBlogsToSelect(){
     const sel = document.getElementById("blogSelect");
     const now = document.getElementById("blogNow");
@@ -313,7 +327,6 @@
     localStorage.setItem("baseone_last_blog", v);
     try{
       const obj = JSON.parse(v);
-      now.textContent = `${’${''}’}`; // placeholder to avoid crash in some editors
       now.textContent = `${obj.type} / ${obj.url}`;
     }catch(e){
       now.textContent = "-";
@@ -328,7 +341,9 @@
 
   loadBlogsToSelect();
 
-  // ====== 주제 생성 ======
+  // =========================
+  // 주제 생성
+  // =========================
   function makeTopics(cat){
     selectedCat = cat;
     topics=[];
@@ -382,7 +397,9 @@
   function copyText(t){ navigator.clipboard.writeText(t); alert("복사 완료!"); }
   function copyAll(){ if(!topics.length){alert("주제 없음");return;} navigator.clipboard.writeText(topics.join("\n")); alert("전체 복사 완료!"); }
 
-  // ====== AI 생성 ======
+  // =========================
+  // ✅ 추가된 것(필수): AI 생성 fetch 문법 오류 수정
+  // =========================
   async function aiGenerateSelected(){
     if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
 
@@ -429,7 +446,7 @@
 
     }catch(e){
       addGenErr("서버 연결 실패");
-      alert("서버 연결 실패! API_BASE가 맞는지 확인하세요.");
+      alert("서버 연결 실패! 설정의 서버 주소(API_BASE)가 맞는지 확인하세요.");
     }
   }
 
@@ -442,7 +459,9 @@
   }
   function closeModal(){ document.getElementById("modalBg").style.display="none"; }
 
-  // ====== 발행 요청 저장 ======
+  // =========================
+  // ✅ 추가된 것(필수): 발행 API도 API_BASE로 통일
+  // =========================
   function getSelectedBlog(){
     const v = document.getElementById("blogSelect").value;
     if(!v) return null;
