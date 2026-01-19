@@ -397,10 +397,12 @@
     addGenLog("AI 생성 요청 보내는 중…");
 
     try{
-      const res = await fetch(API_BASE + "/api/generate", {
-        method:"POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(payload)
+    const res = await fetch(API_BASE + "/api/generate", {
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(payload)
+     });
+
       });
 
       if(!res.ok){
@@ -514,3 +516,4 @@
 </script>
 </body>
 </html>
+
