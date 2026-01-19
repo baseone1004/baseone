@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>BaseOne</title>
 <style>
-  body{margin:0;font-family:'Pretendard',-apple-system,sans-serif;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#fff;min-height:100vh}
+  body{margin:0;font-family:'Pretendard',-apple-system,sans-serif;background:#0a0e27;color:#e8eaf6;min-height:100vh}
   .wrap{max-width:1200px;margin:0 auto;padding:20px}
   
   /* 헤더 */
   .top{
-    background:rgba(255,255,255,.15);
+    background:rgba(30,35,60,.7);
     backdrop-filter:blur(10px);
     border-radius:20px;
     padding:20px 24px;
@@ -20,7 +20,8 @@
     align-items:center;
     gap:16px;
     flex-wrap:wrap;
-    box-shadow:0 8px 32px rgba(0,0,0,.1)
+    box-shadow:0 8px 32px rgba(0,0,0,.3);
+    border:1px solid rgba(255,255,255,.08)
   }
   
   .logo{
@@ -33,68 +34,71 @@
   }
   
   .title{font-size:28px;font-weight:900;line-height:1.2;margin-bottom:4px}
-  .subtitle{font-size:13px;opacity:.85;font-weight:500}
+  .subtitle{font-size:13px;opacity:.7;font-weight:500}
   
   .btn{
     padding:10px 18px;
     border-radius:12px;
     border:none;
-    background:rgba(255,255,255,.2);
-    color:white;
+    background:rgba(255,255,255,.1);
+    color:#e8eaf6;
     font-weight:700;
     cursor:pointer;
     transition:all .3s;
     font-size:14px;
-    backdrop-filter:blur(10px)
+    backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.1)
   }
-  .btn:hover{background:rgba(255,255,255,.3);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.15)}
-  .btn.blue{background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);box-shadow:0 4px 12px rgba(102,126,234,.3)}
+  .btn:hover{background:rgba(255,255,255,.15);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  .btn.blue{background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);box-shadow:0 4px 12px rgba(102,126,234,.3);border:none}
   .btn.blue:hover{box-shadow:0 6px 20px rgba(102,126,234,.4)}
-  .btn.gray{background:rgba(0,0,0,.3)}
+  .btn.gray{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.06)}
   .btn.small{padding:8px 14px;font-size:13px}
   
   .pill{
     display:inline-block;
     padding:8px 16px;
     border-radius:999px;
-    background:rgba(255,255,255,.2);
+    background:rgba(255,255,255,.08);
     backdrop-filter:blur(10px);
     font-size:13px;
-    font-weight:600
+    font-weight:600;
+    border:1px solid rgba(255,255,255,.1)
   }
   
   /* 카드 박스 */
   .box{
-    background:rgba(255,255,255,.15);
+    background:rgba(30,35,60,.6);
     backdrop-filter:blur(10px);
     border-radius:20px;
     padding:24px;
     margin-bottom:20px;
-    box-shadow:0 8px 32px rgba(0,0,0,.1)
+    box-shadow:0 8px 32px rgba(0,0,0,.2);
+    border:1px solid rgba(255,255,255,.08)
   }
   
   .box-title{font-size:20px;font-weight:900;margin-bottom:8px}
-  .box-subtitle{font-size:13px;opacity:.85;font-weight:500}
+  .box-subtitle{font-size:13px;opacity:.7;font-weight:500}
   
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
   
   input, select, textarea{
     padding:12px 16px;
     border-radius:12px;
-    border:1px solid rgba(255,255,255,.2);
-    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.05);
     backdrop-filter:blur(10px);
-    color:white;
+    color:#e8eaf6;
     min-width:200px;
     font-size:14px;
     transition:all .3s
   }
   input:focus, select:focus, textarea:focus{
     outline:none;
-    border-color:rgba(255,255,255,.4);
-    background:rgba(255,255,255,.15)
+    border-color:rgba(102,126,234,.6);
+    background:rgba(255,255,255,.08)
   }
-  input::placeholder{color:rgba(255,255,255,.6)}
+  input::placeholder{color:rgba(255,255,255,.4)}
   
   /* 카테고리 그리드 */
   .grid{
@@ -105,9 +109,9 @@
   }
   
   .cat{
-    background:rgba(255,255,255,.1);
+    background:rgba(255,255,255,.05);
     backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.1);
     padding:16px;
     border-radius:16px;
     cursor:pointer;
@@ -117,29 +121,30 @@
     overflow:hidden
   }
   .cat:hover{
-    background:rgba(255,255,255,.2);
+    background:rgba(255,255,255,.1);
     transform:translateY(-4px);
-    box-shadow:0 8px 24px rgba(0,0,0,.15)
+    box-shadow:0 8px 24px rgba(0,0,0,.2);
+    border-color:rgba(102,126,234,.4)
   }
   .cat b{font-size:16px;display:block;margin-bottom:6px}
-  .cat .small{font-size:12px;opacity:.8}
+  .cat .small{font-size:12px;opacity:.7}
   .badge{
     position:absolute;
     top:8px;right:8px;
     font-size:11px;
-    background:rgba(255,255,255,.25);
+    background:rgba(102,126,234,.3);
     padding:4px 10px;
     border-radius:999px;
     font-weight:700
   }
   
-  .small{font-size:13px;opacity:.85}
+  .small{font-size:13px;opacity:.8}
   
   /* 주제 카드 */
   .card{
-    background:rgba(255,255,255,.1);
+    background:rgba(255,255,255,.05);
     backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.1);
     padding:14px 18px;
     border-radius:14px;
     margin-bottom:10px;
@@ -149,7 +154,7 @@
     align-items:center;
     transition:all .3s
   }
-  .card:hover{background:rgba(255,255,255,.15)}
+  .card:hover{background:rgba(255,255,255,.08);border-color:rgba(102,126,234,.3)}
   
   .topicScroll{
     max-height:320px;
@@ -158,37 +163,38 @@
     margin-top:12px
   }
   .topicScroll::-webkit-scrollbar{width:8px}
-  .topicScroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:10px}
-  .topicScroll::-webkit-scrollbar-track{background:rgba(255,255,255,.1);border-radius:10px}
+  .topicScroll::-webkit-scrollbar-thumb{background:rgba(102,126,234,.4);border-radius:10px}
+  .topicScroll::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:10px}
   
   /* 모달 */
   .modalBg{
     display:none;
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,.7);
+    background:rgba(0,0,0,.85);
     padding:20px;
     z-index:9999;
-    backdrop-filter:blur(4px)
+    backdrop-filter:blur(8px)
   }
   .modal{
     max-width:900px;
     max-height:90vh;
     overflow-y:auto;
     margin:40px auto;
-    background:rgba(255,255,255,.95);
+    background:rgba(20,25,45,.98);
     backdrop-filter:blur(20px);
     border-radius:24px;
     padding:28px;
-    color:#333;
-    box-shadow:0 20px 60px rgba(0,0,0,.3)
+    color:#e8eaf6;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+    border:1px solid rgba(255,255,255,.1)
   }
   .modal textarea{
     width:100%;
     min-height:200px;
-    background:rgba(102,126,234,.05);
-    border:1px solid rgba(102,126,234,.2);
-    color:#333;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.15);
+    color:#e8eaf6;
     padding:14px;
     border-radius:12px;
     font-size:14px;
@@ -197,21 +203,21 @@
   
   /* 발행 요청 리스트 */
   .reqCard{
-    background:rgba(255,255,255,.1);
+    background:rgba(255,255,255,.05);
     backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.1);
     border-radius:14px;
     padding:14px 18px;
     margin-top:10px;
     transition:all .3s
   }
-  .reqCard:hover{background:rgba(255,255,255,.15)}
+  .reqCard:hover{background:rgba(255,255,255,.08);border-color:rgba(102,126,234,.3)}
   .reqTop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
   .reqTitle{font-weight:900;font-size:15px}
-  .reqMeta{font-size:12px;opacity:.85;margin-top:8px;line-height:1.6}
+  .reqMeta{font-size:12px;opacity:.8;margin-top:8px;line-height:1.6}
   .reqBadge{
     font-size:11px;
-    background:rgba(255,255,255,.25);
+    background:rgba(102,126,234,.3);
     padding:4px 10px;
     border-radius:999px;
     font-weight:700
@@ -219,9 +225,9 @@
   
   /* 로그 박스 */
   #genBox{
-    background:rgba(0,0,0,.2);
+    background:rgba(20,25,45,.8);
     backdrop-filter:blur(10px);
-    border:1px solid rgba(255,255,255,.15)
+    border:1px solid rgba(255,255,255,.1)
   }
   #genLog{
     background:rgba(0,0,0,.3);
@@ -232,41 +238,25 @@
     overflow:auto;
     font-size:13px;
     line-height:1.7;
-    font-family:monospace
+    font-family:monospace;
+    margin-top:12px
   }
   
-  /* 프롬프트 설정 섹션 */
-  .prompt-section{
-    margin-top:16px;
-    padding:16px;
-    background:rgba(255,255,255,.08);
-    border-radius:14px;
+  /* 프롬프트 박스 */
+  .prompt-box{
+    background:rgba(255,255,255,.05);
+    backdrop-filter:blur(10px);
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:16px;
     border:1px solid rgba(255,255,255,.1)
   }
-  .prompt-tabs{
-    display:flex;
-    gap:8px;
+  .prompt-box-title{
+    font-size:16px;
+    font-weight:800;
     margin-bottom:12px;
-    flex-wrap:wrap
+    color:#a5b4fc
   }
-  .prompt-tab{
-    padding:8px 16px;
-    border-radius:10px;
-    background:rgba(255,255,255,.1);
-    cursor:pointer;
-    font-size:13px;
-    font-weight:600;
-    transition:all .3s;
-    border:2px solid transparent
-  }
-  .prompt-tab:hover{background:rgba(255,255,255,.15)}
-  .prompt-tab.active{
-    background:rgba(255,255,255,.25);
-    border-color:rgba(255,255,255,.4);
-    box-shadow:0 2px 8px rgba(0,0,0,.1)
-  }
-  .prompt-content{display:none}
-  .prompt-content.active{display:block}
   
   @media(max-width:768px){
     .grid{grid-template-columns:repeat(2, 1fr)}
@@ -290,7 +280,6 @@
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <span class="pill">🖥️ <b id="sv">-</b></span>
       <a href="/settings"><button class="btn">⚙️ 설정</button></a>
-      <button class="btn blue" onclick="makeMoney()">💰 수익형 100</button>
     </div>
   </div>
 
@@ -302,54 +291,63 @@
       <select id="blogSelect" style="flex:1;min-width:300px"></select>
       <button class="btn small" onclick="loadBlogsToSelect()">🔄 새로고침</button>
     </div>
-    <div class="small" style="margin-top:12px;padding:10px;background:rgba(255,255,255,.1);border-radius:10px">
+    <div class="small" style="margin-top:12px;padding:10px;background:rgba(255,255,255,.05);border-radius:10px;border:1px solid rgba(255,255,255,.08)">
       현재 선택: <b id="blogNow">-</b>
-    </div>
-  </div>
-
-  <!-- 프롬프트 설정 -->
-  <div class="box">
-    <div class="box-title">📋 글작성 프롬프트 관리</div>
-    <div class="box-subtitle">각 플랫폼별 프롬프트를 저장하고 수정할 수 있습니다</div>
-    
-    <div class="prompt-section">
-      <div class="prompt-tabs">
-        <div class="prompt-tab active" onclick="switchPromptTab('naver')">네이버</div>
-        <div class="prompt-tab" onclick="switchPromptTab('tistory')">티스토리</div>
-        <div class="prompt-tab" onclick="switchPromptTab('blogspot')">블로그스팟</div>
-      </div>
-      
-      <div id="prompt-naver" class="prompt-content active">
-        <textarea id="promptNaver" placeholder="네이버 블로그 프롬프트를 입력하세요..." style="min-height:180px"></textarea>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button class="btn small blue" onclick="savePrompt('naver')">💾 저장</button>
-          <button class="btn small gray" onclick="resetPrompt('naver')">🔄 기본값으로</button>
-        </div>
-      </div>
-      
-      <div id="prompt-tistory" class="prompt-content">
-        <textarea id="promptTistory" placeholder="티스토리 프롬프트를 입력하세요..." style="min-height:180px"></textarea>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button class="btn small blue" onclick="savePrompt('tistory')">💾 저장</button>
-          <button class="btn small gray" onclick="resetPrompt('tistory')">🔄 기본값으로</button>
-        </div>
-      </div>
-      
-      <div id="prompt-blogspot" class="prompt-content">
-        <textarea id="promptBlogspot" placeholder="블로그스팟 프롬프트를 입력하세요..." style="min-height:180px"></textarea>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button class="btn small blue" onclick="savePrompt('blogspot')">💾 저장</button>
-          <button class="btn small gray" onclick="resetPrompt('blogspot')">🔄 기본값으로</button>
-        </div>
-      </div>
     </div>
   </div>
 
   <!-- 카테고리 선택 -->
   <div class="box">
-    <div class="box-title">🎯 카테고리</div>
-    <div class="box-subtitle">주제를 생성할 카테고리를 선택하세요</div>
+    <div class="row">
+      <div>
+        <div class="box-title">🎯 카테고리</div>
+        <div class="box-subtitle">주제를 생성할 카테고리를 선택하세요</div>
+      </div>
+      <button class="btn blue" onclick="makeMoney()">💰 수익형 100개</button>
+    </div>
     <div class="grid" id="catGrid"></div>
+  </div>
+
+  <!-- 네이버 프롬프트 -->
+  <div class="box">
+    <div class="box-title">📋 네이버 블로그 프롬프트</div>
+    <div class="box-subtitle">네이버 블로그 전용 글작성 프롬프트를 관리합니다</div>
+    
+    <div class="prompt-box">
+      <textarea id="promptNaver" placeholder="네이버 블로그 프롬프트를 입력하세요..." style="min-height:180px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn small blue" onclick="savePrompt('naver')">💾 저장</button>
+        <button class="btn small gray" onclick="resetPrompt('naver')">🔄 기본값으로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 티스토리 프롬프트 -->
+  <div class="box">
+    <div class="box-title">📋 티스토리 프롬프트</div>
+    <div class="box-subtitle">티스토리 전용 글작성 프롬프트를 관리합니다</div>
+    
+    <div class="prompt-box">
+      <textarea id="promptTistory" placeholder="티스토리 프롬프트를 입력하세요..." style="min-height:180px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn small blue" onclick="savePrompt('tistory')">💾 저장</button>
+        <button class="btn small gray" onclick="resetPrompt('tistory')">🔄 기본값으로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 블로그스팟 프롬프트 -->
+  <div class="box">
+    <div class="box-title">📋 블로그스팟 프롬프트</div>
+    <div class="box-subtitle">블로그스팟 전용 글작성 프롬프트를 관리합니다</div>
+    
+    <div class="prompt-box">
+      <textarea id="promptBlogspot" placeholder="블로그스팟 프롬프트를 입력하세요..." style="min-height:180px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn small blue" onclick="savePrompt('blogspot')">💾 저장</button>
+        <button class="btn small gray" onclick="resetPrompt('blogspot')">🔄 기본값으로</button>
+      </div>
+    </div>
   </div>
 
   <!-- 주제 목록 -->
@@ -364,7 +362,7 @@
     
     <div class="topicScroll" id="topics"></div>
     
-    <!-- ✅ 글작성 시작 버튼을 주제 목록 아래로 이동 -->
+    <!-- 글작성 시작 버튼 -->
     <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
       <button class="btn blue" onclick="startWriting()" style="padding:14px 32px;font-size:16px">✍️ 글작성 시작</button>
       <button class="btn" onclick="copyAll()">📋 전체 복사</button>
@@ -383,7 +381,7 @@
     <div id="genLog"></div>
   </div>
 
-  <!-- 발행 (컴팩트) -->
+  <!-- 발행 -->
   <div class="box">
     <div class="box-title">🚀 발행 관리</div>
     <div class="box-subtitle">예약 또는 즉시 발행 요청을 저장합니다</div>
@@ -419,14 +417,14 @@
 <div class="modalBg" id="modalBg" onclick="if(event.target===this) closeModal()">
   <div class="modal">
     <div class="row" style="justify-content:space-between;margin-bottom:20px">
-      <div style="font-size:24px;font-weight:900;color:#333">✨ AI 생성 결과</div>
+      <div style="font-size:24px;font-weight:900">✨ AI 생성 결과</div>
       <button class="btn gray" onclick="closeModal()">❌ 닫기</button>
     </div>
 
-    <div style="background:rgba(102,126,234,.08);border-radius:16px;padding:18px;margin-bottom:16px">
-      <div style="font-size:13px;color:#666;margin-bottom:8px">제목</div>
-      <div style="font-weight:bold;font-size:18px;color:#333" id="outTitle">-</div>
-      <div style="font-size:12px;color:#999;margin-top:8px" id="outMeta">-</div>
+    <div style="background:rgba(102,126,234,.1);border-radius:16px;padding:18px;margin-bottom:16px;border:1px solid rgba(102,126,234,.2)">
+      <div style="font-size:13px;opacity:.7;margin-bottom:8px">제목</div>
+      <div style="font-weight:bold;font-size:18px" id="outTitle">-</div>
+      <div style="font-size:12px;opacity:.6;margin-top:8px" id="outMeta">-</div>
       
       <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
         <button class="btn small" onclick="copyText(document.getElementById('outTitle').textContent)">📋 제목</button>
@@ -436,12 +434,12 @@
     </div>
 
     <div style="margin-bottom:16px">
-      <div style="font-size:14px;font-weight:700;color:#333;margin-bottom:8px">🖼️ 이미지 프롬프트</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">🖼️ 이미지 프롬프트</div>
       <textarea id="outImage"></textarea>
     </div>
 
     <div>
-      <div style="font-size:14px;font-weight:700;color:#333;margin-bottom:8px">📝 본문 프롬프트</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">📝 본문 프롬프트</div>
       <textarea id="outBody"></textarea>
     </div>
   </div>
@@ -524,21 +522,13 @@
     const val = document.getElementById(`prompt${type.charAt(0).toUpperCase() + type.slice(1)}`).value;
     saved[type] = val;
     localStorage.setItem("baseone_prompts", JSON.stringify(saved));
-    alert(`${type} 프롬프트 저장 완료! ✅`);
+    alert(`✅ ${type} 프롬프트 저장 완료!`);
   }
 
   function resetPrompt(type){
     if(!confirm("기본값으로 초기화하시겠습니까?")) return;
     document.getElementById(`prompt${type.charAt(0).toUpperCase() + type.slice(1)}`).value = DEFAULT_PROMPTS[type];
     savePrompt(type);
-  }
-
-  function switchPromptTab(type){
-    document.querySelectorAll(".prompt-tab").forEach(t => t.classList.remove("active"));
-    document.querySelectorAll(".prompt-content").forEach(c => c.classList.remove("active"));
-    
-    event.target.classList.add("active");
-    document.getElementById(`prompt-${type}`).classList.add("active");
   }
 
   // =========================
@@ -562,9 +552,9 @@
     log.innerHTML += `<div style="color:${color}">${icon} <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
     log.scrollTop = log.scrollHeight;
   }
-  function addGenLog(msg){ addGenLine("🟦","#fff",msg); }
-  function addGenOk(msg){ addGenLine("✅","#9ff5d2",msg); }
-  function addGenErr(msg){ addGenLine("❌","#ffb4b4",msg); }
+  function addGenLog(msg){ addGenLine("🟦","#a5b4fc",msg); }
+  function addGenOk(msg){ addGenLine("✅","#86efac",msg); }
+  function addGenErr(msg){ addGenLine("❌","#fca5a5",msg); }
   function clearGenLog(){ const log=document.getElementById("genLog"); if(log) log.innerHTML=""; }
 
   function startWriting(){
@@ -629,9 +619,9 @@
     const blogs = s.blogs || { blogspot:[], naver:[], tistory:[] };
 
     const options = [];
-    (blogs.blogspot||[]).filter(Boolean).forEach((u,i)=> options.push({type:"blogspot", url:u, label:`블로그스팟 ${i+1}`}));
-    (blogs.naver||[]).filter(Boolean).forEach((u,i)=> options.push({type:"naver", url:u, label:`네이버 ${i+1}`}));
-    (blogs.tistory||[]).filter(Boolean).forEach((u,i)=> options.push({type:"tistory", url:u, label:`티스토리 ${i+1}`}));
+    (blogs.blogspot||[]).filter(Boolean).forEach((u,i)=> options.push({type:"blogspot", url:u, label:`블로그스팟 ${i+1} - ${u}`}));
+    (blogs.naver||[]).filter(Boolean).forEach((u,i)=> options.push({type:"naver", url:u, label:`네이버 ${i+1} - ${u}`}));
+    (blogs.tistory||[]).filter(Boolean).forEach((u,i)=> options.push({type:"tistory", url:u, label:`티스토리 ${i+1} - ${u}`}));
 
     if(options.length===0){
       const opt=document.createElement("option");
@@ -754,9 +744,8 @@
   async function aiGenerateSelected(){
     if(!selectedTopic){ alert("먼저 주제를 선택하세요! 🎯"); return; }
 
-    // 선택된 블로그 타입에 맞는 프롬프트 가져오기
     const blog = getSelectedBlog();
-    let promptType = "naver"; // 기본값
+    let promptType = "naver";
     if(blog && blog.type){
       promptType = blog.type;
     }
@@ -776,7 +765,7 @@
       blog: "local",
       img_provider: (s.imgProvider || "pexels"),
       pexels_key: (s.pexelsKey || ""),
-      custom_prompt: selectedPrompt  // ✅ 커스텀 프롬프트 추가
+      custom_prompt: selectedPrompt
     };
 
     addGenLog("AI 생성 요청 중...");
@@ -911,13 +900,13 @@
     const box = document.getElementById("publishList");
     if(!box) return;
 
-    box.innerHTML = `<div class="small" style="text-align:center;padding:20px">📥 불러오는 중...</div>`;
+    box.innerHTML = `<div class="small" style="text-align:center;padding:20px;opacity:.7">📥 불러오는 중...</div>`;
 
     try{
       const res = await fetch(API_BASE + "/api/publish/list");
       if(!res.ok){
         const t = await res.text();
-        box.innerHTML = `<div class="small" style="color:#ffb4b4;text-align:center;padding:20px">❌ ${escapeHtml(t)}</div>`;
+        box.innerHTML = `<div class="small" style="color:#fca5a5;text-align:center;padding:20px">❌ ${escapeHtml(t)}</div>`;
         return;
       }
       const data = await res.json();
@@ -930,7 +919,7 @@
         return;
       }
 
-      let html = `<div class="small" style="padding:10px;background:rgba(255,255,255,.1);border-radius:10px;margin-bottom:12px">총 <b>${count}</b>개의 발행 요청</div>`;
+      let html = `<div class="small" style="padding:10px;background:rgba(102,126,234,.15);border-radius:10px;margin-bottom:12px;border:1px solid rgba(102,126,234,.2)">총 <b>${count}</b>개의 발행 요청</div>`;
 
       const list = items.slice().reverse();
 
@@ -961,7 +950,7 @@
       box.innerHTML = html;
 
     }catch(e){
-      box.innerHTML = `<div class="small" style="color:#ffb4b4;text-align:center;padding:20px">❌ 서버 연결 실패</div>`;
+      box.innerHTML = `<div class="small" style="color:#fca5a5;text-align:center;padding:20px">❌ 서버 연결 실패</div>`;
     }
   }
 
