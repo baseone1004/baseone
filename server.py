@@ -1,44 +1,245 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+import os
+import json
 from datetime import datetime
+import requests
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
+
+# Render에서 디스크는 임시일 수 있어요.
+# 그래도 "요청 저장"은 파일로 남기되, 나중에 DB로 바꾸면 됩니다.
+PUBLISH_FILE = "publish_queue.json"
+
 
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+
+# -----------------------------
+# 정적 페이지 라우팅 (index/settings)
+# -----------------------------
 @app.route("/")
 def home():
+    # API 서버 접속 시 index.html이 있으면 보여줌
+    # (없으면 문구만 보여주도록 fallback)
+    if os.path.exists("index.html"):
+        return send_from_directory(".", "index.html")
     return "BaseOne API 서버 실행중"
+
+
+@app.route("/settings")
+def settings():
+    if os.path.exists("settings.html"):
+        return send_from_directory(".", "settings.html")
+    return "settings.html 파일이 없습니다", 404
+
 
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "time": now_str()})
 
-@app.route("/api/generate", methods=["POST"])
-def generate():
-    data = request.get_json()
 
-    topic = data.get("topic","")
-    category = data.get("category","")
+# -----------------------------
+# Pexels 무료 이미지 검색
+# -----------------------------
+def pexels_search_image_url(pexels_key: str, query: str) -> str:
+    if not pexels_key:
+        return ""
+
+    url = "https://api.pexels.com/v1/search"
+    headers = {"Authorization": pexels_key}
+    params = {"query": query, "per_page": 1, "orientation": "landscape", "size": "large"}
+
+    try:
+        r = requests.get(url, headers=headers, params=params, timeout=15)
+        if r.status_code != 200:
+            return ""
+        data = r.json()
+        photos = data.get("photos", [])
+        if not photos:
+            return ""
+        src = photos[0].get("src", {})
+        return src.get("large2x") or src.get("large") or src.get("original") or ""
+    except Exception:
+        return ""
+
+
+# -----------------------------
+# 글 생성(현재는 "프롬프트" 생성)
+# 다음 단계에서 Gemini/ChatGPT/Genspark 실제 호출로 교체
+# -----------------------------
+def make_body_prompt(topic: str, category: str) -> str:
+    return f"""너는 수익형 정보블로그 작가다.
+아래 조건으로 '{topic}' 글을 한국어로 작성해줘.
+
+- 카테고리: {category}
+- 분량: 14,000자 이상
+- H2 소제목 8~9개
+- 각 소제목 아래 700자 이상
+- 표 1개 포함(<table>)
+- 아이콘/박스 디자인(✅💡⚠️) div로 포함
+- 마지막: 요약(3~5줄) + FAQ 5개 + 행동유도
+
+※ 출력은 블로그에 붙여넣기 좋은 HTML로 작성해줘.
+""".strip()
+
+
+def make_image_prompt(topic: str, category: str) -> str:
+    return f'{category} 관련 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
+
+
+# -----------------------------
+# Queue 저장/로드
+# -----------------------------
+def load_queue():
+    if not os.path.exists(PUBLISH_FILE):
+        return []
+    try:
+        with open(PUBLISH_FILE, "r", encoding="utf-8") as f:
+            return json.load(f) or []
+    except Exception:
+        return []
+
+
+def save_queue(items):
+    with open(PUBLISH_FILE, "w", encoding="utf-8") as f:
+        json.dump(items, f, ensure_ascii=False, indent=2)
+
+
+# -----------------------------
+# API: 글/이미지 프롬프트 생성
+# -----------------------------
+@app.route("/api/generate", methods=["POST"])
+def api_generate():
+    payload = request.get_json(silent=True) or {}
+
+    topic = (payload.get("topic") or "").strip()
+    category = (payload.get("category") or "").strip() or "정보"
+
+    img_provider = (payload.get("img_provider") or "").strip() or "pexels"
+    pexels_key = (payload.get("pexels_key") or "").strip()
+
+    if not topic:
+        return jsonify({"ok": False, "error": "topic is required"}), 400
+
+    body_prompt = make_body_prompt(topic, category)
+    image_prompt = make_image_prompt(topic, category)
+
+    image_url = ""
+    if img_provider == "pexels":
+        q = f"{topic} {category}".strip()
+        image_url = pexels_search_image_url(pexels_key, q) or pexels_search_image_url(pexels_key, topic)
 
     return jsonify({
         "ok": True,
-        "title": topic,
         "topic": topic,
         "category": category,
         "generated_at": now_str(),
-        "body_prompt": f"{topic} 글을 생성하는 프롬프트입니다.",
-        "image_prompt": f"{topic} 썸네일 이미지"
+        "title": topic,
+        "body_prompt": body_prompt,
+        "image_prompt": image_prompt,
+        "image_provider": img_provider,
+        "image_url": image_url
     })
 
+
+# -----------------------------
+# API: 예약 발행(요청 저장)
+# -----------------------------
+@app.route("/api/publish/schedule", methods=["POST"])
+def api_publish_schedule():
+    payload = request.get_json(silent=True) or {}
+
+    blog_type = (payload.get("blog_type") or "").strip()
+    blog_url = (payload.get("blog_url") or "").strip()
+    category = (payload.get("category") or "").strip() or "정보"
+    topic = (payload.get("topic") or "").strip()
+    schedule_times = payload.get("schedule_times") or []
+
+    if not blog_type or not blog_url:
+        return jsonify({"ok": False, "error": "blog_type/blog_url is required"}), 400
+    if not topic:
+        return jsonify({"ok": False, "error": "topic is required"}), 400
+    if not isinstance(schedule_times, list) or len(schedule_times) == 0:
+        return jsonify({"ok": False, "error": "schedule_times is required"}), 400
+
+    item = {
+        "type": "schedule",
+        "created_at": now_str(),
+        "blog_type": blog_type,
+        "blog_url": blog_url,
+        "category": category,
+        "topic": topic,
+        "schedule_times": schedule_times
+    }
+
+    q = load_queue()
+    q.append(item)
+    save_queue(q)
+
+    return jsonify({
+        "ok": True,
+        "message": f"예약 발행 요청 저장 완료 ✅ ({blog_type})",
+        "saved": item
+    })
+
+
+# -----------------------------
+# API: 즉시 발행(간격 적용) 요청 저장
+# -----------------------------
+@app.route("/api/publish/now", methods=["POST"])
+def api_publish_now():
+    payload = request.get_json(silent=True) or {}
+
+    blog_type = (payload.get("blog_type") or "").strip()
+    blog_url = (payload.get("blog_url") or "").strip()
+    category = (payload.get("category") or "").strip() or "정보"
+    topic = (payload.get("topic") or "").strip()
+
+    start_time = (payload.get("start_time") or "").strip() or "09:00"
+    interval_hours = str(payload.get("interval_hours") or "1").strip()
+
+    if not blog_type or not blog_url:
+        return jsonify({"ok": False, "error": "blog_type/blog_url is required"}), 400
+    if not topic:
+        return jsonify({"ok": False, "error": "topic is required"}), 400
+
+    item = {
+        "type": "now_interval",
+        "created_at": now_str(),
+        "blog_type": blog_type,
+        "blog_url": blog_url,
+        "category": category,
+        "topic": topic,
+        "start_time": start_time,
+        "interval_hours": interval_hours
+    }
+
+    q = load_queue()
+    q.append(item)
+    save_queue(q)
+
+    return jsonify({
+        "ok": True,
+        "message": f"즉시 발행(간격) 요청 저장 완료 ✅ ({blog_type})",
+        "saved": item
+    })
+
+
+# -----------------------------
+# (선택) 저장된 발행 요청 목록 보기
+# -----------------------------
+@app.route("/api/publish/list", methods=["GET"])
+def api_publish_list():
+    q = load_queue()
+    return jsonify({"ok": True, "count": len(q), "items": q})
+
+
+# -----------------------------
+# Render 실행
+# -----------------------------
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
-
-
-
-
-
