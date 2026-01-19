@@ -104,6 +104,28 @@
     <!-- ✅ 작은 스크롤 창 -->
     <div class="topicScroll" id="topics"></div>
   </div>
+  <!-- ✅ 글작성 진행상황 박스 -->
+<div class="box" id="genBox" style="display:none; margin-top:14px;">
+  <div class="row">
+    <b>✍️ 글작성 진행상황</b>
+    <button class="btn gray" onclick="clearGenLog()">지우기</button>
+  </div>
+  <div class="small" style="margin-top:8px;opacity:.9">
+    아래 로그는 “AI 글 생성 버튼”을 누를 때 자동으로 채워집니다.
+  </div>
+  <div id="genLog" style="
+      margin-top:10px;
+      background:#0f1530;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:12px;
+      max-height:220px;
+      overflow:auto;
+      font-size:13px;
+      line-height:1.6;
+  "></div>
+</div>
+
 
   <div class="box">
     <b>발행</b>
@@ -469,3 +491,4 @@
 </script>
 </body>
 </html>
+
