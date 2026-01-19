@@ -22,9 +22,10 @@
   .badge{font-size:12px;color:#cfd6ff;background:#0f1530;border:1px solid rgba(255,255,255,.12);padding:4px 8px;border-radius:999px}
   .small{font-size:13px;color:#cfd6ff}
   .card{background:#0f1530;border:1px solid rgba(255,255,255,.10);padding:12px;border-radius:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+
   /* ✅ 주제 목록 스크롤 박스 */
   .topicScroll{
-    max-height: 360px;      /* 높이(원하면 260/420 등으로 바꿔도 됨) */
+    max-height: 360px;
     overflow-y: auto;
     padding-right: 6px;
     margin-top: 10px;
@@ -57,7 +58,7 @@
     </div>
   </div>
 
-  <!-- ✅ 블로그 선택이 “사라지지 않게” 위에 고정 배치 -->
+  <!-- ✅ 블로그 선택 -->
   <div class="box">
     <div class="row">
       <div>
@@ -104,28 +105,28 @@
     <!-- ✅ 작은 스크롤 창 -->
     <div class="topicScroll" id="topics"></div>
   </div>
-  <!-- ✅ 글작성 진행상황 박스 -->
-<div class="box" id="genBox" style="display:none; margin-top:14px;">
-  <div class="row">
-    <b>✍️ 글작성 진행상황</b>
-    <button class="btn gray" onclick="clearGenLog()">지우기</button>
-  </div>
-  <div class="small" style="margin-top:8px;opacity:.9">
-    아래 로그는 “AI 글 생성 버튼”을 누를 때 자동으로 채워집니다.
-  </div>
-  <div id="genLog" style="
-      margin-top:10px;
-      background:#0f1530;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
-      padding:12px;
-      max-height:220px;
-      overflow:auto;
-      font-size:13px;
-      line-height:1.6;
-  "></div>
-</div>
 
+  <!-- ✅ 글작성 진행상황 박스 -->
+  <div class="box" id="genBox" style="display:none; margin-top:14px;">
+    <div class="row">
+      <b>✍️ 글작성 진행상황</b>
+      <button class="btn gray" onclick="clearGenLog()">지우기</button>
+    </div>
+    <div class="small" style="margin-top:8px;opacity:.9">
+      아래 로그는 “AI 글 생성 버튼”을 누를 때 자동으로 채워집니다.
+    </div>
+    <div id="genLog" style="
+        margin-top:10px;
+        background:#0f1530;
+        border:1px solid rgba(255,255,255,.10);
+        border-radius:14px;
+        padding:12px;
+        max-height:220px;
+        overflow:auto;
+        font-size:13px;
+        line-height:1.6;
+    "></div>
+  </div>
 
   <div class="box">
     <b>발행</b>
@@ -193,6 +194,48 @@
 </div>
 
 <script>
+  // ====== (중요) 로그 함수는 반드시 script 안에 있어야 함 ======
+  function showGenBox(){
+    const box = document.getElementById("genBox");
+    if(!box) return;
+    box.style.display = "block";
+  }
+
+  function addGenLog(msg){
+    showGenBox();
+    const log = document.getElementById("genLog");
+    if(!log) return;
+    const t = new Date();
+    const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+    log.innerHTML += `<div>🟦 <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function addGenOk(msg){
+    showGenBox();
+    const log = document.getElementById("genLog");
+    if(!log) return;
+    const t = new Date();
+    const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+    log.innerHTML += `<div style="color:#9ff5d2">✅ <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function addGenErr(msg){
+    showGenBox();
+    const log = document.getElementById("genLog");
+    if(!log) return;
+    const t = new Date();
+    const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+    log.innerHTML += `<div style="color:#ffb4b4">❌ <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function clearGenLog(){
+    const log = document.getElementById("genLog");
+    if(log) log.innerHTML = "";
+  }
+
   // ====== 카테고리 ======
   const CATS=[
     {k:"건강", s:"운동·영양·생활관리"},
@@ -368,60 +411,59 @@
   }
 
   // ====== AI 생성(서버 호출) ======
-async function aiGenerateSelected(){
-  if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
+  async function aiGenerateSelected(){
+    if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
 
-  addGenLog("서버 연결 확인 중… (http://127.0.0.1:5000)");
-  addGenLog(`선택 주제: ${selectedTopic}`);
-  addGenLog(`카테고리: ${selectedCat || "-"}`);
+    addGenLog("서버 연결 확인 중… (http://127.0.0.1:5000)");
+    addGenLog(`선택 주제: ${selectedTopic}`);
+    addGenLog(`카테고리: ${selectedCat || "-"}`);
 
-  const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
-  const payload = {
-    topic: selectedTopic,
-    category: selectedCat,
-    blog: "local",
-    img_provider: (s.imgProvider || "pexels"),
-    pexels_key: (s.pexelsKey || "")
-  };
+    const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
+    const payload = {
+      topic: selectedTopic,
+      category: selectedCat,
+      blog: "local",
+      img_provider: (s.imgProvider || "pexels"),
+      pexels_key: (s.pexelsKey || "")
+    };
 
-  addGenLog("AI 생성 요청 준비 완료");
-  addGenLog(`이미지 엔진: ${payload.img_provider}`);
+    addGenLog("AI 생성 요청 준비 완료");
+    addGenLog(`이미지 엔진: ${payload.img_provider}`);
 
-  try{
-    addGenLog("AI 생성 요청 보내는 중…");
+    try{
+      addGenLog("AI 생성 요청 보내는 중…");
 
-    const res = await fetch("http://127.0.0.1:5000/api/generate", {
-      method:"POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify(payload)
-    });
+      const res = await fetch("http://127.0.0.1:5000/api/generate", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      });
 
-    if(!res.ok){
-      const t = await res.text();
-      addGenErr("AI 생성 실패: " + t);
-      alert("생성 실패: " + t);
-      return;
+      if(!res.ok){
+        const t = await res.text();
+        addGenErr("AI 생성 실패: " + t);
+        alert("생성 실패: " + t);
+        return;
+      }
+
+      addGenLog("응답 수신 중…");
+      const data = await res.json();
+
+      if(data.image_url){
+        addGenOk("이미지 URL 찾음 ✅");
+        addGenLog(data.image_url);
+      }else{
+        addGenLog("이미지 URL 없음(검색 결과 0건일 수 있음)");
+      }
+
+      addGenOk("글작성 프롬프트 생성 완료 ✅ (모달로 결과 표시)");
+      openModal(data);
+
+    }catch(e){
+      addGenErr("서버 연결 실패! 서버가 켜져 있는지 확인하세요. (python server.py)");
+      alert("서버 연결 실패! 서버가 켜져 있는지 확인하세요.\n\n(서버 실행: python server.py)");
     }
-
-    addGenLog("응답 수신 중…");
-    const data = await res.json();
-
-    if(data.image_url){
-      addGenOk("이미지 URL 찾음 ✅");
-      addGenLog(data.image_url);
-    }else{
-      addGenLog("이미지 URL 없음(검색 결과 0건일 수 있음)");
-    }
-
-    addGenOk("글작성 프롬프트 생성 완료 ✅ (모달로 결과 표시)");
-    openModal(data);
-
-  }catch(e){
-    addGenErr("서버 연결 실패! 서버가 켜져 있는지 확인하세요. (python server.py)");
-    alert("서버 연결 실패! 서버가 켜져 있는지 확인하세요.\n\n(서버 실행: python server.py)");
   }
-}
-
 
   function openModal(data){
     document.getElementById("outTitle").textContent = data.title || "-";
@@ -513,19 +555,3 @@ async function aiGenerateSelected(){
 </script>
 </body>
 </html>
-
-function addGenErr(msg){
-  showGenBox();
-  const log = document.getElementById("genLog");
-  const t = new Date();
-  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-  log.innerHTML += `<div style="color:#ffb4b4">❌ <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
-  log.scrollTop = log.scrollHeight;
-}
-
-function clearGenLog(){
-  document.getElementById("genLog").innerHTML = "";
-}
-
-
-
