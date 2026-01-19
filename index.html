@@ -37,6 +37,22 @@
   .modal{max-width:860px;margin:40px auto;background:#141a30;border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px}
   textarea{width:100%;min-height:220px;background:#0f1530;border:1px solid rgba(255,255,255,.14);border-radius:12px;color:white;padding:10px}
   .hintBox{background:#0f1530;border:1px solid rgba(255,255,255,.10);padding:10px;border-radius:12px}
+
+  /* ✅ 발행요청 리스트 카드 */
+  .reqCard{
+    background:#0f1530;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    padding:12px;
+    margin-top:10px;
+  }
+  .reqTop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+  .reqTitle{font-weight:900}
+  .reqMeta{font-size:12px;color:#cfd6ff;margin-top:6px;line-height:1.5}
+  .reqBadge{
+    font-size:12px;color:#cfd6ff;background:#141a30;border:1px solid rgba(255,255,255,.12);
+    padding:4px 8px;border-radius:999px
+  }
 </style>
 </head>
 <body>
@@ -79,10 +95,17 @@
         <b id="titleBox">주제 생성</b>
         <div class="small">아래에서 카테고리를 선택하세요.</div>
       </div>
+
+      <!-- ✅ 여기: 기존 버튼 유지 + "글작성 시작" 버튼 추가 -->
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <input id="filter" placeholder="주제 검색(필터)" oninput="render()">
         <button class="btn" onclick="copyAll()">전체복사</button>
+
+        <!-- 기존: AI 생성 -->
         <button class="btn blue" onclick="aiGenerateSelected()">✨ AI 생성(선택 주제)</button>
+
+        <!-- ✅ 추가: 글작성 시작(로그창 강제 표시 + AI 생성 호출) -->
+        <button class="btn" onclick="startWriting()">✍️ 글작성 시작</button>
       </div>
     </div>
   </div>
@@ -102,13 +125,17 @@
     <div class="topicScroll" id="topics"></div>
   </div>
 
+  <!-- ✅ 기존 그대로: 진행상황 박스(버튼으로 보여지게 만들 것) -->
   <div class="box" id="genBox" style="display:none; margin-top:14px;">
     <div class="row">
       <b>✍️ 글작성 진행상황</b>
-      <button class="btn gray" onclick="clearGenLog()">지우기</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn gray" onclick="clearGenLog()">지우기</button>
+        <button class="btn" onclick="toggleGenBox()">숨기기/보이기</button>
+      </div>
     </div>
     <div class="small" style="margin-top:8px;opacity:.9">
-      아래 로그는 “AI 생성 버튼”을 누를 때 자동으로 채워집니다.
+      아래 로그는 “글작성 시작 / AI 생성”을 누를 때 자동으로 채워집니다.
     </div>
     <div id="genLog" style="
         margin-top:10px;
@@ -151,10 +178,25 @@
       </div>
       <div class="small">예) 09:00 시작 + 2시간 간격</div>
     </div>
+
+    <!-- ✅ 추가: 발행요청 리스트 -->
+    <div class="row" style="margin-top:14px">
+      <div>
+        <b>📦 발행요청 리스트</b>
+        <div class="small">서버에 저장된 발행 요청을 불러옵니다.</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" onclick="loadPublishList()">📥 리스트 불러오기</button>
+        <button class="btn gray" onclick="clearPublishList()">지우기</button>
+      </div>
+    </div>
+    <div id="publishList" style="margin-top:10px"></div>
+
   </div>
 
 </div>
 
+<!-- 결과 모달 -->
 <div class="modalBg" id="modalBg">
   <div class="modal">
     <div class="row" style="justify-content:space-between">
@@ -189,12 +231,12 @@
 
 <script>
   // =========================
-  // ✅ 추가된 것(필수): API_BASE 자동 읽기 + 화면 표시
+  // API_BASE 자동 읽기 + 화면 표시
   // =========================
   function getApiBase(){
     const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
     const base = (d.backend || "http://127.0.0.1:5000").trim();
-    return base.replace(/\/+$/,""); // 끝의 / 제거
+    return base.replace(/\/+$/,"");
   }
   const API_BASE = getApiBase();
 
@@ -220,6 +262,11 @@
     const box = document.getElementById("genBox");
     if(box) box.style.display = "block";
   }
+  function toggleGenBox(){
+    const box = document.getElementById("genBox");
+    if(!box) return;
+    box.style.display = (box.style.display === "none" ? "block" : "none");
+  }
   function addGenLine(icon, color, msg){
     showGenBox();
     const log = document.getElementById("genLog");
@@ -233,6 +280,18 @@
   function addGenOk(msg){ addGenLine("✅","#9ff5d2",msg); }
   function addGenErr(msg){ addGenLine("❌","#ffb4b4",msg); }
   function clearGenLog(){ const log=document.getElementById("genLog"); if(log) log.innerHTML=""; }
+
+  // ✅ 요청: "글작성 시작" 버튼
+  function startWriting(){
+    if(!selectedTopic){
+      alert("먼저 주제를 선택하세요!");
+      return;
+    }
+    showGenBox();
+    addGenLog("글작성 시작 버튼 클릭 ✅");
+    addGenLog("이제 AI 생성 요청을 진행합니다…");
+    aiGenerateSelected();
+  }
 
   // =========================
   // 카테고리
@@ -398,7 +457,7 @@
   function copyAll(){ if(!topics.length){alert("주제 없음");return;} navigator.clipboard.writeText(topics.join("\n")); alert("전체 복사 완료!"); }
 
   // =========================
-  // ✅ 추가된 것(필수): AI 생성 fetch 문법 오류 수정
+  // AI 생성
   // =========================
   async function aiGenerateSelected(){
     if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
@@ -432,6 +491,7 @@
         return;
       }
 
+      addGenLog("응답 수신 중…");
       const data = await res.json();
 
       if(data.image_url){
@@ -460,7 +520,7 @@
   function closeModal(){ document.getElementById("modalBg").style.display="none"; }
 
   // =========================
-  // ✅ 추가된 것(필수): 발행 API도 API_BASE로 통일
+  // 발행 요청 저장
   // =========================
   function getSelectedBlog(){
     const v = document.getElementById("blogSelect").value;
@@ -490,6 +550,7 @@
       const data = await res.json();
       if(!data.ok){ alert("실패: " + (data.error || "unknown")); return; }
       alert(data.message || "저장 완료");
+      loadPublishList(); // ✅ 저장 후 자동 갱신
     }catch(e){
       alert("서버 연결 실패!");
     }
@@ -521,14 +582,93 @@
       const data = await res.json();
       if(!data.ok){ alert("실패: " + (data.error || "unknown")); return; }
       alert(data.message || "저장 완료");
+      loadPublishList(); // ✅ 저장 후 자동 갱신
     }catch(e){
       alert("서버 연결 실패!");
+    }
+  }
+
+  // =========================
+  // ✅ 추가: 발행요청 리스트
+  // =========================
+  function clearPublishList(){
+    const box = document.getElementById("publishList");
+    if(box) box.innerHTML = "";
+  }
+
+  function fmtMaybe(o, keys){
+    for(const k of keys){
+      if(o && o[k]) return String(o[k]);
+    }
+    return "-";
+  }
+
+  async function loadPublishList(){
+    const box = document.getElementById("publishList");
+    if(!box) return;
+
+    box.innerHTML = `<div class="small">불러오는 중…</div>`;
+
+    try{
+      const res = await fetch(API_BASE + "/api/publish/list");
+      if(!res.ok){
+        const t = await res.text();
+        box.innerHTML = `<div class="small" style="color:#ffb4b4">불러오기 실패: ${escapeHtml(t)}</div>`;
+        return;
+      }
+      const data = await res.json();
+
+      const items = data.items || [];
+      const count = (typeof data.count === "number") ? data.count : items.length;
+
+      if(!items.length){
+        box.innerHTML = `<div class="small">요청 0개 (빈 리스트)</div>`;
+        return;
+      }
+
+      let html = `<div class="small">총 <b>${count}</b>개</div>`;
+
+      // 최신이 위로 오게(서버가 이미 최신순이면 그대로)
+      const list = items.slice().reverse();
+
+      list.forEach((it, idx)=>{
+        const topic = fmtMaybe(it, ["topic","title","subject"]);
+        const cat = fmtMaybe(it, ["category","cat"]);
+        const blogType = fmtMaybe(it, ["blog_type","blogType","type"]);
+        const blogUrl = fmtMaybe(it, ["blog_url","blogUrl","url"]);
+        const created = fmtMaybe(it, ["created_at","createdAt","time","requested_at"]);
+        const mode = fmtMaybe(it, ["mode","kind","publish_type"]);
+        const when = fmtMaybe(it, ["schedule_times","start_time","when","schedule"]);
+
+        html += `
+          <div class="reqCard">
+            <div class="reqTop">
+              <div class="reqTitle">${escapeHtml(topic)}</div>
+              <span class="reqBadge">${escapeHtml(blogType)}</span>
+            </div>
+            <div class="reqMeta">
+              카테고리: <b>${escapeHtml(cat)}</b><br/>
+              블로그: ${escapeHtml(blogUrl)}<br/>
+              방식: ${escapeHtml(mode)} / 시간: ${escapeHtml(when)}<br/>
+              생성: ${escapeHtml(created)}
+            </div>
+          </div>
+        `;
+      });
+
+      box.innerHTML = html;
+
+    }catch(e){
+      box.innerHTML = `<div class="small" style="color:#ffb4b4">서버 연결 실패</div>`;
     }
   }
 
   // 최초 렌더
   render();
   updateSel();
+
+  // (원하면) 페이지 열자마자 리스트 자동 로딩:
+  // loadPublishList();
 </script>
 </body>
 </html>
