@@ -1,49 +1,29 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from datetime import datetime
-from pathlib import Path
 import requests
-import json
 
 app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
-BASE_DIR = Path(__file__).resolve().parent
-QUEUE_DIR = BASE_DIR / "queue"
-QUEUE_DIR.mkdir(exist_ok=True)
-QUEUE_FILE = QUEUE_DIR / "publish_queue.jsonl"
-
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def safe_send(file_name: str):
-    path = BASE_DIR / file_name
-    if not path.exists():
-        return jsonify({
-            "ok": False,
-            "error": f"{file_name} 파일이 BaseOne 폴더에 없습니다.",
-            "hint": f"{BASE_DIR} 위치에 {file_name}을(를) 만들어 주세요."
-        }), 404
-    return send_from_directory(str(BASE_DIR), file_name)
-
-def append_queue(item: dict):
-    item = dict(item)
-    item["saved_at"] = now_str()
-    with open(QUEUE_FILE, "a", encoding="utf-8") as f:
-        f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
-# -----------------------------
-# 페이지 라우팅
-# -----------------------------
-@app.route("/")
+# ✅ Render에서 루트 접속하면 Not Found 안 뜨게
+@app.get("/")
 def home():
-    return safe_send("index.html")
+    return "BaseOne API 서버 실행중 ✅"
 
-@app.route("/settings")
+# (로컬에서 index.html도 열리게 유지)
+@app.get("/app")
+def app_page():
+    return send_from_directory(".", "index.html")
+
+@app.get("/settings")
 def settings():
-    return safe_send("settings.html")
+    return send_from_directory(".", "settings.html")
 
-@app.route("/health")
+@app.get("/health")
 def health():
     return jsonify({"ok": True, "time": now_str()})
 
@@ -89,18 +69,14 @@ def make_body_prompt(topic: str, category: str) -> str:
 def make_image_prompt(topic: str, category: str) -> str:
     return f'{category} 관련 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
 
-# -----------------------------
-# API: 생성
-# -----------------------------
-@app.route("/api/generate", methods=["POST"])
+@app.post("/api/generate")
 def api_generate():
     payload = request.get_json(silent=True) or {}
 
     topic = (payload.get("topic") or "").strip()
     category = (payload.get("category") or "").strip() or "정보"
-    blog = (payload.get("blog") or "").strip() or "local"
 
-    img_provider = (payload.get("img_provider") or "").strip() or "pexels"
+    img_provider = (payload.get("img_provider") or "pexels").strip()
     pexels_key = (payload.get("pexels_key") or "").strip()
 
     if not topic:
@@ -118,7 +94,6 @@ def api_generate():
         "ok": True,
         "topic": topic,
         "category": category,
-        "blog": blog,
         "generated_at": now_str(),
         "title": topic,
         "body_prompt": body_prompt,
@@ -127,86 +102,5 @@ def api_generate():
         "image_url": image_url
     })
 
-# -----------------------------
-# ✅ 발행 요청 저장(예약/즉시)
-# (실제 업로드는 다음 단계에서 OAuth 붙여서 구현)
-# -----------------------------
-@app.route("/api/publish/schedule", methods=["POST"])
-def api_publish_schedule():
-    payload = request.get_json(silent=True) or {}
-    blog_type = (payload.get("blog_type") or "").strip()  # blogspot/naver/tistory
-    blog_url = (payload.get("blog_url") or "").strip()
-    category = (payload.get("category") or "").strip()
-    topic = (payload.get("topic") or "").strip()
-    times = payload.get("schedule_times") or []
-
-    if not blog_type:
-        return jsonify({"ok": False, "error": "blog_type is required"}), 400
-    if not blog_url:
-        return jsonify({"ok": False, "error": "blog_url is required"}), 400
-    if not topic:
-        return jsonify({"ok": False, "error": "topic is required"}), 400
-    if not isinstance(times, list) or len(times) == 0:
-        return jsonify({"ok": False, "error": "schedule_times(list) is required"}), 400
-
-    item = {
-        "type": "schedule",
-        "blog_type": blog_type,
-        "blog_url": blog_url,
-        "category": category,
-        "topic": topic,
-        "schedule_times": times
-    }
-    append_queue(item)
-
-    return jsonify({
-        "ok": True,
-        "message": f"예약 요청 저장 ✅ ({blog_type}) {blog_url} / {(' / '.join(times))}",
-        "saved_to": str(QUEUE_FILE)
-    })
-
-@app.route("/api/publish/now", methods=["POST"])
-def api_publish_now():
-    payload = request.get_json(silent=True) or {}
-    blog_type = (payload.get("blog_type") or "").strip()
-    blog_url = (payload.get("blog_url") or "").strip()
-    category = (payload.get("category") or "").strip()
-    topic = (payload.get("topic") or "").strip()
-    start_time = (payload.get("start_time") or "").strip()  # "09:00"
-    interval_hours = payload.get("interval_hours")
-
-    if not blog_type:
-        return jsonify({"ok": False, "error": "blog_type is required"}), 400
-    if not blog_url:
-        return jsonify({"ok": False, "error": "blog_url is required"}), 400
-    if not topic:
-        return jsonify({"ok": False, "error": "topic is required"}), 400
-    if not start_time:
-        return jsonify({"ok": False, "error": "start_time is required (HH:MM)"}), 400
-
-    try:
-        interval_hours = int(interval_hours)
-        if interval_hours <= 0:
-            raise ValueError()
-    except Exception:
-        return jsonify({"ok": False, "error": "interval_hours must be a positive integer"}), 400
-
-    item = {
-        "type": "now_interval",
-        "blog_type": blog_type,
-        "blog_url": blog_url,
-        "category": category,
-        "topic": topic,
-        "start_time": start_time,
-        "interval_hours": interval_hours
-    }
-    append_queue(item)
-
-    return jsonify({
-        "ok": True,
-        "message": f"즉시 발행 요청 저장 ✅ ({blog_type}) {blog_url} / 시작 {start_time}, 간격 {interval_hours}시간",
-        "saved_to": str(QUEUE_FILE)
-    })
-
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
