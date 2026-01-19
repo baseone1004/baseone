@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from datetime import datetime
@@ -9,12 +10,16 @@ CORS(app)
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# ✅ Render에서 루트 접속하면 Not Found 안 뜨게
+# ✅ Render 루트 확인용 (이게 떠야 정상)
 @app.get("/")
-def home():
+def root():
     return "BaseOne API 서버 실행중 ✅"
 
-# (로컬에서 index.html도 열리게 유지)
+@app.get("/health")
+def health():
+    return jsonify({"ok": True, "time": now_str()})
+
+# (로컬에서만 쓰는 화면 라우트 - Render에서도 파일 있으면 열림)
 @app.get("/app")
 def app_page():
     return send_from_directory(".", "index.html")
@@ -23,17 +28,12 @@ def app_page():
 def settings():
     return send_from_directory(".", "settings.html")
 
-@app.get("/health")
-def health():
-    return jsonify({"ok": True, "time": now_str()})
-
 # -----------------------------
 # Pexels 무료 이미지 검색
 # -----------------------------
 def pexels_search_image_url(pexels_key: str, query: str) -> str:
     if not pexels_key:
         return ""
-
     url = "https://api.pexels.com/v1/search"
     headers = {"Authorization": pexels_key}
     params = {"query": query, "per_page": 1, "orientation": "landscape", "size": "large"}
@@ -103,4 +103,5 @@ def api_generate():
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", "5000"))
+    app.run(host="0.0.0.0", port=port, debug=True)
