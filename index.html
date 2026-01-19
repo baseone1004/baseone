@@ -1,3 +1,17 @@
+// ====== 서버 주소(backend) 읽기 ======
+function getApiBase(){
+  const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
+  const base = (d.backend || "http://127.0.0.1:5000").trim();
+  return base.replace(/\/+$/,""); // 끝의 / 제거
+}
+const API_BASE = getApiBase();
+
+// 화면에 표시
+document.addEventListener("DOMContentLoaded", ()=>{
+  const el = document.getElementById("sv");
+  if(el) el.textContent = API_BASE;
+});
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -435,7 +449,7 @@
     try{
       addGenLog("AI 생성 요청 보내는 중…");
 
-      const res = await fetch("http://127.0.0.1:5000/api/generate", {
+      const res = await fetch(API_BASE + "/api/generate", ...
         method:"POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify(payload)
@@ -557,6 +571,7 @@
 </script>
 </body>
 </html>
+
 
 
 
