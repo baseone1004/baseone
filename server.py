@@ -5,46 +5,37 @@ import json
 from datetime import datetime
 import requests
 
-# ✅ 같은 폴더에 index.html, settings.html 이 있어야 함
-# Render 배포 시 repo 루트에 두면 제일 편함
-app = Flask(__name__, static_folder=".", static_url_path="")
+# 현재 파일(server.py)이 있는 폴더 경로
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__, static_folder=BASE_DIR, static_url_path="")
 CORS(app)
 
-PUBLISH_FILE = "publish_queue.json"
+PUBLISH_FILE = os.path.join(BASE_DIR, "publish_queue.json")
+
 
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-# =========================
-# ✅ 프론트(HTML) 라우팅
-# =========================
-@app.route("/")
+
+# ✅ 메인 화면: index.html 제공
+@app.route("/", methods=["GET"])
 def home():
-    # index.html을 반환 (없으면 안내 메시지)
-    if os.path.exists("index.html"):
-        return send_from_directory(".", "index.html")
-    return "index.html 파일이 없습니다. (같은 폴더에 index.html을 넣어주세요)", 404
-
-@app.route("/settings")
-def settings():
-    if os.path.exists("settings.html"):
-        return send_from_directory(".", "settings.html")
-    return "settings.html 파일이 없습니다. (같은 폴더에 settings.html을 넣어주세요)", 404
-
-# (선택) 정적 파일: css/js/png 등
-@app.route("/<path:filename>")
-def static_files(filename):
-    # api 경로는 여기서 잡으면 안됨
-    if filename.startswith("api/") or filename == "api":
-        return jsonify({"ok": False, "error": "Not Found"}), 404
-    if os.path.exists(filename):
-        return send_from_directory(".", filename)
-    return jsonify({"ok": False, "error": "Not Found"}), 404
+    return send_from_directory(BASE_DIR, "index.html")
 
 
-@app.route("/health")
+# ✅ 설정 화면: settings.html 제공
+@app.route("/settings", methods=["GET"])
+@app.route("/settings.html", methods=["GET"])
+def settings_page():
+    return send_from_directory(BASE_DIR, "settings.html")
+
+
+# ✅ 헬스 체크
+@app.route("/health", methods=["GET"])
 def health():
     return jsonify({"ok": True, "time": now_str()})
+
 
 # ---------- Pexels 이미지 ----------
 def pexels_search_image_url(pexels_key: str, query: str) -> str:
@@ -67,6 +58,7 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
     except Exception:
         return ""
 
+
 # ---------- 프롬프트 생성 ----------
 def make_body_prompt(topic: str, category: str) -> str:
     return f"""너는 수익형 정보블로그 작가다.
@@ -83,8 +75,10 @@ def make_body_prompt(topic: str, category: str) -> str:
 ※ 출력은 블로그에 붙여넣기 좋은 HTML로 작성해줘.
 """.strip()
 
+
 def make_image_prompt(topic: str, category: str) -> str:
     return f'{category} 관련 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
+
 
 # ---------- 큐 저장 ----------
 def load_queue():
@@ -96,9 +90,11 @@ def load_queue():
     except Exception:
         return []
 
+
 def save_queue(items):
     with open(PUBLISH_FILE, "w", encoding="utf-8") as f:
         json.dump(items, f, ensure_ascii=False, indent=2)
+
 
 # ---------- API: generate ----------
 @app.route("/api/generate", methods=["POST"])
@@ -132,6 +128,7 @@ def api_generate():
         "image_provider": img_provider,
         "image_url": image_url
     })
+
 
 # ---------- API: 예약 발행 요청 저장 ----------
 @app.route("/api/publish/schedule", methods=["POST"])
@@ -167,6 +164,7 @@ def api_publish_schedule():
 
     return jsonify({"ok": True, "message": "예약 발행 요청 저장 완료 ✅", "saved": item})
 
+
 # ---------- API: 즉시 발행(간격) 요청 저장 ----------
 @app.route("/api/publish/now", methods=["POST"])
 def api_publish_now():
@@ -201,11 +199,19 @@ def api_publish_now():
 
     return jsonify({"ok": True, "message": "즉시 발행(간격) 요청 저장 완료 ✅", "saved": item})
 
+
 # ---------- API: 저장된 요청 보기 ----------
 @app.route("/api/publish/list", methods=["GET"])
 def api_publish_list():
     q = load_queue()
     return jsonify({"ok": True, "count": len(q), "items": q})
+
+
+# ✅ 혹시 /favicon.ico 같은 요청이 와도 에러 안 나게
+@app.route("/favicon.ico")
+def favicon():
+    return "", 204
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
