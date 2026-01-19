@@ -513,28 +513,6 @@ async function aiGenerateSelected(){
 </script>
 </body>
 </html>
-function showGenBox(){
-  const box = document.getElementById("genBox");
-  box.style.display = "block";
-}
-
-function addGenLog(msg){
-  showGenBox();
-  const log = document.getElementById("genLog");
-  const t = new Date();
-  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-  log.innerHTML += `<div>🟦 <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
-  log.scrollTop = log.scrollHeight;
-}
-
-function addGenOk(msg){
-  showGenBox();
-  const log = document.getElementById("genLog");
-  const t = new Date();
-  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-  log.innerHTML += `<div style="color:#9ff5d2">✅ <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
-  log.scrollTop = log.scrollHeight;
-}
 
 function addGenErr(msg){
   showGenBox();
@@ -548,5 +526,6 @@ function addGenErr(msg){
 function clearGenLog(){
   document.getElementById("genLog").innerHTML = "";
 }
+
 
 
