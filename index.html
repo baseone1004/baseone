@@ -1,17 +1,3 @@
-// ====== 서버 주소(backend) 읽기 ======
-function getApiBase(){
-  const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
-  const base = (d.backend || "http://127.0.0.1:5000").trim();
-  return base.replace(/\/+$/,""); // 끝의 / 제거
-}
-const API_BASE = getApiBase();
-
-// 화면에 표시
-document.addEventListener("DOMContentLoaded", ()=>{
-  const el = document.getElementById("sv");
-  if(el) el.textContent = API_BASE;
-});
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -37,7 +23,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
   .small{font-size:13px;color:#cfd6ff}
   .card{background:#0f1530;border:1px solid rgba(255,255,255,.10);padding:12px;border-radius:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 
-  /* ✅ 주제 목록 스크롤 박스 */
   .topicScroll{
     max-height: 360px;
     overflow-y: auto;
@@ -66,15 +51,12 @@ document.addEventListener("DOMContentLoaded", ()=>{
       </div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <span class="pill">서버: https://baseone-api-xxxx.onrender.com
-
-
+      <span class="pill">서버: <b id="sv">-</b></span>
       <a href="/settings"><button class="btn">설정</button></a>
       <button class="btn blue" onclick="makeMoney()">💰 수익형 주제 100</button>
     </div>
   </div>
 
-  <!-- ✅ 블로그 선택 -->
   <div class="box">
     <div class="row">
       <div>
@@ -117,19 +99,16 @@ document.addEventListener("DOMContentLoaded", ()=>{
         ✅ 팁: <b>블로그 선택</b>을 바꾼 뒤, 다른 주제를 선택해서 <b>또 발행</b>하면 됩니다.
       </div>
     </div>
-
-    <!-- ✅ 작은 스크롤 창 -->
     <div class="topicScroll" id="topics"></div>
   </div>
 
-  <!-- ✅ 글작성 진행상황 박스 -->
   <div class="box" id="genBox" style="display:none; margin-top:14px;">
     <div class="row">
       <b>✍️ 글작성 진행상황</b>
       <button class="btn gray" onclick="clearGenLog()">지우기</button>
     </div>
     <div class="small" style="margin-top:8px;opacity:.9">
-      아래 로그는 “AI 글 생성 버튼”을 누를 때 자동으로 채워집니다.
+      아래 로그는 “AI 생성 버튼”을 누를 때 자동으로 채워집니다.
     </div>
     <div id="genLog" style="
         margin-top:10px;
@@ -176,7 +155,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
 </div>
 
-<!-- 결과 모달 -->
 <div class="modalBg" id="modalBg">
   <div class="modal">
     <div class="row" style="justify-content:space-between">
@@ -210,47 +188,37 @@ document.addEventListener("DOMContentLoaded", ()=>{
 </div>
 
 <script>
-  // ====== (중요) 로그 함수는 반드시 script 안에 있어야 함 ======
+  // ====== 서버 주소(backend) 읽기 ======
+  function getApiBase(){
+    const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
+    const base = (d.backend || "http://127.0.0.1:5000").trim();
+    return base.replace(/\/+$/,"");
+  }
+  const API_BASE = getApiBase();
+
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const el = document.getElementById("sv");
+    if(el) el.textContent = API_BASE;
+  });
+
+  // ====== 로그 ======
   function showGenBox(){
     const box = document.getElementById("genBox");
-    if(!box) return;
-    box.style.display = "block";
+    if(box) box.style.display = "block";
   }
-
-  function addGenLog(msg){
+  function addGenLine(icon, color, msg){
     showGenBox();
     const log = document.getElementById("genLog");
     if(!log) return;
     const t = new Date();
     const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-    log.innerHTML += `<div>🟦 <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+    log.innerHTML += `<div style="color:${color}">${icon} <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
     log.scrollTop = log.scrollHeight;
   }
-
-  function addGenOk(msg){
-    showGenBox();
-    const log = document.getElementById("genLog");
-    if(!log) return;
-    const t = new Date();
-    const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-    log.innerHTML += `<div style="color:#9ff5d2">✅ <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
-    log.scrollTop = log.scrollHeight;
-  }
-
-  function addGenErr(msg){
-    showGenBox();
-    const log = document.getElementById("genLog");
-    if(!log) return;
-    const t = new Date();
-    const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-    log.innerHTML += `<div style="color:#ffb4b4">❌ <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
-    log.scrollTop = log.scrollHeight;
-  }
-
-  function clearGenLog(){
-    const log = document.getElementById("genLog");
-    if(log) log.innerHTML = "";
-  }
+  function addGenLog(msg){ addGenLine("🟦","#eef2ff",msg); }
+  function addGenOk(msg){ addGenLine("✅","#9ff5d2",msg); }
+  function addGenErr(msg){ addGenLine("❌","#ffb4b4",msg); }
+  function clearGenLog(){ const log=document.getElementById("genLog"); if(log) log.innerHTML=""; }
 
   // ====== 카테고리 ======
   const CATS=[
@@ -321,7 +289,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
       sel.appendChild(opt);
     });
 
-    // 마지막 선택 기억(있으면)
     const last = localStorage.getItem("baseone_last_blog");
     if(last){
       for(let i=0;i<sel.options.length;i++){
@@ -360,9 +327,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
   function makeTopics(cat){
     selectedCat = cat;
     topics=[];
-    for(let i=1;i<=50;i++){
-      topics.push(`${cat} 글 아이디어 ${i}`);
-    }
+    for(let i=1;i<=50;i++) topics.push(`${cat} 글 아이디어 ${i}`);
     selectedTopic = topics[0] || "";
     updateSel();
     render();
@@ -372,12 +337,10 @@ document.addEventListener("DOMContentLoaded", ()=>{
     topics=[];
     selectedCat = "수익형";
     const base=[
-      "보험", "카드", "통신비", "전기요금", "가스요금", "렌탈", "대출", "이자", "세금", "연금",
-      "다이어트", "영양제", "탈모", "피부", "건강검진", "육아템", "가전", "청소", "자동차보험", "중고차"
+      "보험","카드","통신비","전기요금","가스요금","렌탈","대출","이자","세금","연금",
+      "다이어트","영양제","탈모","피부","건강검진","육아템","가전","청소","자동차보험","중고차"
     ];
-    for(let i=1;i<=100;i++){
-      topics.push(`수익형 주제 ${i}: ${base[i%base.length]}`);
-    }
+    for(let i=1;i<=100;i++) topics.push(`수익형 주제 ${i}: ${base[i%base.length]}`);
     selectedTopic = topics[0] || "";
     updateSel();
     render();
@@ -410,27 +373,15 @@ document.addEventListener("DOMContentLoaded", ()=>{
     });
   }
 
-  function setSelected(t){
-    selectedTopic = t;
-    updateSel();
-  }
+  function setSelected(t){ selectedTopic = t; updateSel(); }
+  function copyText(t){ navigator.clipboard.writeText(t); alert("복사 완료!"); }
+  function copyAll(){ if(!topics.length){alert("주제 없음");return;} navigator.clipboard.writeText(topics.join("\n")); alert("전체 복사 완료!"); }
 
-  function copyText(t){
-    navigator.clipboard.writeText(t);
-    alert("복사 완료!");
-  }
-
-  function copyAll(){
-    if(!topics.length){alert("주제 없음");return;}
-    navigator.clipboard.writeText(topics.join("\n"));
-    alert("전체 복사 완료!");
-  }
-
-  // ====== AI 생성(서버 호출) ======
+  // ====== AI 생성 ======
   async function aiGenerateSelected(){
     if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
 
-    addGenLog("서버 연결 확인 중… (http://127.0.0.1:5000)");
+    addGenLog(`서버: ${API_BASE}`);
     addGenLog(`선택 주제: ${selectedTopic}`);
     addGenLog(`카테고리: ${selectedCat || "-"}`);
 
@@ -443,13 +394,10 @@ document.addEventListener("DOMContentLoaded", ()=>{
       pexels_key: (s.pexelsKey || "")
     };
 
-    addGenLog("AI 생성 요청 준비 완료");
-    addGenLog(`이미지 엔진: ${payload.img_provider}`);
+    addGenLog("AI 생성 요청 보내는 중…");
 
     try{
-      addGenLog("AI 생성 요청 보내는 중…");
-
-      const res = await fetch(API_BASE + "/api/generate", ...
+      const res = await fetch(API_BASE + "/api/generate", {
         method:"POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify(payload)
@@ -462,7 +410,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
         return;
       }
 
-      addGenLog("응답 수신 중…");
       const data = await res.json();
 
       if(data.image_url){
@@ -472,12 +419,12 @@ document.addEventListener("DOMContentLoaded", ()=>{
         addGenLog("이미지 URL 없음(검색 결과 0건일 수 있음)");
       }
 
-      addGenOk("글작성 프롬프트 생성 완료 ✅ (모달로 결과 표시)");
+      addGenOk("프롬프트 생성 완료 ✅");
       openModal(data);
 
     }catch(e){
-      addGenErr("서버 연결 실패! 서버가 켜져 있는지 확인하세요. (python server.py)");
-      alert("서버 연결 실패! 서버가 켜져 있는지 확인하세요.\n\n(서버 실행: python server.py)");
+      addGenErr("서버 연결 실패");
+      alert("서버 연결 실패! API_BASE가 맞는지 확인하세요.");
     }
   }
 
@@ -488,12 +435,9 @@ document.addEventListener("DOMContentLoaded", ()=>{
     document.getElementById("outBody").value = data.body_prompt || "";
     document.getElementById("modalBg").style.display="block";
   }
+  function closeModal(){ document.getElementById("modalBg").style.display="none"; }
 
-  function closeModal(){
-    document.getElementById("modalBg").style.display="none";
-  }
-
-  // ====== 발행 기능 (서버에 저장) ======
+  // ====== 발행 요청 저장 ======
   function getSelectedBlog(){
     const v = document.getElementById("blogSelect").value;
     if(!v) return null;
@@ -514,16 +458,16 @@ document.addEventListener("DOMContentLoaded", ()=>{
     };
 
     try{
-      const res = await fetch("http://127.0.0.1:5000/api/publish/schedule",{
+      const res = await fetch(API_BASE + "/api/publish/schedule",{
         method:"POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify(payload)
       });
       const data = await res.json();
       if(!data.ok){ alert("실패: " + (data.error || "unknown")); return; }
-      alert(data.message);
+      alert(data.message || "저장 완료");
     }catch(e){
-      alert("서버 연결 실패! (python server.py 실행 필요)");
+      alert("서버 연결 실패!");
     }
   }
 
@@ -545,16 +489,16 @@ document.addEventListener("DOMContentLoaded", ()=>{
     };
 
     try{
-      const res = await fetch("http://127.0.0.1:5000/api/publish/now",{
+      const res = await fetch(API_BASE + "/api/publish/now",{
         method:"POST",
         headers: {"Content-Type":"application/json"},
         body: JSON.stringify(payload)
       });
       const data = await res.json();
       if(!data.ok){ alert("실패: " + (data.error || "unknown")); return; }
-      alert(data.message);
+      alert(data.message || "저장 완료");
     }catch(e){
-      alert("서버 연결 실패! (python server.py 실행 필요)");
+      alert("서버 연결 실패!");
     }
   }
 
@@ -565,13 +509,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
     return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
   }
 
-  // 최초 렌더
   render();
   updateSel();
 </script>
 </body>
 </html>
-
-
-
-
