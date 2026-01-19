@@ -23,12 +23,7 @@
   .small{font-size:13px;color:#cfd6ff}
   .card{background:#0f1530;border:1px solid rgba(255,255,255,.10);padding:12px;border-radius:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 
-  .topicScroll{
-    max-height: 360px;
-    overflow-y: auto;
-    padding-right: 6px;
-    margin-top: 10px;
-  }
+  .topicScroll{max-height:360px;overflow-y:auto;padding-right:6px;margin-top:10px}
   .topicScroll::-webkit-scrollbar{width:10px}
   .topicScroll::-webkit-scrollbar-thumb{background:#273455;border-radius:10px}
   .topicScroll::-webkit-scrollbar-track{background:#0f1530;border-radius:10px}
@@ -155,6 +150,7 @@
 
 </div>
 
+<!-- 결과 모달 -->
 <div class="modalBg" id="modalBg">
   <div class="modal">
     <div class="row" style="justify-content:space-between">
@@ -188,6 +184,14 @@
 </div>
 
 <script>
+  // ====== 공통 유틸 ======
+  function escapeHtml(s){
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+  function escapeAttr(s){
+    return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
+  }
+
   // ====== 서버 주소(backend) 읽기 ======
   function getApiBase(){
     const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
@@ -309,6 +313,7 @@
     localStorage.setItem("baseone_last_blog", v);
     try{
       const obj = JSON.parse(v);
+      now.textContent = `${’${''}’}`; // placeholder to avoid crash in some editors
       now.textContent = `${obj.type} / ${obj.url}`;
     }catch(e){
       now.textContent = "-";
@@ -397,12 +402,10 @@
     addGenLog("AI 생성 요청 보내는 중…");
 
     try{
-    const res = await fetch(API_BASE + "/api/generate", {
-    method:"POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(payload)
-     });
-
+      const res = await fetch(API_BASE + "/api/generate", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
       });
 
       if(!res.ok){
@@ -504,16 +507,9 @@
     }
   }
 
-  function escapeHtml(s){
-    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-  }
-  function escapeAttr(s){
-    return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
-  }
-
+  // 최초 렌더
   render();
   updateSel();
 </script>
 </body>
 </html>
-
