@@ -5,6 +5,8 @@ import json
 from datetime import datetime
 import requests
 
+# ✅ 같은 폴더에 index.html, settings.html 이 있어야 함
+# Render 배포 시 repo 루트에 두면 제일 편함
 app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
@@ -13,9 +15,32 @@ PUBLISH_FILE = "publish_queue.json"
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+# =========================
+# ✅ 프론트(HTML) 라우팅
+# =========================
 @app.route("/")
 def home():
-    return "BaseOne API 서버 실행중"
+    # index.html을 반환 (없으면 안내 메시지)
+    if os.path.exists("index.html"):
+        return send_from_directory(".", "index.html")
+    return "index.html 파일이 없습니다. (같은 폴더에 index.html을 넣어주세요)", 404
+
+@app.route("/settings")
+def settings():
+    if os.path.exists("settings.html"):
+        return send_from_directory(".", "settings.html")
+    return "settings.html 파일이 없습니다. (같은 폴더에 settings.html을 넣어주세요)", 404
+
+# (선택) 정적 파일: css/js/png 등
+@app.route("/<path:filename>")
+def static_files(filename):
+    # api 경로는 여기서 잡으면 안됨
+    if filename.startswith("api/") or filename == "api":
+        return jsonify({"ok": False, "error": "Not Found"}), 404
+    if os.path.exists(filename):
+        return send_from_directory(".", filename)
+    return jsonify({"ok": False, "error": "Not Found"}), 404
+
 
 @app.route("/health")
 def health():
