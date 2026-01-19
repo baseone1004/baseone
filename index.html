@@ -16,146 +16,171 @@
     --primary:#4f8cff;
   }
 
+  /* ✅ 전체 크기 살짝 축소 */
   body{
     margin:0;
     font-family:sans-serif;
-    background: radial-gradient(1200px 600px at 20% 0%, rgba(79,140,255,.20), transparent 55%),
-                radial-gradient(1200px 600px at 85% 10%, rgba(156,115,255,.12), transparent 55%),
+    background: radial-gradient(1100px 560px at 20% 0%, rgba(79,140,255,.18), transparent 55%),
+                radial-gradient(1100px 560px at 85% 10%, rgba(156,115,255,.10), transparent 55%),
                 var(--bg);
     color:var(--text);
+    font-size:14px;
   }
-  .wrap{max-width:1100px;margin:0 auto}
+  .wrap{max-width:1080px;margin:0 auto}
+
   .top{
     display:flex;justify-content:space-between;align-items:center;
-    padding:16px;gap:10px;flex-wrap:wrap
+    padding:14px;gap:10px;flex-wrap:wrap
   }
+
   .btn{
-    padding:10px 14px;border-radius:10px;border:1px solid var(--border2);
+    padding:8px 12px;border-radius:10px;border:1px solid var(--border2);
     background:#1f2a44;color:white;font-weight:800;cursor:pointer;
     transition:transform .05s ease, filter .15s ease;
+    font-size:13px;
   }
   .btn:hover{filter:brightness(1.06)}
   .btn:active{transform:translateY(1px)}
   .btn.blue{background:var(--primary);border:none}
   .btn.gray{background:#555;border:none}
+
   .pill{
-    display:inline-block;padding:6px 10px;border-radius:999px;background:var(--panel2);
+    display:inline-block;padding:5px 9px;border-radius:999px;background:var(--panel2);
     border:1px solid var(--border2);color:var(--muted);font-size:12px
   }
+
   .box{
     background:rgba(20,26,48,.92);
     border:1px solid var(--border);
-    margin:16px;padding:14px;border-radius:16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.22);
+    margin:12px 14px;
+    padding:12px;
+    border-radius:16px;
+    box-shadow: 0 10px 28px rgba(0,0,0,.20);
     backdrop-filter: blur(6px);
   }
+
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+
   input, select{
-    padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
-    background:var(--panel2);color:white;min-width:180px
+    padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
+    background:var(--panel2);color:white;min-width:170px;
+    font-size:13px;
   }
 
-  /* ✅ 카테고리: 더 작고 깔끔하게 */
+  /* ✅ 카테고리 더 촘촘하게 */
   .grid{
     display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:10px;
-    padding:0 16px 16px;
+    grid-template-columns:repeat(6,1fr);
+    gap:9px;
+    padding:0 14px 12px;
   }
-  @media(max-width:1050px){.grid{grid-template-columns:repeat(4,1fr)}}
-  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:1100px){.grid{grid-template-columns:repeat(5,1fr)}}
+  @media(max-width:980px){.grid{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}}
 
   .cat{
     background:rgba(15,21,48,.75);
     border:1px solid rgba(255,255,255,.10);
-    padding:12px 12px;
+    padding:10px 10px;
     border-radius:16px;
     cursor:pointer;
     display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
     transition:transform .08s ease, border-color .15s ease, filter .15s ease;
-    min-height:68px;
+    min-height:62px;
   }
   .cat:hover{
     transform:translateY(-1px);
-    border-color:rgba(79,140,255,.35);
+    border-color:rgba(79,140,255,.38);
     filter:brightness(1.06);
   }
-  .cat b{font-size:14px;letter-spacing:-.2px}
+  .cat b{font-size:13px;letter-spacing:-.2px}
   .cat .small{font-size:12px;color:var(--muted);opacity:.95;margin-top:4px}
   .badge{
     font-size:12px;color:var(--muted);
     background:rgba(20,26,48,.9);
     border:1px solid rgba(255,255,255,.12);
-    padding:4px 8px;border-radius:999px;
+    padding:3px 7px;border-radius:999px;
     white-space:nowrap;
   }
-  .small{font-size:13px;color:var(--muted)}
+
+  .small{font-size:12.5px;color:var(--muted)}
   .card{
     background:var(--panel2);
     border:1px solid rgba(255,255,255,.10);
-    padding:12px;border-radius:14px;margin-bottom:10px;
+    padding:10px 10px;border-radius:14px;margin-bottom:9px;
     display:flex;justify-content:space-between;gap:10px;align-items:center
   }
+  .card .btn{padding:7px 10px;font-size:12.5px;border-radius:10px}
 
   .topicScroll{
-    max-height: 360px;
+    max-height: 330px;
     overflow-y: auto;
     padding-right: 6px;
-    margin-top: 10px;
+    margin-top: 8px;
   }
   .topicScroll::-webkit-scrollbar{width:10px}
   .topicScroll::-webkit-scrollbar-thumb{background:#273455;border-radius:10px}
   .topicScroll::-webkit-scrollbar-track{background:var(--panel2);border-radius:10px}
 
-  .modalBg{display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); padding:18px;}
+  .modalBg{display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); padding:16px;}
   .modal{
-    max-width:860px;margin:40px auto;background:var(--panel);
-    border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px;
+    max-width:860px;margin:32px auto;background:var(--panel);
+    border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px;
     box-shadow: 0 20px 60px rgba(0,0,0,.35);
   }
   textarea{
-    width:100%;min-height:220px;background:var(--panel2);
-    border:1px solid rgba(255,255,255,.14);border-radius:12px;color:white;padding:10px
+    width:100%;min-height:210px;background:var(--panel2);
+    border:1px solid rgba(255,255,255,.14);border-radius:12px;color:white;padding:10px;
+    font-size:13px;
   }
-  .hintBox{background:var(--panel2);border:1px solid rgba(255,255,255,.10);padding:10px;border-radius:12px}
+  .hintBox{background:var(--panel2);border:1px solid rgba(255,255,255,.10);padding:9px;border-radius:12px}
 
   /* ✅ 발행요청 리스트 카드 */
   .reqCard{
     background:var(--panel2);
     border:1px solid rgba(255,255,255,.10);
     border-radius:14px;
-    padding:12px;
-    margin-top:10px;
+    padding:10px;
+    margin-top:9px;
   }
   .reqTop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
   .reqTitle{font-weight:900}
   .reqMeta{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
   .reqBadge{
     font-size:12px;color:var(--muted);background:#141a30;border:1px solid rgba(255,255,255,.12);
-    padding:4px 8px;border-radius:999px
+    padding:3px 7px;border-radius:999px
   }
 
   /* ✅ 프롬프트 템플릿 */
-  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tabs{display:flex;gap:7px;flex-wrap:wrap}
   .tab{
-    padding:8px 10px;border-radius:999px;
+    padding:7px 9px;border-radius:999px;
     border:1px solid rgba(255,255,255,.14);
     background:rgba(15,21,48,.7);
     color:var(--muted);
-    cursor:pointer;font-weight:800;font-size:12px;
+    cursor:pointer;font-weight:900;font-size:12px;
   }
   .tab.active{
     background:rgba(79,140,255,.22);
     border-color:rgba(79,140,255,.45);
     color:var(--text);
   }
-  .mini{
-    font-size:12px;color:var(--muted);opacity:.95
-  }
+  .mini{font-size:12px;color:var(--muted);opacity:.95}
   .mini code{
     background:rgba(15,21,48,.8);
     border:1px solid rgba(255,255,255,.10);
     padding:2px 6px;border-radius:8px;
+  }
+
+  /* ✅ 섹션 헤더 이모티콘 라벨 */
+  .secTitle{display:flex;align-items:center;gap:8px}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 9px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(15,21,48,.75);
+    color:var(--muted);
+    font-size:12px;
   }
 </style>
 </head>
@@ -164,15 +189,15 @@
 
   <div class="top">
     <div style="display:flex;align-items:center;gap:10px">
-      <div style="width:34px;height:34px;border-radius:10px;background:#4f8cff;display:flex;align-items:center;justify-content:center;font-weight:900">B</div>
+      <div style="width:32px;height:32px;border-radius:10px;background:#4f8cff;display:flex;align-items:center;justify-content:center;font-weight:900">B</div>
       <div>
-        <div style="font-size:22px;font-weight:900;line-height:1">BaseOne</div>
-        <div class="small">카테고리/수익형 주제를 카드로 만들고, 블로그를 선택해서 예약/즉시 발행 요청을 저장할 수 있어요.</div>
+        <div style="font-size:20px;font-weight:900;line-height:1">BaseOne ✨</div>
+        <div class="small">🧠 주제 카드 → ✍️ 프롬프트 생성 → 📦 발행요청 저장</div>
       </div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <span class="pill">서버: <b id="sv">-</b></span>
-      <a href="/settings"><button class="btn">설정</button></a>
+      <span class="pill">🛰️ 서버: <b id="sv">-</b></span>
+      <a href="/settings"><button class="btn">⚙️ 설정</button></a>
       <button class="btn blue" onclick="makeMoney()">💰 수익형 주제 100</button>
     </div>
   </div>
@@ -180,50 +205,55 @@
   <div class="box">
     <div class="row">
       <div>
-        <b>블로그 선택</b>
-        <div class="small">설정에서 저장한 주소를 불러옵니다. (블로그A 선택→발행, 블로그B 선택→다른 주제로 또 발행 가능)</div>
+        <div class="secTitle">
+          <b>🗂️ 블로그 선택</b>
+          <span class="chip">blogspot / naver / tistory</span>
+        </div>
+        <div class="small">선택한 블로그 플랫폼에 맞게 템플릿이 자동 적용돼요.</div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <select id="blogSelect" style="min-width:340px"></select>
+        <select id="blogSelect" style="min-width:320px"></select>
         <button class="btn" onclick="loadBlogsToSelect()">🔄 새로고침</button>
       </div>
     </div>
     <div class="small" style="margin-top:8px">
-      현재 선택: <b id="blogNow">-</b>
+      ✅ 현재 선택: <b id="blogNow">-</b>
     </div>
   </div>
 
-  <!-- ✅ 플랫폼별 프롬프트 템플릿 저장/수정 -->
   <div class="box">
     <div class="row">
       <div>
-        <b>🧩 플랫폼별 글작성 프롬프트 템플릿</b>
-        <div class="small">티스토리/네이버/블로그스팟마다 다른 프롬프트를 저장해두고 자동 적용할 수 있어요.</div>
+        <div class="secTitle">
+          <b>🧩 플랫폼별 프롬프트 템플릿</b>
+          <span class="chip">저장/수정 가능</span>
+        </div>
+        <div class="small">티스토리/네이버/블로그스팟 템플릿을 각각 저장해두고 쓰세요.</div>
       </div>
       <div class="tabs" id="promptTabs"></div>
     </div>
 
     <div class="mini" style="margin-top:10px">
-      사용 가능한 변수:
-      <code>{{topic}}</code> <code>{{category}}</code> <code>{{title}}</code> <code>{{image_url}}</code>
-      <code>{{image_prompt}}</code> <code>{{body_prompt}}</code>
+      변수:
+      <code>{{topic}}</code> <code>{{category}}</code> <code>{{title}}</code>
+      <code>{{image_url}}</code> <code>{{image_prompt}}</code> <code>{{body_prompt}}</code>
     </div>
 
     <div style="margin-top:10px">
-      <div class="small"><b>본문 템플릿</b> (저장해두고 계속 사용)</div>
-      <textarea id="tplBody" style="min-height:170px"></textarea>
+      <div class="small"><b>📝 본문 템플릿</b></div>
+      <textarea id="tplBody" style="min-height:150px"></textarea>
     </div>
 
     <div style="margin-top:10px">
-      <div class="small"><b>이미지 템플릿</b> (선택)</div>
-      <textarea id="tplImage" style="min-height:120px"></textarea>
+      <div class="small"><b>🖼️ 이미지 템플릿(선택)</b></div>
+      <textarea id="tplImage" style="min-height:105px"></textarea>
     </div>
 
     <div class="row" style="margin-top:10px">
-      <div class="small">현재 적용 플랫폼: <b id="tplNow">-</b></div>
+      <div class="small">현재 적용: <b id="tplNow">-</b></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" onclick="saveTemplates()">💾 저장</button>
-        <button class="btn gray" onclick="resetTemplates()">기본값으로</button>
+        <button class="btn gray" onclick="resetTemplates()">♻️ 기본값</button>
       </div>
     </div>
   </div>
@@ -231,14 +261,17 @@
   <div class="box">
     <div class="row">
       <div>
-        <b id="titleBox">주제 생성</b>
-        <div class="small">아래에서 카테고리를 선택하세요.</div>
+        <div class="secTitle">
+          <b>🧠 주제 생성</b>
+          <span class="chip">검색/복사</span>
+        </div>
+        <div class="small">아래 카테고리를 선택하면 주제 목록이 생성됩니다.</div>
       </div>
 
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <input id="filter" placeholder="주제 검색(필터)" oninput="render()">
-        <button class="btn" onclick="copyAll()">전체복사</button>
-        <button class="btn blue" onclick="aiGenerateSelected()">✨ AI 생성(선택 주제)</button>
+        <input id="filter" placeholder="🔎 주제 검색" oninput="render()">
+        <button class="btn" onclick="copyAll()">📋 전체복사</button>
+        <button class="btn blue" onclick="aiGenerateSelected()">✨ AI 생성</button>
       </div>
     </div>
   </div>
@@ -248,36 +281,37 @@
   <div class="box">
     <div class="row">
       <div>
-        <b>주제 목록</b>
+        <div class="secTitle">
+          <b>📚 주제 목록</b>
+          <span class="chip">카드형</span>
+        </div>
         <div class="small" id="selInfo">선택 주제: -</div>
       </div>
       <div class="hintBox small">
-        ✅ 팁: <b>블로그 선택</b>을 바꾼 뒤, 다른 주제를 선택해서 <b>또 발행</b>하면 됩니다.
+        ✅ 블로그 바꾸고 다른 주제 선택 → 또 발행 가능!
       </div>
     </div>
 
     <div class="topicScroll" id="topics"></div>
 
-    <!-- ✅ 요청: "글작성 시작" 버튼을 주제목록 아래로 이동 -->
     <div class="row" style="margin-top:10px">
-      <div class="small">선택한 블로그 플랫폼에 맞는 템플릿으로 프롬프트가 자동 생성됩니다.</div>
+      <div class="small">✍️ 아래 버튼을 누르면 진행상황 로그가 뜨고, 템플릿 적용된 프롬프트가 생성됩니다.</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" onclick="startWriting()">✍️ 글작성 시작</button>
       </div>
     </div>
   </div>
 
-  <!-- 진행상황 -->
-  <div class="box" id="genBox" style="display:none; margin-top:14px;">
+  <div class="box" id="genBox" style="display:none; margin-top:12px;">
     <div class="row">
-      <b>✍️ 글작성 진행상황</b>
+      <b>🧾 글작성 진행상황</b>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn gray" onclick="clearGenLog()">지우기</button>
-        <button class="btn" onclick="toggleGenBox()">숨기기/보이기</button>
+        <button class="btn gray" onclick="clearGenLog()">🧹 지우기</button>
+        <button class="btn" onclick="toggleGenBox()">👀 숨기기/보이기</button>
       </div>
     </div>
     <div class="small" style="margin-top:8px;opacity:.9">
-      아래 로그는 “글작성 시작 / AI 생성”을 누를 때 자동으로 채워집니다.
+      로그는 “글작성 시작 / AI 생성” 시 자동으로 쌓입니다.
     </div>
     <div id="genLog" style="
         margin-top:10px;
@@ -285,51 +319,52 @@
         border:1px solid rgba(255,255,255,.10);
         border-radius:14px;
         padding:12px;
-        max-height:220px;
+        max-height:210px;
         overflow:auto;
-        font-size:13px;
+        font-size:12.8px;
         line-height:1.6;
     "></div>
   </div>
 
   <div class="box">
-    <b>발행</b>
-    <div class="small" style="margin-top:6px">※ 지금은 “실제 업로드”가 아니라, 서버에 “발행 요청을 저장”합니다. (다음 단계에서 OAuth 붙여서 실제 업로드로 바꿔요)</div>
+    <div class="secTitle">
+      <b>🚀 발행</b>
+      <span class="chip">요청 저장</span>
+    </div>
+    <div class="small" style="margin-top:6px">※ 지금은 “실제 업로드”가 아니라, 서버에 “발행 요청을 저장”합니다.</div>
 
     <div class="row" style="margin-top:10px">
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <button class="btn blue" onclick="scheduleDaily3()">📅 하루 3개 예약(08/13/18)</button>
-        <span class="small">시간 고정: 08:00 / 13:00 / 18:00</span>
+        <span class="small">⏰ 08:00 / 13:00 / 18:00</span>
       </div>
     </div>
 
     <div class="row" style="margin-top:12px">
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <label class="small">시작 시간</label>
-        <input id="startTime" type="time" value="09:00" style="min-width:140px">
-        <label class="small">간격(시간)</label>
-        <select id="intervalHours" style="min-width:120px">
-          <option value="1">1시간</option>
-          <option value="2">2시간</option>
-          <option value="3">3시간</option>
-          <option value="4">4시간</option>
-          <option value="5">5시간</option>
-          <option value="6">6시간</option>
+        <label class="small">⏱️ 시작</label>
+        <input id="startTime" type="time" value="09:00" style="min-width:130px">
+        <label class="small">↔️ 간격</label>
+        <select id="intervalHours" style="min-width:110px">
+          <option value="1">1시간</option><option value="2">2시간</option><option value="3">3시간</option>
+          <option value="4">4시간</option><option value="5">5시간</option><option value="6">6시간</option>
         </select>
-        <button class="btn" onclick="publishNowInterval()">🚀 즉시 발행(간격 적용)</button>
+        <button class="btn" onclick="publishNowInterval()">🚀 즉시 발행(간격)</button>
       </div>
       <div class="small">예) 09:00 시작 + 2시간 간격</div>
     </div>
 
-    <!-- 발행요청 리스트 -->
     <div class="row" style="margin-top:14px">
       <div>
-        <b>📦 발행요청 리스트</b>
-        <div class="small">서버에 저장된 발행 요청을 불러옵니다.</div>
+        <div class="secTitle">
+          <b>📦 발행요청 리스트</b>
+          <span class="chip">서버 저장분</span>
+        </div>
+        <div class="small">저장된 요청을 불러옵니다.</div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn" onclick="loadPublishList()">📥 리스트 불러오기</button>
-        <button class="btn gray" onclick="clearPublishList()">지우기</button>
+        <button class="btn" onclick="loadPublishList()">📥 불러오기</button>
+        <button class="btn gray" onclick="clearPublishList()">🧹 지우기</button>
       </div>
     </div>
     <div id="publishList" style="margin-top:10px"></div>
@@ -341,39 +376,37 @@
 <div class="modalBg" id="modalBg">
   <div class="modal">
     <div class="row" style="justify-content:space-between">
-      <b>AI 생성 결과</b>
+      <b>✨ AI 생성 결과</b>
       <button class="btn gray" onclick="closeModal()">닫기</button>
     </div>
 
-    <div class="box" style="margin:12px 0">
+    <div class="box" style="margin:10px 0">
       <div class="row">
         <div class="small">제목</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn" onclick="copyText(document.getElementById('outTitle').textContent)">제목 복사</button>
-          <button class="btn" onclick="copyText(document.getElementById('outImage').value)">이미지 프롬프트 복사</button>
-          <button class="btn blue" onclick="copyText(document.getElementById('outBody').value)">본문 프롬프트 복사</button>
+          <button class="btn" onclick="copyText(document.getElementById('outTitle').textContent)">📋 제목 복사</button>
+          <button class="btn" onclick="copyText(document.getElementById('outImage').value)">🖼️ 이미지 복사</button>
+          <button class="btn blue" onclick="copyText(document.getElementById('outBody').value)">📝 본문 복사</button>
         </div>
       </div>
       <div style="margin-top:6px;font-weight:bold" id="outTitle">-</div>
       <div class="small" id="outMeta" style="margin-top:6px">-</div>
     </div>
 
-    <div class="box" style="margin:12px 0">
-      <div class="small"><b>이미지 프롬프트(템플릿 적용됨)</b></div>
+    <div class="box" style="margin:10px 0">
+      <div class="small"><b>🖼️ 이미지 프롬프트(템플릿 적용)</b></div>
       <textarea id="outImage"></textarea>
     </div>
 
-    <div class="box" style="margin:12px 0">
-      <div class="small"><b>본문 프롬프트(템플릿 적용됨)</b></div>
+    <div class="box" style="margin:10px 0">
+      <div class="small"><b>📝 본문 프롬프트(템플릿 적용)</b></div>
       <textarea id="outBody"></textarea>
     </div>
   </div>
 </div>
 
 <script>
-  // =========================
-  // API_BASE 자동 읽기 + 화면 표시
-  // =========================
+  // API_BASE
   function getApiBase(){
     const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
     const base = (d.backend || "http://127.0.0.1:5000").trim();
@@ -386,9 +419,7 @@
     if(el) el.textContent = API_BASE;
   });
 
-  // =========================
   // 유틸
-  // =========================
   function escapeHtml(s){
     return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
   }
@@ -397,19 +428,15 @@
   }
   function safeStr(x){ return (x===undefined || x===null) ? "" : String(x); }
 
-  // 템플릿 치환
   function applyTemplate(tpl, vars){
     let out = safeStr(tpl);
     Object.keys(vars).forEach(k=>{
-      const v = safeStr(vars[k]);
-      out = out.replaceAll(`{{${k}}}`, v);
+      out = out.replaceAll(`{{${k}}}`, safeStr(vars[k]));
     });
     return out;
   }
 
-  // =========================
   // 로그
-  // =========================
   function showGenBox(){
     const box = document.getElementById("genBox");
     if(box) box.style.display = "block";
@@ -433,26 +460,24 @@
   function addGenErr(msg){ addGenLine("❌","#ffb4b4",msg); }
   function clearGenLog(){ const log=document.getElementById("genLog"); if(log) log.innerHTML=""; }
 
-  // =========================
   // 카테고리
-  // =========================
   const CATS=[
-    {k:"건강", s:"운동·영양·생활관리"},
-    {k:"컴퓨터/IT", s:"유틸·보안·가이드"},
-    {k:"자동차", s:"정비·보험·팁"},
-    {k:"생활/가전", s:"살림·가전·절약"},
-    {k:"육아", s:"육아템·교육"},
-    {k:"돈/재테크", s:"절약·투자·세금"},
-    {k:"여행", s:"코스·꿀팁"},
-    {k:"요리", s:"레시피·장보기"},
-    {k:"자기계발", s:"습관·목표"},
-    {k:"공부/자격증", s:"시험·합격"},
-    {k:"반려동물", s:"케어·용품"},
-    {k:"패션/뷰티", s:"관리·추천"},
-    {k:"취미", s:"취미·DIY"},
-    {k:"스포츠", s:"운동·루틴"},
-    {k:"게임", s:"리뷰·팁"},
-    {k:"영화/드라마", s:"추천·리뷰"}
+    {k:"건강", s:"🏃 운동·영양·생활"},
+    {k:"컴퓨터/IT", s:"💻 유틸·보안·가이드"},
+    {k:"자동차", s:"🚗 정비·보험·팁"},
+    {k:"생활/가전", s:"🏠 살림·가전·절약"},
+    {k:"육아", s:"🍼 육아템·교육"},
+    {k:"돈/재테크", s:"💰 절약·투자·세금"},
+    {k:"여행", s:"🧳 코스·꿀팁"},
+    {k:"요리", s:"🍳 레시피·장보기"},
+    {k:"자기계발", s:"📈 습관·목표"},
+    {k:"공부/자격증", s:"📚 시험·합격"},
+    {k:"반려동물", s:"🐶 케어·용품"},
+    {k:"패션/뷰티", s:"💄 관리·추천"},
+    {k:"취미", s:"🎨 DIY·취미"},
+    {k:"스포츠", s:"🏋️ 루틴·운동"},
+    {k:"게임", s:"🎮 리뷰·팁"},
+    {k:"영화/드라마", s:"🎬 추천·리뷰"}
   ];
 
   let topics=[];
@@ -469,14 +494,12 @@
         <b>${obj.k}</b>
         <div class="small">${obj.s}</div>
       </div>
-      <span class="badge">50개</span>
+      <span class="badge">50</span>
     `;
     grid.appendChild(d);
   });
 
-  // =========================
-  // 블로그 목록(설정에서 읽기)
-  // =========================
+  // 블로그 목록
   function loadBlogsToSelect(){
     const sel = document.getElementById("blogSelect");
     const now = document.getElementById("blogNow");
@@ -486,9 +509,9 @@
     const blogs = s.blogs || { blogspot:[], naver:[], tistory:[] };
 
     const options = [];
-    (blogs.blogspot||[]).filter(Boolean).forEach((u,i)=> options.push({type:"blogspot", url:u, label:`블로그스팟 ${i+1} - ${u}`}));
-    (blogs.naver||[]).filter(Boolean).forEach((u,i)=> options.push({type:"naver", url:u, label:`네이버 ${i+1} - ${u}`}));
-    (blogs.tistory||[]).filter(Boolean).forEach((u,i)=> options.push({type:"tistory", url:u, label:`티스토리 ${i+1} - ${u}`}));
+    (blogs.blogspot||[]).filter(Boolean).forEach((u,i)=> options.push({type:"blogspot", url:u, label:`🟦 블로그스팟 ${i+1} - ${u}`}));
+    (blogs.naver||[]).filter(Boolean).forEach((u,i)=> options.push({type:"naver", url:u, label:`🟩 네이버 ${i+1} - ${u}`}));
+    (blogs.tistory||[]).filter(Boolean).forEach((u,i)=> options.push({type:"tistory", url:u, label:`🟧 티스토리 ${i+1} - ${u}`}));
 
     if(options.length===0){
       const opt=document.createElement("option");
@@ -527,7 +550,6 @@
     try{
       const obj = JSON.parse(v);
       now.textContent = `${obj.type} / ${obj.url}`;
-      // 선택된 블로그 타입에 맞게 템플릿 탭 자동 선택
       setPromptTab(obj.type);
     }catch(e){
       now.textContent = "-";
@@ -542,9 +564,7 @@
 
   loadBlogsToSelect();
 
-  // =========================
   // 주제 생성
-  // =========================
   function makeTopics(cat){
     selectedCat = cat;
     topics=[];
@@ -583,11 +603,11 @@
       d.innerHTML = `
         <div style="flex:1">
           <div>${escapeHtml(t)}</div>
-          <div class="small">${selectedCat || ""}</div>
+          <div class="small">🏷️ ${selectedCat || ""}</div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" onclick="setSelected('${escapeAttr(t)}')">선택</button>
-          <button class="btn" onclick="copyText('${escapeAttr(t)}')">복사</button>
+          <button class="btn" onclick="setSelected('${escapeAttr(t)}')">✅ 선택</button>
+          <button class="btn" onclick="copyText('${escapeAttr(t)}')">📋 복사</button>
         </div>
       `;
       list.appendChild(d);
@@ -598,14 +618,12 @@
   function copyText(t){ navigator.clipboard.writeText(t); alert("복사 완료!"); }
   function copyAll(){ if(!topics.length){alert("주제 없음");return;} navigator.clipboard.writeText(topics.join("\n")); alert("전체 복사 완료!"); }
 
-  // =========================
-  // ✅ 플랫폼별 프롬프트 템플릿 (로컬 저장)
-  // =========================
+  // ✅ 플랫폼별 프롬프트 템플릿
   const PROMPT_KEY = "baseone_prompts_v1";
   const PLATFORMS = [
-    {k:"blogspot", label:"블로그스팟"},
-    {k:"naver", label:"네이버"},
-    {k:"tistory", label:"티스토리"},
+    {k:"blogspot", label:"🟦 블로그스팟"},
+    {k:"naver", label:"🟩 네이버"},
+    {k:"tistory", label:"🟧 티스토리"},
   ];
   let currentPlatform = "blogspot";
 
@@ -617,7 +635,7 @@
 주제: {{topic}}
 카테고리: {{category}}
 
-아래 '기본 본문 프롬프트'를 바탕으로, SEO에 강한 한국어 블로그 글을 작성해줘.
+아래 '기본 본문 프롬프트'를 바탕으로 SEO에 강한 한국어 글을 작성해줘.
 - 도입 3~5문장(후킹)
 - 소제목(H2) 5~7개
 - 체크리스트/표 1개
@@ -628,9 +646,9 @@
 {{body_prompt}}`,
         image:
 `대표 이미지 안내:
-- 가능하면 16:9
+- 16:9 권장
 - 밝고 깔끔한 썸네일
-- 텍스트는 최소화
+- 텍스트 최소
 
 [기본 이미지 프롬프트/URL]
 {{image_prompt}}
@@ -666,16 +684,16 @@
 카테고리: {{category}}
 
 티스토리/구글 검색에 강한 구성으로 작성해줘.
-- 목차(TOC) 만들 수 있게 소제목 구조화
+- 목차(TOC) 만들 수 있게 구조화
 - 소제목(H2) 6개 내외
 - 중간에 "요약" 섹션
-- 마지막에 내부링크 유도 문장
+- 마지막에 내부링크 유도
 
 [기본 본문 프롬프트]
 {{body_prompt}}`,
         image:
 `티스토리 대표 이미지:
-- 심플, 고급, 여백
+- 심플/고급/여백
 - 1200px 이상 권장
 
 [기본 이미지 프롬프트/URL]
@@ -694,10 +712,7 @@
     localStorage.setItem(PROMPT_KEY, JSON.stringify(d));
     return d;
   }
-
-  function setTemplates(obj){
-    localStorage.setItem(PROMPT_KEY, JSON.stringify(obj));
-  }
+  function setTemplates(obj){ localStorage.setItem(PROMPT_KEY, JSON.stringify(obj)); }
 
   function renderPromptTabs(){
     const wrap = document.getElementById("promptTabs");
@@ -742,9 +757,7 @@
   renderPromptTabs();
   setPromptTab(currentPlatform);
 
-  // =========================
-  // 글작성 시작 버튼
-  // =========================
+  // 글작성 시작
   function getSelectedBlog(){
     const v = document.getElementById("blogSelect").value;
     if(!v) return null;
@@ -757,25 +770,22 @@
       return;
     }
     showGenBox();
-    addGenLog("글작성 시작 버튼 클릭 ✅");
-    addGenLog("선택 블로그 플랫폼에 맞는 템플릿을 적용합니다…");
-    aiGenerateSelected(); // 결과를 모달에서 템플릿 적용해서 보여줌
+    addGenLog("✍️ 글작성 시작 클릭");
+    addGenLog("🧩 선택 블로그 타입 템플릿 적용 후 생성합니다…");
+    aiGenerateSelected();
   }
 
-  // =========================
-  // AI 생성
-  // =========================
   async function aiGenerateSelected(){
     if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
 
     const blog = getSelectedBlog();
     const blogType = blog?.type || "blogspot";
-    setPromptTab(blogType); // 자동 탭 이동 + 표시
+    setPromptTab(blogType);
 
-    addGenLog(`서버: ${API_BASE}`);
-    addGenLog(`선택 블로그: ${blogType}`);
-    addGenLog(`선택 주제: ${selectedTopic}`);
-    addGenLog(`카테고리: ${selectedCat || "-"}`);
+    addGenLog(`🛰️ 서버: ${API_BASE}`);
+    addGenLog(`🗂️ 블로그: ${blogType}`);
+    addGenLog(`🧠 주제: ${selectedTopic}`);
+    addGenLog(`🏷️ 카테고리: ${selectedCat || "-"}`);
 
     const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
     const payload = {
@@ -786,7 +796,7 @@
       pexels_key: (s.pexelsKey || "")
     };
 
-    addGenLog("AI 생성 요청 보내는 중…");
+    addGenLog("📡 /api/generate 요청 중…");
 
     try{
       const res = await fetch(API_BASE + "/api/generate", {
@@ -797,26 +807,26 @@
 
       if(!res.ok){
         const t = await res.text();
-        addGenErr("AI 생성 실패: " + t);
+        addGenErr("❌ AI 생성 실패: " + t);
         alert("생성 실패: " + t);
         return;
       }
 
-      addGenLog("응답 수신 중…");
+      addGenLog("📥 응답 수신 중…");
       const data = await res.json();
 
       if(data.image_url){
-        addGenOk("이미지 URL 찾음 ✅");
+        addGenOk("🖼️ 이미지 URL 찾음");
         addGenLog(data.image_url);
       }else{
-        addGenLog("이미지 URL 없음(검색 결과 0건일 수 있음)");
+        addGenLog("🖼️ 이미지 URL 없음(검색 0건일 수 있음)");
       }
 
-      addGenOk("프롬프트 생성 완료 ✅ (템플릿 적용 후 모달 표시)");
+      addGenOk("✅ 프롬프트 생성 완료(템플릿 적용)");
       openModalWithTemplates(data, blogType);
 
     }catch(e){
-      addGenErr("서버 연결 실패");
+      addGenErr("❌ 서버 연결 실패");
       alert("서버 연결 실패! 설정의 서버 주소(API_BASE)가 맞는지 확인하세요.");
     }
   }
@@ -839,7 +849,7 @@
 
     document.getElementById("outTitle").textContent = data.title || "-";
     document.getElementById("outMeta").textContent =
-      `주제: ${vars.topic} / 카테고리: ${vars.category} / 플랫폼: ${blogType} / 생성시간: ${data.generated_at || ""}`;
+      `🧠 ${vars.topic} / 🏷️ ${vars.category} / 🗂️ ${blogType} / ⏱️ ${data.generated_at || ""}`;
 
     document.getElementById("outImage").value = appliedImage;
     document.getElementById("outBody").value = appliedBody;
@@ -849,9 +859,7 @@
 
   function closeModal(){ document.getElementById("modalBg").style.display="none"; }
 
-  // =========================
   // 발행 요청 저장
-  // =========================
   async function scheduleDaily3(){
     const blog = getSelectedBlog();
     if(!blog){ alert("블로그 선택이 필요합니다. (설정에서 주소 저장)"); return; }
@@ -912,9 +920,7 @@
     }
   }
 
-  // =========================
   // 발행요청 리스트
-  // =========================
   function clearPublishList(){
     const box = document.getElementById("publishList");
     if(box) box.innerHTML = "";
@@ -950,7 +956,7 @@
       }
 
       let html = `<div class="small">총 <b>${count}</b>개</div>`;
-      const list = items.slice(); // 서버 정렬을 믿고 그대로
+      const list = items.slice();
 
       list.forEach((it)=>{
         const topic = fmtMaybe(it, ["topic","title","subject"]);
@@ -964,14 +970,14 @@
         html += `
           <div class="reqCard">
             <div class="reqTop">
-              <div class="reqTitle">${escapeHtml(topic)}</div>
-              <span class="reqBadge">${escapeHtml(blogType)}</span>
+              <div class="reqTitle">📝 ${escapeHtml(topic)}</div>
+              <span class="reqBadge">🗂️ ${escapeHtml(blogType)}</span>
             </div>
             <div class="reqMeta">
-              카테고리: <b>${escapeHtml(cat)}</b><br/>
-              블로그: ${escapeHtml(blogUrl)}<br/>
-              방식: ${escapeHtml(mode)} / 시간: ${escapeHtml(when)}<br/>
-              생성: ${escapeHtml(created)}
+              🏷️ 카테고리: <b>${escapeHtml(cat)}</b><br/>
+              🔗 블로그: ${escapeHtml(blogUrl)}<br/>
+              ⚙️ 방식: ${escapeHtml(mode)} / ⏰ 시간: ${escapeHtml(when)}<br/>
+              🕒 생성: ${escapeHtml(created)}
             </div>
           </div>
         `;
@@ -984,21 +990,10 @@
     }
   }
 
-  // =========================
-  // 모달 관련 (복사)
-  // =========================
-  function openModal(data){
-    // (구버전 호환: 필요하면 사용)
-    document.getElementById("outTitle").textContent = data.title || "-";
-    document.getElementById("outMeta").textContent = `주제: ${data.topic || ""} / 카테고리: ${data.category || ""} / 생성시간: ${data.generated_at || ""}`;
-    document.getElementById("outImage").value = (data.image_url ? `이미지 URL: ${data.image_url}\n\n` : "") + (data.image_prompt || "");
-    document.getElementById("outBody").value = data.body_prompt || "";
-    document.getElementById("modalBg").style.display="block";
-  }
+  // 모달 복사
+  function copyText(t){ navigator.clipboard.writeText(t); alert("복사 완료!"); }
 
-  // =========================
   // 초기 렌더
-  // =========================
   render();
   updateSel();
 </script>
