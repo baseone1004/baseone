@@ -6,1128 +6,945 @@
   <title>BaseOne</title>
   <style>
     :root{
-      --bg:#0b1020;
-      --panel:#141a30;
-      --panel2:#0f1530;
-      --text:#eef2ff;
-      --muted:#cfd6ff;
-      --border:rgba(255,255,255,.10);
-      --border2:rgba(255,255,255,.12);
-      --primary:#4f8cff;
+      --bg:#18223d;
+      --panel:#1f2b4d;
+      --panel2:#23315b;
+      --text:#f6f8ff;
+      --muted:#d8defe;
+      --border:rgba(255,255,255,.16);
+      --primary:#6aa3ff;
+      --good:#2dd4bf;
+      --warn:#fbbf24;
+      --danger:#ff6b6b;
     }
-
+    *{box-sizing:border-box}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
       background:
-        radial-gradient(1100px 560px at 20% 0%, rgba(79,140,255,.18), transparent 55%),
-        radial-gradient(1100px 560px at 85% 10%, rgba(156,115,255,.10), transparent 55%),
+        radial-gradient(1200px 700px at 18% 0%, rgba(106,163,255,.35), transparent 55%),
+        radial-gradient(1200px 700px at 85% 10%, rgba(200,160,255,.22), transparent 55%),
+        radial-gradient(900px 520px at 55% 90%, rgba(45,212,191,.18), transparent 55%),
         var(--bg);
       color:var(--text);
-      font-size:14px;
-    }
-    .wrap{max-width:1080px;margin:0 auto}
-
-    .top{display:flex;justify-content:space-between;align-items:center;padding:14px;gap:10px;flex-wrap:wrap}
-
-    .btn{
-      padding:8px 12px;border-radius:10px;border:1px solid var(--border2);
-      background:#1f2a44;color:white;font-weight:800;cursor:pointer;
-      transition:transform .05s ease, filter .15s ease;
       font-size:13px;
     }
-    .btn:hover{filter:brightness(1.06)}
-    .btn:active{transform:translateY(1px)}
-    .btn.blue{background:var(--primary);border:none}
-    .btn.gray{background:#555;border:none}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1020px;margin:0 auto;padding:10px}
+    .top{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+      padding:10px 6px;
+    }
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{
+      width:34px;height:34px;border-radius:12px;
+      background:linear-gradient(135deg,var(--primary), var(--good));
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;
+      box-shadow:0 10px 24px rgba(0,0,0,.22);
+    }
+    .title{font-size:18px;font-weight:900;line-height:1}
+    .subtitle{font-size:12px;color:var(--muted);opacity:.95;margin-top:4px}
 
     .pill{
-      display:inline-block;padding:5px 9px;border-radius:999px;background:var(--panel2);
-      border:1px solid var(--border2);color:var(--muted);font-size:12px
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border-radius:999px;
+      background:rgba(35,49,91,.72);
+      border:1px solid var(--border);
+      color:var(--muted);font-size:12px
+    }
+
+    .btn{
+      padding:7px 10px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--text);cursor:pointer;font-weight:900;
+      transition:transform .05s ease, filter .15s ease;
+      font-size:12px;
+    }
+    .btn:hover{filter:brightness(1.07)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      background:linear-gradient(135deg,var(--primary), #2f6bff);
+      border:none;
+    }
+    .btn.good{
+      background:linear-gradient(135deg, var(--good), #1fb6ff);
+      border:none;
+    }
+    .btn.danger{
+      background:rgba(255,107,107,.12);
+      border:1px solid rgba(255,107,107,.35);
+      color:#ffd1d1;
     }
 
     .box{
-      background:rgba(20,26,48,.92);
+      background:rgba(31,43,77,.78);
       border:1px solid var(--border);
-      margin:12px 14px;
-      padding:12px;
+      padding:10px;
       border-radius:16px;
-      box-shadow: 0 10px 28px rgba(0,0,0,.20);
-      backdrop-filter: blur(6px);
+      margin:8px 0;
+      box-shadow:0 12px 28px rgba(0,0,0,.18);
+      backdrop-filter: blur(7px);
     }
-
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
 
-    input, select{
-      padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.14);
-      background:var(--panel2);color:white;min-width:170px;
-      font-size:13px;
+    input, select, textarea{
+      padding:9px 10px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(35,49,91,.8);color:var(--text);outline:none;
+      font-size:12.5px;
     }
+    select{min-width:290px}
+    textarea{width:100%;min-height:170px;line-height:1.6}
+
+    .small{font-size:12px;color:var(--muted)}
+    .hint{padding:8px 10px;border-radius:12px;border:1px solid rgba(45,212,191,.26);background:rgba(45,212,191,.08);color:var(--muted)}
 
     .grid{
       display:grid;
       grid-template-columns:repeat(6,1fr);
-      gap:9px;
-      padding:0 14px 12px;
+      gap:8px;
+      margin-top:8px;
     }
-    @media(max-width:1100px){.grid{grid-template-columns:repeat(5,1fr)}}
     @media(max-width:980px){.grid{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}}
 
     .cat{
-      background:rgba(15,21,48,.75);
-      border:1px solid rgba(255,255,255,.10);
-      padding:10px 10px;
+      background:rgba(35,49,91,.62);
+      border:1px solid rgba(255,255,255,.14);
+      padding:9px;
       border-radius:16px;
       cursor:pointer;
-      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+      display:flex;justify-content:space-between;align-items:flex-start;gap:8px;
       transition:transform .08s ease, border-color .15s ease, filter .15s ease;
-      min-height:62px;
+      min-height:54px;
     }
     .cat:hover{
       transform:translateY(-1px);
-      border-color:rgba(79,140,255,.38);
+      border-color:rgba(106,163,255,.55);
       filter:brightness(1.06);
     }
-    .cat b{font-size:13px;letter-spacing:-.2px}
-    .cat .small{font-size:12px;color:var(--muted);opacity:.95;margin-top:4px}
+    .cat b{font-size:12.5px;letter-spacing:-.2px}
+    .cat .desc{font-size:11.5px;color:var(--muted);opacity:.92;margin-top:4px}
     .badge{
-      font-size:12px;color:var(--muted);
-      background:rgba(20,26,48,.9);
-      border:1px solid rgba(255,255,255,.12);
+      font-size:11.5px;color:var(--muted);
+      background:rgba(31,43,77,.9);
+      border:1px solid rgba(255,255,255,.14);
       padding:3px 7px;border-radius:999px;
       white-space:nowrap;
     }
 
-    .small{font-size:12.5px;color:var(--muted)}
-    .hintBox{background:var(--panel2);border:1px solid rgba(255,255,255,.10);padding:9px;border-radius:12px}
+    .topicScroll{max-height:320px;overflow:auto;margin-top:8px;padding-right:6px}
+    .topicScroll::-webkit-scrollbar{width:10px}
+    .topicScroll::-webkit-scrollbar-thumb{background:#2a3a68;border-radius:10px}
+    .topicScroll::-webkit-scrollbar-track{background:rgba(35,49,91,.7);border-radius:10px}
 
     .card{
-      background:var(--panel2);
-      border:1px solid rgba(255,255,255,.10);
-      padding:10px 10px;border-radius:14px;margin-bottom:9px;
-      display:flex;justify-content:space-between;gap:10px;align-items:center
+      background:rgba(35,49,91,.75);
+      border:1px solid rgba(255,255,255,.14);
+      padding:9px 10px;border-radius:14px;
+      display:flex;justify-content:space-between;gap:10px;align-items:center;
+      margin-bottom:8px;
     }
-    .card .btn{padding:7px 10px;font-size:12.5px;border-radius:10px}
-    .cardTitle{display:flex;align-items:center;gap:8px}
+    .cardTitle{display:flex;align-items:center;gap:8px;font-weight:900}
+    .card .meta{font-size:11.5px;color:var(--muted);opacity:.95;margin-top:4px}
+    .chip{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:5px 9px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(35,49,91,.6);
+      color:var(--muted);
+      font-size:11.5px;
+    }
 
     .starBtn{
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(20,26,48,.55);
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(31,43,77,.6);
       color:var(--muted);
-      border-radius:10px;
+      border-radius:12px;
       padding:7px 10px;
-      font-size:12.5px;
+      font-size:12px;
       cursor:pointer;
       font-weight:900;
-      transition:filter .15s ease, transform .05s ease;
     }
-    .starBtn:hover{filter:brightness(1.08)}
-    .starBtn:active{transform:translateY(1px)}
     .starBtn.on{
       background:rgba(255,215,0,.12);
       border-color:rgba(255,215,0,.35);
       color:#ffe8a3;
     }
 
-    .topicScroll{
-      max-height: 330px;
-      overflow-y: auto;
-      padding-right: 6px;
-      margin-top: 8px;
-    }
-    .topicScroll::-webkit-scrollbar{width:10px}
-    .topicScroll::-webkit-scrollbar-thumb{background:#273455;border-radius:10px}
-    .topicScroll::-webkit-scrollbar-track{background:var(--panel2);border-radius:10px}
-
-    .modalBg{display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); padding:16px;}
-    .modal{
-      max-width:860px;margin:32px auto;background:var(--panel);
-      border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-    }
-    textarea{
-      width:100%;min-height:210px;background:var(--panel2);
-      border:1px solid rgba(255,255,255,.14);border-radius:12px;color:white;padding:10px;
-      font-size:13px;
-    }
-
-    .reqCard{
-      background:var(--panel2);
-      border:1px solid rgba(255,255,255,.10);
+    /* ✅ 진행 로그 */
+    #genBox{display:none}
+    #genLog{
+      margin-top:10px;
+      background:rgba(35,49,91,.78);
+      border:1px solid rgba(255,255,255,.14);
       border-radius:14px;
       padding:10px;
-      margin-top:9px;
-    }
-    .reqTop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
-    .reqTitle{font-weight:900}
-    .reqMeta{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
-    .reqBadge{
-      font-size:12px;color:var(--muted);background:#141a30;border:1px solid rgba(255,255,255,.12);
-      padding:3px 7px;border-radius:999px
-    }
-
-    .tabs{display:flex;gap:7px;flex-wrap:wrap}
-    .tab{
-      padding:7px 9px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(15,21,48,.7);
-      color:var(--muted);
-      cursor:pointer;font-weight:900;font-size:12px;
-    }
-    .tab.active{
-      background:rgba(79,140,255,.22);
-      border-color:rgba(79,140,255,.45);
-      color:var(--text);
-    }
-    .mini{font-size:12px;color:var(--muted);opacity:.95}
-    .mini code{
-      background:rgba(15,21,48,.8);
-      border:1px solid rgba(255,255,255,.10);
-      padding:2px 6px;border-radius:8px;
-    }
-
-    .secTitle{display:flex;align-items:center;gap:8px}
-    .chip{
-      display:inline-flex;align-items:center;gap:6px;
-      padding:4px 9px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(15,21,48,.75);
-      color:var(--muted);
+      max-height:210px;
+      overflow:auto;
       font-size:12px;
+      line-height:1.6;
     }
 
-    .previewGrid{
+    /* ✅ 생성완료 “통 미리보기” */
+    #finalBox{display:none}
+    .finalGrid{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
       margin-top:10px;
     }
-    @media(max-width:900px){.previewGrid{grid-template-columns:1fr}}
-    .previewCard{
-      background:rgba(15,21,48,.75);
-      border:1px solid rgba(255,255,255,.10);
+    @media(max-width:900px){.finalGrid{grid-template-columns:1fr}}
+    .finalCard{
+      background:rgba(35,49,91,.78);
+      border:1px solid rgba(255,255,255,.14);
       border-radius:16px;
       padding:10px;
     }
-    .previewHead{
-      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
-      margin-bottom:8px;
-    }
-    .previewTitle{font-weight:900}
-    .previewMeta{font-size:12px;color:var(--muted);opacity:.95}
-    .previewText{
-      width:100%;
-      min-height:180px;
-      background:var(--panel2);
+    .finalHead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    .finalTitle{font-weight:900}
+    .finalText{
+      margin-top:8px;
+      background:rgba(31,43,77,.75);
       border:1px solid rgba(255,255,255,.12);
-      border-radius:12px;
+      border-radius:14px;
       padding:10px;
-      color:var(--text);
-      font-size:13px;
-      line-height:1.6;
+      min-height:220px;
       white-space:pre-wrap;
       overflow:auto;
+      font-size:12.5px;
+      line-height:1.7;
+    }
+
+    /* ✅ 관련 링크 버튼 */
+    .linkRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .linkBtn{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:7px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(31,43,77,.55);
+      color:var(--muted);
+      font-weight:900;
+      font-size:12px;
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+<div class="wrap">
 
-    <div class="top">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:32px;height:32px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:900">B</div>
-        <div>
-          <div style="font-size:20px;font-weight:900;line-height:1">BaseOne ✨</div>
-          <div class="small">🧠 주제 카드 → ✍️ 프롬프트 생성 → 📦 발행요청 저장</div>
-        </div>
+  <div class="top">
+    <div class="brand">
+      <div class="logo">B</div>
+      <div>
+        <div class="title">BaseOne ✨</div>
+        <div class="subtitle">🧠 주제 선택 → ✨ AI 생성 → 🚀 즉시/예약 발행</div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <span class="pill">🛰️ 서버: <b id="sv">-</b></span>
-        <a href="/settings"><button class="btn">⚙️ 설정</button></a>
-        <button class="btn blue" onclick="makeMoney()">💰 수익형 주제 100</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span class="pill">🛰️ 서버 <b id="sv">-</b></span>
+      <a href="/settings"><button class="btn">⚙️ 설정</button></a>
+      <button class="btn primary" onclick="makeMoney()">💰 수익형 100</button>
+    </div>
+  </div>
+
+  <!-- 블로그 선택 -->
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>🗂️ 블로그 선택</b>
+        <div class="small">선택한 플랫폼(블로그스팟/네이버/티스토리)에 맞게 템플릿이 자동 적용돼요.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select id="blogSelect"></select>
+        <button class="btn" onclick="loadBlogsToSelect()">🔄</button>
+      </div>
+    </div>
+    <div class="small" style="margin-top:8px">✅ 현재 선택: <b id="blogNow">-</b></div>
+  </div>
+
+  <!-- 템플릿 -->
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>🧩 플랫폼별 프롬프트 템플릿</b>
+        <div class="small">위에서 템플릿 수정/저장하면, 생성 결과에 자동 적용돼요.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="saveTemplates()">💾 저장</button>
+        <button class="btn danger" onclick="resetTemplates()">♻️ 기본값</button>
       </div>
     </div>
 
-    <div class="box">
-      <div class="row">
-        <div>
-          <div class="secTitle">
-            <b>🗂️ 블로그 선택</b>
-            <span class="chip">blogspot / naver / tistory</span>
-          </div>
-          <div class="small">선택한 블로그 플랫폼에 맞게 템플릿이 자동 적용돼요.</div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <select id="blogSelect" style="min-width:320px"></select>
-          <button class="btn" onclick="loadBlogsToSelect()">🔄 새로고침</button>
-        </div>
-      </div>
-      <div class="small" style="margin-top:8px">
-        ✅ 현재 선택: <b id="blogNow">-</b>
-      </div>
+    <div class="small" style="margin-top:10px">
+      변수: <span class="chip">{{topic}}</span> <span class="chip">{{category}}</span>
+      <span class="chip">{{image_url}}</span> <span class="chip">{{body_prompt}}</span>
     </div>
 
-    <div class="box">
-      <div class="row">
-        <div>
-          <div class="secTitle">
-            <b>🧩 플랫폼별 프롬프트 템플릿</b>
-            <span class="chip">저장/수정 가능</span>
-          </div>
-          <div class="small">티스토리/네이버/블로그스팟 템플릿을 각각 저장해두고 쓰세요.</div>
-        </div>
-        <div class="tabs" id="promptTabs"></div>
-      </div>
-
-      <div class="mini" style="margin-top:10px">
-        변수:
-        <code>{{topic}}</code> <code>{{category}}</code> <code>{{title}}</code>
-        <code>{{image_url}}</code> <code>{{image_prompt}}</code> <code>{{body_prompt}}</code>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="small"><b>📝 본문 템플릿</b></div>
-        <textarea id="tplBody" style="min-height:150px"></textarea>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="small"><b>🖼️ 이미지 템플릿(선택)</b></div>
-        <textarea id="tplImage" style="min-height:105px"></textarea>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <div class="small">현재 적용: <b id="tplNow">-</b></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn" onclick="saveTemplates()">💾 저장</button>
-          <button class="btn gray" onclick="resetTemplates()">♻️ 기본값</button>
-        </div>
-      </div>
+    <div style="margin-top:10px">
+      <div class="small"><b>📝 본문 템플릿</b></div>
+      <textarea id="tplBody"></textarea>
     </div>
 
-    <div class="box">
-      <div class="row">
-        <div>
-          <div class="secTitle">
-            <b>🧠 주제 생성</b>
-            <span class="chip">검색/복사/즐겨찾기</span>
-          </div>
-          <div class="small">아래 카테고리를 선택하면 주제 목록이 생성됩니다.</div>
-        </div>
+    <div style="margin-top:10px">
+      <div class="small"><b>🖼️ 이미지 템플릿(선택)</b></div>
+      <textarea id="tplImage" style="min-height:120px"></textarea>
+    </div>
 
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <input id="filter" placeholder="🔎 주제 검색 (⭐만: star)" oninput="render()">
-          <button class="btn" onclick="copyAll()">📋 전체복사</button>
-          <button class="btn" onclick="showStarOnly()">⭐ 즐겨찾기만</button>
-          <button class="btn blue" onclick="aiGenerateSelected()">✨ AI 생성</button>
-        </div>
+    <div class="small" style="margin-top:10px">현재 적용: <b id="tplNow">-</b></div>
+  </div>
+
+  <!-- 주제 -->
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>🧠 주제 생성</b>
+        <div class="small">카테고리를 선택하면, 사람이 클릭하고 싶은 제목으로 목록이 생성돼요.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="filter" placeholder="🔎 검색 (⭐만: star)" oninput="render()">
+        <button class="btn" onclick="copyAll()">📋 전체복사</button>
+        <button class="btn" onclick="showStarOnly()">⭐</button>
+        <button class="btn primary" onclick="aiGenerateSelected()">✨ AI 생성</button>
       </div>
     </div>
 
     <div class="grid" id="catGrid"></div>
+  </div>
 
-    <div class="box">
-      <div class="row">
-        <div>
-          <div class="secTitle">
-            <b>📚 주제 목록</b>
-            <span class="chip">카드형</span>
-          </div>
-          <div class="small" id="selInfo">선택 주제: -</div>
-        </div>
-        <div class="hintBox small">✅ 블로그 바꾸고 다른 주제 선택 → 또 발행 가능!</div>
+  <!-- 주제 목록 -->
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>📚 주제 목록</b>
+        <div class="small" id="selInfo">선택 주제: -</div>
       </div>
+      <div class="hint small">✅ 주제를 선택한 뒤 “AI 생성”을 누르세요.</div>
+    </div>
 
-      <div class="topicScroll" id="topics"></div>
+    <div class="topicScroll" id="topics"></div>
+  </div>
 
-      <!-- ✅ 주제목록 아래 글작성 시작 -->
-      <div class="row" style="margin-top:10px">
-        <div class="small">✍️ 아래 버튼 → 로그 표시 + 템플릿 적용 결과 생성</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn blue" onclick="startWriting()">✍️ 글작성 시작</button>
-        </div>
+  <!-- 진행상황 -->
+  <div class="box" id="genBox">
+    <div class="row">
+      <b>🧾 진행 로그</b>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="toggleGenBox()">👀 토글</button>
+        <button class="btn danger" onclick="clearGenLog()">🧹 지우기</button>
       </div>
+    </div>
+    <div id="genLog"></div>
+  </div>
 
-      <!-- ✅ 미리보기 -->
-      <div id="previewBox" style="display:none; margin-top:10px;">
-        <div class="previewGrid">
-          <div class="previewCard">
-            <div class="previewHead">
-              <div>
-                <div class="previewTitle">📝 본문 프롬프트 미리보기</div>
-                <div class="previewMeta" id="previewMeta">-</div>
-              </div>
-              <button class="btn" onclick="copyText(document.getElementById('previewBody').textContent)">📋 본문 복사</button>
-            </div>
-            <div class="previewText" id="previewBody"></div>
-          </div>
-
-          <div class="previewCard">
-            <div class="previewHead">
-              <div>
-                <div class="previewTitle">🖼️ 이미지 프롬프트 미리보기</div>
-                <div class="previewMeta" id="previewMeta2">-</div>
-              </div>
-              <button class="btn" onclick="copyText(document.getElementById('previewImage').textContent)">📋 이미지 복사</button>
-            </div>
-            <div class="previewText" id="previewImage"></div>
-          </div>
-        </div>
+  <!-- ✅ 생성완료 “통 미리보기” -->
+  <div class="box" id="finalBox">
+    <div class="row">
+      <div>
+        <b>✅ 생성 완료 미리보기(통으로)</b>
+        <div class="small" id="finalMeta">-</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="copyText(document.getElementById('finalBody').textContent)">📋 본문 복사</button>
+        <button class="btn" onclick="copyText(document.getElementById('finalImage').textContent)">🖼️ 이미지 복사</button>
       </div>
     </div>
 
-    <div class="box" id="genBox" style="display:none; margin-top:12px;">
-      <div class="row">
-        <b>🧾 글작성 진행상황</b>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn gray" onclick="clearGenLog()">🧹 지우기</button>
-          <button class="btn" onclick="toggleGenBox()">👀 숨기기/보이기</button>
-        </div>
-      </div>
-      <div class="small" style="margin-top:8px;opacity:.9">로그는 “글작성 시작 / AI 생성” 시 자동으로 쌓입니다.</div>
-      <div id="genLog" style="
-          margin-top:10px;
-          background:#0f1530;
-          border:1px solid rgba(255,255,255,.10);
-          border-radius:14px;
-          padding:12px;
-          max-height:210px;
-          overflow:auto;
-          font-size:12.8px;
-          line-height:1.6;
-      "></div>
-    </div>
+    <div class="linkRow" id="linkRow"></div>
 
-    <div class="box">
-      <div class="secTitle">
+    <div class="finalGrid">
+      <div class="finalCard">
+        <div class="finalHead">
+          <div class="finalTitle">📝 본문 프롬프트</div>
+        </div>
+        <div class="finalText" id="finalBody"></div>
+      </div>
+      <div class="finalCard">
+        <div class="finalHead">
+          <div class="finalTitle">🖼️ 이미지 프롬프트</div>
+        </div>
+        <div class="finalText" id="finalImage"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 발행 -->
+  <div class="box">
+    <div class="row">
+      <div>
         <b>🚀 발행</b>
-        <span class="chip">요청 저장</span>
+        <div class="small">지금은 “실제 업로드”가 아니라 서버에 요청 저장 단계입니다(실제 업로드는 OAuth 붙이는 단계 필요).</div>
       </div>
-      <div class="small" style="margin-top:6px">※ 지금은 “실제 업로드”가 아니라, 서버에 “발행 요청을 저장”합니다.</div>
-
-      <div class="row" style="margin-top:10px">
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <button class="btn blue" onclick="scheduleDaily3()">📅 하루 3개 예약(08/13/18)</button>
-          <span class="small">⏰ 08:00 / 13:00 / 18:00</span>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <label class="small">⏱️ 시작</label>
-          <input id="startTime" type="time" value="09:00" style="min-width:130px">
-          <label class="small">↔️ 간격</label>
-          <select id="intervalHours" style="min-width:110px">
-            <option value="1">1시간</option><option value="2">2시간</option><option value="3">3시간</option>
-            <option value="4">4시간</option><option value="5">5시간</option><option value="6">6시간</option>
-          </select>
-          <button class="btn" onclick="publishNowInterval()">🚀 즉시 발행(간격)</button>
-        </div>
-        <div class="small">예) 09:00 시작 + 2시간 간격</div>
-      </div>
-
-      <div class="row" style="margin-top:14px">
-        <div>
-          <div class="secTitle">
-            <b>📦 발행요청 리스트</b>
-            <span class="chip">서버 저장분</span>
-          </div>
-          <div class="small">저장된 요청을 불러옵니다.</div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn" onclick="loadPublishList()">📥 불러오기</button>
-          <button class="btn gray" onclick="clearPublishList()">🧹 지우기</button>
-        </div>
-      </div>
-      <div id="publishList" style="margin-top:10px"></div>
-    </div>
-
-  </div>
-
-  <!-- 모달 -->
-  <div class="modalBg" id="modalBg">
-    <div class="modal">
-      <div class="row" style="justify-content:space-between">
-        <b>✨ AI 생성 결과</b>
-        <button class="btn gray" onclick="closeModal()">닫기</button>
-      </div>
-
-      <div class="box" style="margin:10px 0">
-        <div class="row">
-          <div class="small">제목</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn" onclick="copyText(document.getElementById('outTitle').textContent)">📋 제목 복사</button>
-            <button class="btn" onclick="copyText(document.getElementById('outImage').value)">🖼️ 이미지 복사</button>
-            <button class="btn blue" onclick="copyText(document.getElementById('outBody').value)">📝 본문 복사</button>
-          </div>
-        </div>
-        <div style="margin-top:6px;font-weight:bold" id="outTitle">-</div>
-        <div class="small" id="outMeta" style="margin-top:6px">-</div>
-      </div>
-
-      <div class="box" style="margin:10px 0">
-        <div class="small"><b>🖼️ 이미지 프롬프트(템플릿 적용)</b></div>
-        <textarea id="outImage"></textarea>
-      </div>
-
-      <div class="box" style="margin:10px 0">
-        <div class="small"><b>📝 본문 프롬프트(템플릿 적용)</b></div>
-        <textarea id="outBody"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <label class="small">⏱ 간격</label>
+        <select id="intervalHours" style="min-width:110px">
+          <option value="1">1시간</option><option value="2">2시간</option><option value="3">3시간</option>
+          <option value="4">4시간</option><option value="5">5시간</option><option value="6">6시간</option>
+        </select>
       </div>
     </div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn good" onclick="publishInstant()">🚀 즉시발행</button>
+      <button class="btn primary" onclick="publishWithInterval()">⏱ 즉시발행(예약)</button>
+      <button class="btn" onclick="loadPublishList()">📦 발행요청 리스트</button>
+    </div>
+
+    <div id="publishList" style="margin-top:10px"></div>
   </div>
 
-  <script>
-    // API_BASE
-    function getApiBase(){
-      const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
-      const base = (d.backend || "http://127.0.0.1:5000").trim();
-      return base.replace(/\/+$/,"");
-    }
-    const API_BASE = getApiBase();
-    document.addEventListener("DOMContentLoaded", ()=>{
-      const el = document.getElementById("sv");
-      if(el) el.textContent = API_BASE;
+</div>
+
+<script>
+  // API_BASE
+  function getApiBase(){
+    const d = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
+    const base = (d.backend || "http://127.0.0.1:5000").trim();
+    return base.replace(/\/+$/,"");
+  }
+  const API_BASE = getApiBase();
+  document.addEventListener("DOMContentLoaded", ()=> {
+    const el = document.getElementById("sv");
+    if(el) el.textContent = API_BASE;
+  });
+
+  // Utils
+  function escapeHtml(s){
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+  function escapeAttr(s){
+    return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
+  }
+  function safeStr(x){ return (x===undefined || x===null) ? "" : String(x); }
+  function applyTemplate(tpl, vars){
+    let out = safeStr(tpl);
+    Object.keys(vars).forEach(k=>{
+      out = out.replaceAll(`{{${k}}}`, safeStr(vars[k]));
     });
+    return out;
+  }
+  function copyText(t){ navigator.clipboard.writeText(t); alert("복사 완료!"); }
 
-    // Utils
-    function escapeHtml(s){
-      return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-    }
-    function escapeAttr(s){
-      return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
-    }
-    function safeStr(x){ return (x===undefined || x===null) ? "" : String(x); }
-    function applyTemplate(tpl, vars){
-      let out = safeStr(tpl);
-      Object.keys(vars).forEach(k=>{
-        out = out.replaceAll(`{{${k}}}`, safeStr(vars[k]));
-      });
-      return out;
-    }
-    function copyText(t){ navigator.clipboard.writeText(t); alert("복사 완료!"); }
+  // Logs
+  function showGenBox(){ document.getElementById("genBox").style.display = "block"; }
+  function toggleGenBox(){
+    const box = document.getElementById("genBox");
+    box.style.display = (box.style.display==="none" ? "block" : "none");
+  }
+  function addGenLine(icon, color, msg){
+    showGenBox();
+    const log = document.getElementById("genLog");
+    const t = new Date();
+    const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+    log.innerHTML += `<div style="color:${color}">${icon} <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+    log.scrollTop = log.scrollHeight;
+  }
+  function addGenLog(msg){ addGenLine("🟦","#f6f8ff",msg); }
+  function addGenOk(msg){ addGenLine("✅","#9ff5d2",msg); }
+  function addGenErr(msg){ addGenLine("❌","#ffb4b4",msg); }
+  function clearGenLog(){ document.getElementById("genLog").innerHTML = ""; }
 
-    // Logs
-    function showGenBox(){
-      const box = document.getElementById("genBox");
-      if(box) box.style.display = "block";
-    }
-    function toggleGenBox(){
-      const box = document.getElementById("genBox");
-      if(!box) return;
-      box.style.display = (box.style.display === "none" ? "block" : "none");
-    }
-    function addGenLine(icon, color, msg){
-      showGenBox();
-      const log = document.getElementById("genLog");
-      if(!log) return;
-      const t = new Date();
-      const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-      log.innerHTML += `<div style="color:${color}">${icon} <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
-      log.scrollTop = log.scrollHeight;
-    }
-    function addGenLog(msg){ addGenLine("🟦","#eef2ff",msg); }
-    function addGenOk(msg){ addGenLine("✅","#9ff5d2",msg); }
-    function addGenErr(msg){ addGenLine("❌","#ffb4b4",msg); }
-    function clearGenLog(){ const log=document.getElementById("genLog"); if(log) log.innerHTML=""; }
+  // Categories
+  const CATS=[
+    {k:"건강", s:"🏃 운동·영양"},
+    {k:"컴퓨터/IT", s:"💻 유틸·보안"},
+    {k:"자동차", s:"🚗 정비·보험"},
+    {k:"생활/가전", s:"🏠 살림·절약"},
+    {k:"육아", s:"🍼 육아·교육"},
+    {k:"돈/재테크", s:"💰 절약·세금"},
+    {k:"여행", s:"🧳 코스·꿀팁"},
+    {k:"요리", s:"🍳 레시피"},
+    {k:"자기계발", s:"📈 습관"},
+    {k:"공부/자격증", s:"📚 합격"},
+    {k:"반려동물", s:"🐶 케어"},
+    {k:"패션/뷰티", s:"💄 관리"},
+    {k:"취미", s:"🎨 DIY"},
+    {k:"스포츠", s:"🏋️ 루틴"},
+    {k:"게임", s:"🎮 팁"},
+    {k:"영화/드라마", s:"🎬 리뷰"}
+  ];
 
-    // Categories
-    const CATS=[
-      {k:"건강", s:"🏃 운동·영양·생활"},
-      {k:"컴퓨터/IT", s:"💻 유틸·보안·가이드"},
-      {k:"자동차", s:"🚗 정비·보험·팁"},
-      {k:"생활/가전", s:"🏠 살림·가전·절약"},
-      {k:"육아", s:"🍼 육아템·교육"},
-      {k:"돈/재테크", s:"💰 절약·투자·세금"},
-      {k:"여행", s:"🧳 코스·꿀팁"},
-      {k:"요리", s:"🍳 레시피·장보기"},
-      {k:"자기계발", s:"📈 습관·목표"},
-      {k:"공부/자격증", s:"📚 시험·합격"},
-      {k:"반려동물", s:"🐶 케어·용품"},
-      {k:"패션/뷰티", s:"💄 관리·추천"},
-      {k:"취미", s:"🎨 DIY·취미"},
-      {k:"스포츠", s:"🏋️ 루틴·운동"},
-      {k:"게임", s:"🎮 리뷰·팁"},
-      {k:"영화/드라마", s:"🎬 추천·리뷰"}
+  let topics=[];
+  let selectedTopic="";
+  let selectedCat="";
+
+  // Stars
+  const STAR_KEY="baseone_fav_topics_v1";
+  function getStars(){ try{ const s=JSON.parse(localStorage.getItem(STAR_KEY)||"[]"); return Array.isArray(s)?s:[]; }catch(e){ return []; } }
+  function setStars(arr){ localStorage.setItem(STAR_KEY, JSON.stringify(arr)); }
+  function isStar(t){ return getStars().includes(t); }
+  function toggleStar(t){
+    const s=getStars(); const i=s.indexOf(t);
+    if(i>=0) s.splice(i,1); else s.unshift(t);
+    setStars(s.slice(0,300)); render();
+  }
+  function showStarOnly(){ document.getElementById("filter").value="star"; render(); }
+
+  // Build grid
+  const grid=document.getElementById("catGrid");
+  CATS.forEach(obj=>{
+    const d=document.createElement("div");
+    d.className="cat";
+    d.onclick=()=>makeTopics(obj.k);
+    d.innerHTML = `
+      <div>
+        <b>${obj.k}</b>
+        <div class="desc">${obj.s}</div>
+      </div>
+      <span class="badge">30</span>
+    `;
+    grid.appendChild(d);
+  });
+
+  // ✅ 사람답게 주제 생성
+  const SAMPLE={
+    "건강":[
+      "면역력 높이는 생활습관 7가지",
+      "피로가 안 풀릴 때 꼭 확인할 것",
+      "아침에 개운해지는 루틴 만들기",
+      "장 건강 좋아지는 식습관",
+      "스트레스 줄이는 생활 팁",
+      "혈압/혈당 관리에 도움 되는 식단",
+      "건강검진 결과표 보는 핵심 포인트",
+      "수면의 질 올리는 환경 세팅법"
+    ],
+    "육아":[
+      "아이 수면습관 잡는 현실 팁",
+      "떼쓰는 아이 대처법(상황별)",
+      "초보 부모 체크리스트(필수템/주의점)",
+      "편식 줄이는 식사 루틴",
+      "어린이집 적응을 돕는 대화법",
+      "육아 스트레스 관리 루틴",
+      "아이 감기 자주 걸릴 때 확인할 것"
+    ],
+    "돈/재테크":[
+      "통신비/보험료 줄이는 순서",
+      "초보가 하기 쉬운 예산관리 방법",
+      "카드 혜택 최대로 받는 사용법",
+      "연말정산에서 놓치기 쉬운 항목",
+      "비상금 통장 만드는 가장 쉬운 방법"
+    ]
+  };
+
+  function makeTopics(cat){
+    selectedCat=cat;
+    topics=[];
+    if(SAMPLE[cat]){
+      topics = SAMPLE[cat].slice();
+      // 샘플이 적으면 자동 확장
+      while(topics.length<30){
+        topics.push(`${cat}에서 사람들이 가장 많이 검색하는 주제 ${topics.length+1}`);
+      }
+    }else{
+      for(let i=1;i<=30;i++){
+        topics.push(`${cat}에서 사람들이 가장 많이 검색하는 주제 ${i}`);
+      }
+    }
+    selectedTopic = topics[0] || "";
+    updateSel(); render();
+  }
+
+  function makeMoney(){
+    selectedCat="수익형";
+    const base=[
+      "보험료 줄이기","신용카드 추천","통신비 절약","전기요금 절약","가스요금 절약",
+      "대출 이자","연금/IRP","세금 절약","자동차보험","중고차"
     ];
-
-    let topics=[];
-    let selectedTopic="";
-    let selectedCat="";
-
-    // Stars
-    const STAR_KEY = "baseone_fav_topics_v1";
-    function getStars(){
-      try{
-        const s = JSON.parse(localStorage.getItem(STAR_KEY) || "[]");
-        return Array.isArray(s) ? s : [];
-      }catch(e){ return []; }
+    topics=[];
+    for(let i=1;i<=30;i++){
+      topics.push(`${base[i%base.length]}: 사람들이 가장 많이 묻는 것 ${i}`);
     }
-    function setStars(arr){ localStorage.setItem(STAR_KEY, JSON.stringify(arr)); }
-    function isStar(t){ return getStars().includes(t); }
-    function toggleStar(t){
-      const s = getStars();
-      const idx = s.indexOf(t);
-      if(idx>=0) s.splice(idx,1);
-      else s.unshift(t);
-      setStars(s.slice(0,300));
-      render();
-    }
-    function showStarOnly(){
-      document.getElementById("filter").value = "star";
-      render();
+    selectedTopic=topics[0]||"";
+    updateSel(); render();
+  }
+
+  function updateSel(){
+    document.getElementById("selInfo").textContent = `선택 주제: ${selectedTopic || "-"}`;
+  }
+  function setSelected(t){ selectedTopic=t; updateSel(); }
+
+  function render(){
+    const q=(document.getElementById("filter").value||"").trim().toLowerCase();
+    const list=document.getElementById("topics");
+    list.innerHTML="";
+
+    let filtered=topics;
+    if(q==="star"){
+      filtered=getStars().slice();
+      if(!filtered.length){
+        list.innerHTML=`<div class="small">⭐ 즐겨찾기 없음</div>`;
+        return;
+      }
+    }else if(q){
+      filtered = topics.filter(t=>t.toLowerCase().includes(q));
     }
 
-    // Build category grid
-    const grid = document.getElementById("catGrid");
-    CATS.forEach(obj=>{
+    filtered.forEach(t=>{
+      const starOn=isStar(t);
       const d=document.createElement("div");
-      d.className="cat";
-      d.onclick=()=>makeTopics(obj.k);
-      d.innerHTML = `
-        <div>
-          <b>${obj.k}</b>
-          <div class="small">${obj.s}</div>
+      d.className="card";
+      d.innerHTML=`
+        <div style="flex:1">
+          <div class="cardTitle">${starOn?"⭐":"☆"} ${escapeHtml(t)}</div>
+          <div class="meta">${selectedCat?`🏷️ ${escapeHtml(selectedCat)}`:""}</div>
         </div>
-        <span class="badge">50</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="starBtn ${starOn?"on":""}" onclick="toggleStar('${escapeAttr(t)}')">${starOn?"⭐":"☆"}</button>
+          <button class="btn" onclick="setSelected('${escapeAttr(t)}')">선택</button>
+          <button class="btn" onclick="copyText('${escapeAttr(t)}')">복사</button>
+        </div>
       `;
-      grid.appendChild(d);
+      list.appendChild(d);
+    });
+  }
+
+  function copyAll(){
+    if(!topics.length){alert("주제 없음");return;}
+    navigator.clipboard.writeText(topics.join("\n"));
+    alert("전체 복사 완료!");
+  }
+
+  // Blogs select
+  function loadBlogsToSelect(){
+    const sel=document.getElementById("blogSelect");
+    const now=document.getElementById("blogNow");
+    sel.innerHTML="";
+
+    const s=JSON.parse(localStorage.getItem("baseone_settings_v2")||"{}");
+    const blogs=s.blogs||{blogspot:[],naver:[],tistory:[]};
+
+    const options=[];
+    (blogs.blogspot||[]).filter(Boolean).forEach((u,i)=>options.push({type:"blogspot",url:u,label:`🟦 블로그스팟 ${i+1} - ${u}`}));
+    (blogs.naver||[]).filter(Boolean).forEach((u,i)=>options.push({type:"naver",url:u,label:`🟩 네이버 ${i+1} - ${u}`}));
+    (blogs.tistory||[]).filter(Boolean).forEach((u,i)=>options.push({type:"tistory",url:u,label:`🟧 티스토리 ${i+1} - ${u}`}));
+
+    if(!options.length){
+      const opt=document.createElement("option");
+      opt.value=""; opt.textContent="저장된 블로그 주소 없음 → 설정에서 저장";
+      sel.appendChild(opt); now.textContent="-";
+      return;
+    }
+
+    options.forEach(o=>{
+      const opt=document.createElement("option");
+      opt.value=JSON.stringify({type:o.type,url:o.url});
+      opt.textContent=o.label;
+      sel.appendChild(opt);
     });
 
-    function makeTopics(cat){
-      selectedCat = cat;
-      topics=[];
-      for(let i=1;i<=50;i++) topics.push(`${cat} 글 아이디어 ${i}`);
-      selectedTopic = topics[0] || "";
-      updateSel();
-      render();
+    const last=localStorage.getItem("baseone_last_blog");
+    if(last){
+      for(let i=0;i<sel.options.length;i++){
+        if(sel.options[i].value===last){sel.selectedIndex=i;break;}
+      }
     }
+    updateBlogNow();
+  }
 
-    function makeMoney(){
-      topics=[];
-      selectedCat = "수익형";
-      const base=[
-        "보험","카드","통신비","전기요금","가스요금","렌탈","대출","이자","세금","연금",
-        "다이어트","영양제","탈모","피부","건강검진","육아템","가전","청소","자동차보험","중고차"
-      ];
-      for(let i=1;i<=100;i++) topics.push(`수익형 주제 ${i}: ${base[i%base.length]}`);
-      selectedTopic = topics[0] || "";
-      updateSel();
-      render();
-    }
+  function updateBlogNow(){
+    const sel=document.getElementById("blogSelect");
+    const now=document.getElementById("blogNow");
+    const v=sel.value;
+    if(!v){ now.textContent="-"; return; }
+    localStorage.setItem("baseone_last_blog", v);
+    try{
+      const obj=JSON.parse(v);
+      now.textContent=`${obj.type} / ${obj.url}`;
+      setPromptTab(obj.type);
+    }catch(e){ now.textContent="-"; }
+  }
 
-    function updateSel(){
-      document.getElementById("selInfo").textContent = `선택 주제: ${selectedTopic ? selectedTopic : "-"}`;
-    }
+  document.addEventListener("change",(e)=>{
+    if(e.target && e.target.id==="blogSelect") updateBlogNow();
+  });
 
-    function setSelected(t){ selectedTopic = t; updateSel(); }
+  loadBlogsToSelect();
 
-    function render(){
-      const q=(document.getElementById("filter").value||"").trim().toLowerCase();
-      const list=document.getElementById("topics");
-      list.innerHTML="";
+  // Templates
+  const PROMPT_KEY="baseone_prompts_v1";
+  const PLATFORMS=[
+    {k:"blogspot",label:"🟦 블로그스팟"},
+    {k:"naver",label:"🟩 네이버"},
+    {k:"tistory",label:"🟧 티스토리"},
+  ];
+  let currentPlatform="blogspot";
 
-      let filtered = topics;
+  function defaultTemplates(){
+    return {
+      blogspot:{
+        body:`너는 블로그스팟 전문 작가야.
+주제: {{topic}}
+카테고리: {{category}}
 
-      if(q === "star"){
-        const s = getStars();
-        filtered = s.slice();
-        if(!filtered.length){
-          list.innerHTML = `<div class="small">⭐ 즐겨찾기한 주제가 아직 없어요. 주제 카드에서 ⭐ 버튼을 눌러보세요.</div>`;
-          return;
-        }
-      }else if(q){
-        filtered = topics.filter(t=>t.toLowerCase().includes(q));
+[기본 본문 프롬프트]
+{{body_prompt}}`,
+        image:`[이미지 프롬프트/URL]
+{{image_prompt}}
+{{image_url}}`
+      },
+      naver:{
+        body:`너는 네이버 블로그 전문 작가야.
+주제: {{topic}}
+카테고리: {{category}}
+
+[기본 본문 프롬프트]
+{{body_prompt}}`,
+        image:`[이미지 프롬프트/URL]
+{{image_prompt}}
+{{image_url}}`
+      },
+      tistory:{
+        body:`너는 티스토리 전문 작가야.
+주제: {{topic}}
+카테고리: {{category}}
+
+[기본 본문 프롬프트]
+{{body_prompt}}`,
+        image:`[이미지 프롬프트/URL]
+{{image_prompt}}
+{{image_url}}`
+      }
+    };
+  }
+
+  function getTemplates(){
+    try{
+      const saved=JSON.parse(localStorage.getItem(PROMPT_KEY)||"null");
+      if(saved && typeof saved==="object") return saved;
+    }catch(e){}
+    const d=defaultTemplates();
+    localStorage.setItem(PROMPT_KEY, JSON.stringify(d));
+    return d;
+  }
+  function setTemplates(obj){ localStorage.setItem(PROMPT_KEY, JSON.stringify(obj)); }
+
+  function setPromptTab(k){
+    currentPlatform=k;
+    const tpls=getTemplates();
+    const body=(tpls[k]&&tpls[k].body)?tpls[k].body:"";
+    const image=(tpls[k]&&tpls[k].image)?tpls[k].image:"";
+    document.getElementById("tplBody").value=body;
+    document.getElementById("tplImage").value=image;
+    document.getElementById("tplNow").textContent = (PLATFORMS.find(p=>p.k===k)?.label || k);
+  }
+  function saveTemplates(){
+    const t=getTemplates();
+    t[currentPlatform]=t[currentPlatform]||{};
+    t[currentPlatform].body=document.getElementById("tplBody").value||"";
+    t[currentPlatform].image=document.getElementById("tplImage").value||"";
+    setTemplates(t);
+    alert("저장 완료!");
+  }
+  function resetTemplates(){
+    const d=defaultTemplates();
+    setTemplates(d);
+    setPromptTab(currentPlatform);
+    alert("기본값 복구 완료!");
+  }
+  setPromptTab(currentPlatform);
+
+  function getSelectedBlog(){
+    const v=document.getElementById("blogSelect").value;
+    if(!v) return null;
+    try{ return JSON.parse(v); }catch(e){ return null; }
+  }
+
+  // ✅ AI 생성
+  async function aiGenerateSelected(){
+    if(!selectedTopic){ alert("주제를 먼저 선택하세요!"); return; }
+
+    const blog=getSelectedBlog();
+    const blogType=blog?.type||"blogspot";
+    setPromptTab(blogType);
+
+    // ✅ 이전 미리보기 박스 “없애기”
+    document.getElementById("finalBox").style.display="none";
+
+    showGenBox();
+    addGenLog(`🛰️ 서버: ${API_BASE}`);
+    addGenLog(`🗂️ 블로그: ${blogType}`);
+    addGenLog(`🧠 주제: ${selectedTopic}`);
+    addGenLog(`🏷️ 카테고리: ${selectedCat || "-"}`);
+    addGenLog("1) 생성 요청 전송");
+    addGenLog("2) 응답 대기");
+
+    const s=JSON.parse(localStorage.getItem("baseone_settings_v2")||"{}");
+    const payload={
+      topic:selectedTopic,
+      category:selectedCat,
+      blog:blogType,
+      img_provider:(s.imgProvider||"pexels"),
+      pexels_key:(s.pexelsKey||"")
+    };
+
+    try{
+      const res=await fetch(API_BASE+"/api/generate",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      });
+      if(!res.ok){
+        const t=await res.text();
+        addGenErr("❌ 생성 실패: "+t);
+        alert("생성 실패: "+t);
+        return;
+      }
+      addGenLog("3) 응답 수신");
+      const data=await res.json();
+
+      if(data.image_url){
+        addGenOk("4) 이미지 URL 확인 완료");
+      }else{
+        addGenLog("4) 이미지 URL 없음(검색 0건 가능)");
       }
 
-      filtered.forEach(t=>{
-        const starOn = isStar(t);
-        const d=document.createElement("div");
-        d.className="card";
-        d.innerHTML = `
-          <div style="flex:1">
-            <div class="cardTitle">
-              <span>${starOn ? "⭐" : "☆"}</span>
-              <div>${escapeHtml(t)}</div>
+      addGenLog("5) 템플릿 적용");
+      addGenOk("✅ 생성 완료");
+
+      renderFinalPreview(data, blogType);
+
+    }catch(e){
+      addGenErr("❌ 서버 연결 실패");
+      alert("서버 연결 실패! 설정의 서버 주소(API_BASE)를 확인하세요.");
+    }
+  }
+
+  function renderFinalPreview(data, blogType){
+    const tpls=getTemplates();
+    const tpl=(tpls[blogType]||tpls["blogspot"]||{body:"{{body_prompt}}",image:"{{image_prompt}}\n{{image_url}}"});
+
+    const vars={
+      topic:data.topic||selectedTopic||"",
+      category:data.category||selectedCat||"",
+      image_url:data.image_url||"",
+      body_prompt:data.body_prompt||"",
+      image_prompt:data.image_prompt||""
+    };
+
+    const appliedBody=applyTemplate(tpl.body||"{{body_prompt}}",vars);
+    const appliedImage=applyTemplate(tpl.image||"{{image_prompt}}\n{{image_url}}",vars);
+
+    document.getElementById("finalMeta").textContent =
+      `🧠 ${vars.topic} / 🏷️ ${vars.category} / 🗂️ ${blogType} / ⏱️ ${data.generated_at || ""}`;
+
+    document.getElementById("finalBody").textContent = appliedBody;
+    document.getElementById("finalImage").textContent = appliedImage;
+
+    // ✅ 관련 링크 버튼(네모 박스 버튼식)
+    const q=encodeURIComponent(`${vars.topic} ${vars.category}`.trim());
+    const links=[
+      {label:"🔎 구글", url:`https://www.google.com/search?q=${q}`},
+      {label:"📰 뉴스", url:`https://www.google.com/search?q=${q}+site:news`},
+      {label:"📌 네이버", url:`https://search.naver.com/search.naver?query=${q}`},
+      {label:"▶️ 유튜브", url:`https://www.youtube.com/results?search_query=${q}`},
+      {label:"🖼️ 이미지", url:`https://www.google.com/search?tbm=isch&q=${q}`},
+    ];
+    const row=document.getElementById("linkRow");
+    row.innerHTML = links.map(l=>`<a class="linkBtn" href="${l.url}" target="_blank" rel="noopener noreferrer">${l.label}</a>`).join("");
+
+    document.getElementById("finalBox").style.display="block";
+  }
+
+  // ✅ 발행 버튼 2개
+  async function publishInstant(){
+    const blog=getSelectedBlog();
+    if(!blog || !selectedTopic){ alert("블로그와 주제를 선택하세요"); return; }
+    showGenBox();
+    addGenLog("🚀 즉시발행 클릭");
+    addGenLog("⚠️ 현재는 서버에 저장 단계(OAuth 붙이면 실제 업로드 가능)");
+
+    // 서버에 endpoint가 아직 없으면 “저장”만 하도록 기존 now endpoint 사용
+    const payload={
+      blog_type:blog.type,
+      blog_url:blog.url,
+      category:selectedCat,
+      topic:selectedTopic,
+      start_time:"NOW",
+      interval_hours:"0"
+    };
+
+    try{
+      const res=await fetch(API_BASE+"/api/publish/now",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      });
+      const j=await res.json();
+      addGenOk("✅ 즉시발행 요청 저장 완료");
+      alert(j.message || "저장 완료");
+      loadPublishList();
+    }catch(e){
+      addGenErr("❌ 서버 연결 실패");
+      alert("서버 연결 실패!");
+    }
+  }
+
+  async function publishWithInterval(){
+    const blog=getSelectedBlog();
+    if(!blog || !selectedTopic){ alert("블로그와 주제를 선택하세요"); return; }
+    const interval_hours=document.getElementById("intervalHours").value;
+    showGenBox();
+    addGenLog("⏱ 즉시발행(예약) 클릭");
+    addGenLog("✅ 1개는 즉시, 2번째부터 간격으로 저장됩니다(서버 로직 적용 필요)");
+
+    const payload={
+      blog_type:blog.type,
+      blog_url:blog.url,
+      category:selectedCat,
+      topic:selectedTopic,
+      start_time:"NOW",
+      interval_hours
+    };
+
+    try{
+      const res=await fetch(API_BASE+"/api/publish/now",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      });
+      const j=await res.json();
+      addGenOk("✅ 예약 요청 저장 완료");
+      alert(j.message || "저장 완료");
+      loadPublishList();
+    }catch(e){
+      addGenErr("❌ 서버 연결 실패");
+      alert("서버 연결 실패!");
+    }
+  }
+
+  // Publish list
+  function fmtMaybe(o, keys){ for(const k of keys){ if(o && o[k]) return String(o[k]); } return "-"; }
+
+  async function loadPublishList(){
+    const box=document.getElementById("publishList");
+    box.innerHTML=`<div class="small">불러오는 중…</div>`;
+    try{
+      const res=await fetch(API_BASE+"/api/publish/list");
+      const data=await res.json();
+      const items=data.items||[];
+      if(!items.length){ box.innerHTML=`<div class="small">요청 0개</div>`; return; }
+
+      let html=`<div class="small">총 <b>${items.length}</b>개</div>`;
+      items.slice().reverse().forEach(it=>{
+        html += `
+          <div class="box" style="margin-top:8px">
+            <b>📝 ${escapeHtml(fmtMaybe(it,["topic"]))}</b>
+            <div class="small" style="margin-top:6px;line-height:1.6">
+              🗂️ ${escapeHtml(fmtMaybe(it,["blog_type"]))} / 🔗 ${escapeHtml(fmtMaybe(it,["blog_url"]))}<br/>
+              🏷️ ${escapeHtml(fmtMaybe(it,["category"]))} / ⏱️ ${escapeHtml(fmtMaybe(it,["created_at"]))}
             </div>
-            <div class="small">${selectedCat ? `🏷️ ${selectedCat}` : ""}</div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            <button class="starBtn ${starOn ? "on":""}" onclick="toggleStar('${escapeAttr(t)}')">${starOn ? "⭐ 저장됨" : "☆ 즐겨찾기"}</button>
-            <button class="btn" onclick="setSelected('${escapeAttr(t)}')">✅ 선택</button>
-            <button class="btn" onclick="copyText('${escapeAttr(t)}')">📋 복사</button>
           </div>
         `;
-        list.appendChild(d);
       });
+      box.innerHTML=html;
+    }catch(e){
+      box.innerHTML=`<div class="small" style="color:#ffb4b4">서버 연결 실패</div>`;
     }
-
-    function copyAll(){
-      if(!topics.length){alert("주제 없음");return;}
-      navigator.clipboard.writeText(topics.join("\n"));
-      alert("전체 복사 완료!");
-    }
-
-    // Blogs select
-    function loadBlogsToSelect(){
-      const sel = document.getElementById("blogSelect");
-      const now = document.getElementById("blogNow");
-      sel.innerHTML = "";
-
-      const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
-      const blogs = s.blogs || { blogspot:[], naver:[], tistory:[] };
-
-      const options = [];
-      (blogs.blogspot||[]).filter(Boolean).forEach((u,i)=> options.push({type:"blogspot", url:u, label:`🟦 블로그스팟 ${i+1} - ${u}`}));
-      (blogs.naver||[]).filter(Boolean).forEach((u,i)=> options.push({type:"naver", url:u, label:`🟩 네이버 ${i+1} - ${u}`}));
-      (blogs.tistory||[]).filter(Boolean).forEach((u,i)=> options.push({type:"tistory", url:u, label:`🟧 티스토리 ${i+1} - ${u}`}));
-
-      if(options.length===0){
-        const opt=document.createElement("option");
-        opt.value="";
-        opt.textContent="저장된 블로그 주소 없음 → 설정에서 저장하세요";
-        sel.appendChild(opt);
-        now.textContent = "-";
-        return;
-      }
-
-      options.forEach(o=>{
-        const opt=document.createElement("option");
-        opt.value = JSON.stringify({type:o.type, url:o.url});
-        opt.textContent = o.label;
-        sel.appendChild(opt);
-      });
-
-      const last = localStorage.getItem("baseone_last_blog");
-      if(last){
-        for(let i=0;i<sel.options.length;i++){
-          if(sel.options[i].value === last){ sel.selectedIndex = i; break; }
-        }
-      }
-      updateBlogNow();
-    }
-
-    function updateBlogNow(){
-      const sel = document.getElementById("blogSelect");
-      const now = document.getElementById("blogNow");
-      const v = sel.value;
-      if(!v){ now.textContent="-"; return; }
-      localStorage.setItem("baseone_last_blog", v);
-      try{
-        const obj = JSON.parse(v);
-        now.textContent = `${obj.type} / ${obj.url}`;
-        setPromptTab(obj.type);
-      }catch(e){
-        now.textContent = "-";
-      }
-    }
-
-    document.addEventListener("change",(e)=>{
-      if(e.target && e.target.id==="blogSelect"){ updateBlogNow(); }
-    });
-
-    loadBlogsToSelect();
-
-    // Prompt templates
-    const PROMPT_KEY = "baseone_prompts_v1";
-    const PLATFORMS = [
-      {k:"blogspot", label:"🟦 블로그스팟"},
-      {k:"naver", label:"🟩 네이버"},
-      {k:"tistory", label:"🟧 티스토리"},
-    ];
-    let currentPlatform = "blogspot";
-
-    function defaultTemplates(){
-      return {
-        blogspot:{
-          body:
-`너는 블로그스팟 전문 작가야.
-주제: {{topic}}
-카테고리: {{category}}
-
-아래 프롬프트를 바탕으로 SEO에 강한 한국어 글을 작성해줘.
-- 도입 3~5문장(후킹)
-- 소제목(H2) 5~7개
-- 체크리스트/표 1개
-- 결론 + CTA 2문장
-- 과장/허위 금지
-
-[기본 본문 프롬프트]
-{{body_prompt}}`,
-          image:
-`대표 이미지 안내:
-- 16:9 권장, 밝고 깔끔한 썸네일
-- 텍스트 최소
-
-[기본 이미지 프롬프트/URL]
-{{image_prompt}}
-{{image_url}}`
-        },
-        naver:{
-          body:
-`너는 네이버 블로그 전문 작가야.
-주제: {{topic}}
-카테고리: {{category}}
-
-네이버 스타일로 가독성 있게 작성해줘.
-- 짧은 문장/줄바꿈 자주
-- 소제목(H2) 5~7개
-- 핵심 요약 박스 1개
-- 마지막에 Q&A 3개
-
-[기본 본문 프롬프트]
-{{body_prompt}}`,
-          image:
-`네이버용 대표 이미지:
-- 깔끔한 사진 느낌
-- 과한 효과 금지
-
-[기본 이미지 프롬프트/URL]
-{{image_prompt}}
-{{image_url}}`
-        },
-        tistory:{
-          body:
-`너는 티스토리 전문 작가야.
-주제: {{topic}}
-카테고리: {{category}}
-
-티스토리/구글 검색에 강한 구성으로 작성해줘.
-- 목차(TOC) 만들 수 있게 구조화
-- 소제목(H2) 6개 내외
-- 중간에 "요약" 섹션
-- 마지막에 내부링크 유도
-
-[기본 본문 프롬프트]
-{{body_prompt}}`,
-          image:
-`티스토리 대표 이미지:
-- 심플/고급/여백
-- 1200px 이상 권장
-
-[기본 이미지 프롬프트/URL]
-{{image_prompt}}
-{{image_url}}`
-        }
-      };
-    }
-
-    function getTemplates(){
-      try{
-        const saved = JSON.parse(localStorage.getItem(PROMPT_KEY) || "null");
-        if(saved && typeof saved === "object") return saved;
-      }catch(e){}
-      const d = defaultTemplates();
-      localStorage.setItem(PROMPT_KEY, JSON.stringify(d));
-      return d;
-    }
-    function setTemplates(obj){ localStorage.setItem(PROMPT_KEY, JSON.stringify(obj)); }
-
-    function renderPromptTabs(){
-      const wrap = document.getElementById("promptTabs");
-      wrap.innerHTML = "";
-      PLATFORMS.forEach(p=>{
-        const b = document.createElement("button");
-        b.className = "tab" + (p.k===currentPlatform ? " active": "");
-        b.textContent = p.label;
-        b.onclick = ()=> setPromptTab(p.k);
-        wrap.appendChild(b);
-      });
-    }
-
-    function setPromptTab(k){
-      if(!PLATFORMS.some(p=>p.k===k)) return;
-      currentPlatform = k;
-      const tpls = getTemplates();
-      const body = (tpls[k] && tpls[k].body) ? tpls[k].body : "";
-      const image = (tpls[k] && tpls[k].image) ? tpls[k].image : "";
-      document.getElementById("tplBody").value = body;
-      document.getElementById("tplImage").value = image;
-      document.getElementById("tplNow").textContent = PLATFORMS.find(p=>p.k===k)?.label || k;
-      renderPromptTabs();
-    }
-
-    function saveTemplates(){
-      const tpls = getTemplates();
-      tpls[currentPlatform] = tpls[currentPlatform] || {};
-      tpls[currentPlatform].body = document.getElementById("tplBody").value || "";
-      tpls[currentPlatform].image = document.getElementById("tplImage").value || "";
-      setTemplates(tpls);
-      alert("저장 완료!");
-    }
-
-    function resetTemplates(){
-      const d = defaultTemplates();
-      setTemplates(d);
-      setPromptTab(currentPlatform);
-      alert("기본값으로 복구 완료!");
-    }
-
-    renderPromptTabs();
-    setPromptTab(currentPlatform);
-
-    function getSelectedBlog(){
-      const v = document.getElementById("blogSelect").value;
-      if(!v) return null;
-      try{ return JSON.parse(v); }catch(e){ return null; }
-    }
-
-    // Writing
-    function startWriting(){
-      if(!selectedTopic){
-        alert("먼저 주제를 선택하세요!");
-        return;
-      }
-      showGenBox();
-      addGenLog("✍️ 글작성 시작 클릭");
-      addGenLog("🧩 선택 블로그 타입 템플릿 적용 후 생성합니다…");
-      aiGenerateSelected();
-    }
-
-    async function aiGenerateSelected(){
-      if(!selectedTopic){ alert("먼저 주제를 선택하세요!"); return; }
-
-      const blog = getSelectedBlog();
-      const blogType = blog?.type || "blogspot";
-      setPromptTab(blogType);
-
-      addGenLog(`🛰️ 서버: ${API_BASE}`);
-      addGenLog(`🗂️ 블로그: ${blogType}`);
-      addGenLog(`🧠 주제: ${selectedTopic}`);
-      addGenLog(`🏷️ 카테고리: ${selectedCat || "-"}`);
-
-      const s = JSON.parse(localStorage.getItem("baseone_settings_v2") || "{}");
-      const payload = {
-        topic: selectedTopic,
-        category: selectedCat,
-        blog: blogType,
-        img_provider: (s.imgProvider || "pexels"),
-        pexels_key: (s.pexelsKey || "")
-      };
-
-      addGenLog("📡 /api/generate 요청 중…");
-
-      try{
-        const res = await fetch(API_BASE + "/api/generate", {
-          method:"POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify(payload)
-        });
-
-        if(!res.ok){
-          const t = await res.text();
-          addGenErr("❌ AI 생성 실패: " + t);
-          alert("생성 실패: " + t);
-          return;
-        }
-
-        addGenLog("📥 응답 수신 중…");
-        const data = await res.json();
-
-        if(data.image_url){
-          addGenOk("🖼️ 이미지 URL 찾음");
-          addGenLog(data.image_url);
-        }else{
-          addGenLog("🖼️ 이미지 URL 없음(검색 0건일 수 있음)");
-        }
-
-        addGenOk("✅ 프롬프트 생성 완료(템플릿 적용)");
-        openModalWithTemplates(data, blogType);
-        renderPreviewWithTemplates(data, blogType);
-
-      }catch(e){
-        addGenErr("❌ 서버 연결 실패");
-        alert("서버 연결 실패! 설정의 서버 주소(API_BASE)가 맞는지 확인하세요.");
-      }
-    }
-
-    function openModalWithTemplates(data, blogType){
-      const tpls = getTemplates();
-      const tpl = (tpls[blogType] || tpls["blogspot"] || {body:"{{body_prompt}}", image:"{{image_prompt}}\n{{image_url}}"});
-
-      const vars = {
-        topic: data.topic || selectedTopic || "",
-        category: data.category || selectedCat || "",
-        title: data.title || "",
-        image_url: data.image_url || "",
-        image_prompt: data.image_prompt || "",
-        body_prompt: data.body_prompt || ""
-      };
-
-      const appliedBody = applyTemplate(tpl.body || "{{body_prompt}}", vars);
-      const appliedImage = applyTemplate(tpl.image || "{{image_prompt}}\n{{image_url}}", vars);
-
-      document.getElementById("outTitle").textContent = data.title || "-";
-      document.getElementById("outMeta").textContent =
-        `🧠 ${vars.topic} / 🏷️ ${vars.category} / 🗂️ ${blogType} / ⏱️ ${data.generated_at || ""}`;
-
-      document.getElementById("outImage").value = appliedImage;
-      document.getElementById("outBody").value = appliedBody;
-      document.getElementById("modalBg").style.display="block";
-    }
-
-    function renderPreviewWithTemplates(data, blogType){
-      const box = document.getElementById("previewBox");
-      if(!box) return;
-
-      const tpls = getTemplates();
-      const tpl = (tpls[blogType] || tpls["blogspot"] || {body:"{{body_prompt}}", image:"{{image_prompt}}\n{{image_url}}"});
-
-      const vars = {
-        topic: data.topic || selectedTopic || "",
-        category: data.category || selectedCat || "",
-        title: data.title || "",
-        image_url: data.image_url || "",
-        image_prompt: data.image_prompt || "",
-        body_prompt: data.body_prompt || ""
-      };
-
-      const appliedBody = applyTemplate(tpl.body || "{{body_prompt}}", vars);
-      const appliedImage = applyTemplate(tpl.image || "{{image_prompt}}\n{{image_url}}", vars);
-
-      document.getElementById("previewMeta").textContent = `🗂️ ${blogType} / ⏱️ ${data.generated_at || ""}`;
-      document.getElementById("previewMeta2").textContent = `🗂️ ${blogType} / ⏱️ ${data.generated_at || ""}`;
-      document.getElementById("previewBody").textContent = appliedBody;
-      document.getElementById("previewImage").textContent = appliedImage;
-
-      box.style.display = "block";
-    }
-
-    function closeModal(){ document.getElementById("modalBg").style.display="none"; }
-
-    // Publish
-    async function scheduleDaily3(){
-      const blog = getSelectedBlog();
-      if(!blog){ alert("블로그 선택이 필요합니다. (설정에서 주소 저장)"); return; }
-      if(!selectedTopic){ alert("주제를 먼저 선택하세요!"); return; }
-
-      const payload = {
-        blog_type: blog.type,
-        blog_url: blog.url,
-        category: selectedCat,
-        topic: selectedTopic,
-        schedule_times: ["08:00","13:00","18:00"]
-      };
-
-      try{
-        const res = await fetch(API_BASE + "/api/publish/schedule",{
-          method:"POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if(!data.ok){ alert("실패: " + (data.error || "unknown")); return; }
-        alert(data.message || "저장 완료");
-        loadPublishList();
-      }catch(e){
-        alert("서버 연결 실패!");
-      }
-    }
-
-    async function publishNowInterval(){
-      const blog = getSelectedBlog();
-      if(!blog){ alert("블로그 선택이 필요합니다. (설정에서 주소 저장)"); return; }
-      if(!selectedTopic){ alert("주제를 먼저 선택하세요!"); return; }
-
-      const start_time = document.getElementById("startTime").value;
-      const interval_hours = document.getElementById("intervalHours").value;
-
-      const payload = {
-        blog_type: blog.type,
-        blog_url: blog.url,
-        category: selectedCat,
-        topic: selectedTopic,
-        start_time,
-        interval_hours
-      };
-
-      try{
-        const res = await fetch(API_BASE + "/api/publish/now",{
-          method:"POST",
-          headers: {"Content-Type":"application/json"},
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if(!data.ok){ alert("실패: " + (data.error || "unknown")); return; }
-        alert(data.message || "저장 완료");
-        loadPublishList();
-      }catch(e){
-        alert("서버 연결 실패!");
-      }
-    }
-
-    function clearPublishList(){
-      const box = document.getElementById("publishList");
-      if(box) box.innerHTML = "";
-    }
-    function fmtMaybe(o, keys){
-      for(const k of keys){
-        if(o && o[k]) return String(o[k]);
-      }
-      return "-";
-    }
-
-    async function loadPublishList(){
-      const box = document.getElementById("publishList");
-      if(!box) return;
-
-      box.innerHTML = `<div class="small">불러오는 중…</div>`;
-
-      try{
-        const res = await fetch(API_BASE + "/api/publish/list");
-        if(!res.ok){
-          const t = await res.text();
-          box.innerHTML = `<div class="small" style="color:#ffb4b4">불러오기 실패: ${escapeHtml(t)}</div>`;
-          return;
-        }
-        const data = await res.json();
-
-        const items = data.items || [];
-        const count = (typeof data.count === "number") ? data.count : items.length;
-
-        if(!items.length){
-          box.innerHTML = `<div class="small">요청 0개 (빈 리스트)</div>`;
-          return;
-        }
-
-        let html = `<div class="small">총 <b>${count}</b>개</div>`;
-
-        items.slice().forEach((it)=>{
-          const topic = fmtMaybe(it, ["topic","title","subject"]);
-          const cat = fmtMaybe(it, ["category","cat"]);
-          const blogType = fmtMaybe(it, ["blog_type","blogType","type"]);
-          const blogUrl = fmtMaybe(it, ["blog_url","blogUrl","url"]);
-          const created = fmtMaybe(it, ["created_at","createdAt","time","requested_at"]);
-          const when = fmtMaybe(it, ["schedule_times","start_time","when","schedule"]);
-          const mode = fmtMaybe(it, ["type","mode","kind","publish_type"]);
-
-          html += `
-            <div class="reqCard">
-              <div class="reqTop">
-                <div class="reqTitle">📝 ${escapeHtml(topic)}</div>
-                <span class="reqBadge">🗂️ ${escapeHtml(blogType)}</span>
-              </div>
-              <div class="reqMeta">
-                🏷️ 카테고리: <b>${escapeHtml(cat)}</b><br/>
-                🔗 블로그: ${escapeHtml(blogUrl)}<br/>
-                ⚙️ 방식: ${escapeHtml(mode)} / ⏰ 시간: ${escapeHtml(when)}<br/>
-                🕒 생성: ${escapeHtml(created)}
-              </div>
-            </div>
-          `;
-        });
-
-        box.innerHTML = html;
-
-      }catch(e){
-        box.innerHTML = `<div class="small" style="color:#ffb4b4">서버 연결 실패</div>`;
-      }
-    }
-
-    // init
-    render();
-    updateSel();
-  </script>
+  }
+
+  // init
+  render();
+  updateSel();
+</script>
 </body>
 </html>
