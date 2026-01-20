@@ -1,23 +1,25 @@
-from flask import Flask, request, jsonify, send_from_directory, redirect, session, url_for
+from flask import Flask, request, jsonify, send_from_directory, redirect, session
 from flask_cors import CORS
 import os, json
 from datetime import datetime
 import requests
+from typing import Optional
 
 # Google OAuth / Blogger
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
 
-app = Flask(__name__)
-(__name__, static_folder=".", static_url_path="")
+# ✅ 정적파일 설정까지 한 번에 (너 코드의 치명적 오류 수정)
+app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
 # 세션 쿠키용 (필수)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
 
 PUBLISH_FILE = "publish_queue.json"
-TOKEN_FILE = "google_token.json"  # ⚠️ Render 무료는 재배포/재시작 시 파일이 날아갈 수 있음
+TOKEN_FILE = "google_token.json"  # ⚠️ Render 무료는 재시작 시 파일이 날아갈 수 있음(임시)
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
@@ -29,6 +31,7 @@ SCOPES = [
 
 def now_str():
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
 # ---------- Static Pages ----------
 @app.route("/")
@@ -43,6 +46,7 @@ def settings():
 def health():
     return jsonify({"ok": True, "time": now_str()})
 
+
 # ---------- Token Save/Load ----------
 def save_token(creds: Credentials):
     data = {
@@ -56,7 +60,7 @@ def save_token(creds: Credentials):
     with open(TOKEN_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-def load_token() -> Credentials | None:
+def load_token() -> Optional[Credentials]:
     if not os.path.exists(TOKEN_FILE):
         return None
     try:
@@ -70,14 +74,24 @@ def get_blogger_client():
     creds = load_token()
     if not creds:
         return None
-    # googleapiclient이 필요 시 refresh는 내부적으로 처리할 수 있지만,
-    # refresh_token이 없으면 만료 시 다시 로그인 필요
+
+    # ✅ 토큰 만료되면 refresh 시도
+    try:
+        if creds.expired and creds.refresh_token:
+            creds.refresh(GoogleRequest())
+            save_token(creds)
+    except Exception:
+        # refresh 실패하면 다시 OAuth 필요
+        return None
+
     return build("blogger", "v3", credentials=creds)
+
 
 # ---------- OAuth ----------
 def make_flow():
     if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
-        raise RuntimeError("OAuth env vars missing (GOOGLE_CLIENT_ID/SECRET, OAUTH_REDIRECT_URI)")
+        raise RuntimeError("OAuth env vars missing. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OAUTH_REDIRECT_URI in Render Environment.")
+
     client_config = {
         "web": {
             "client_id": GOOGLE_CLIENT_ID,
@@ -86,6 +100,7 @@ def make_flow():
             "token_uri": "https://oauth2.googleapis.com/token",
         }
     }
+
     flow = Flow.from_client_config(
         client_config=client_config,
         scopes=SCOPES,
@@ -95,7 +110,11 @@ def make_flow():
 
 @app.route("/oauth/start")
 def oauth_start():
-    flow = make_flow()
+    try:
+        flow = make_flow()
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
     auth_url, state = flow.authorization_url(
         access_type="offline",
         include_granted_scopes="true",
@@ -106,19 +125,26 @@ def oauth_start():
 
 @app.route("/oauth/callback")
 def oauth_callback():
-    flow = make_flow()
-    state = session.get("oauth_state")
-    flow.fetch_token(authorization_response=request.url)
+    try:
+        flow = make_flow()
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
-    creds = flow.credentials
-    save_token(creds)
-
-    return redirect("/?oauth=ok")
+    # state는 Render 재시작 등으로 없을 수도 있어서, 없어도 진행은 하되 저장만 한다.
+    # (엄격하게 하려면 state 검증 로직 추가 가능)
+    try:
+        flow.fetch_token(authorization_response=request.url)
+        creds = flow.credentials
+        save_token(creds)
+        return redirect("/?oauth=ok")
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"OAuth callback failed: {str(e)}"}), 500
 
 @app.route("/api/oauth/status")
 def oauth_status():
     creds = load_token()
     return jsonify({"ok": True, "connected": bool(creds)})
+
 
 # ---------- Pexels ----------
 def pexels_search_image_url(pexels_key: str, query: str) -> str:
@@ -140,6 +166,7 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
     except Exception:
         return ""
 
+
 # ---------- Prompt ----------
 def make_body_prompt(topic: str, category: str) -> str:
     return f"""너는 수익형 정보블로그 작가다.
@@ -159,19 +186,6 @@ def make_body_prompt(topic: str, category: str) -> str:
 def make_image_prompt(topic: str, category: str) -> str:
     return f'{category} 관련 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
 
-# ---------- Queue ----------
-def load_queue():
-    if not os.path.exists(PUBLISH_FILE):
-        return []
-    try:
-        with open(PUBLISH_FILE, "r", encoding="utf-8") as f:
-            return json.load(f) or []
-    except Exception:
-        return []
-
-def save_queue(items):
-    with open(PUBLISH_FILE, "w", encoding="utf-8") as f:
-        json.dump(items, f, ensure_ascii=False, indent=2)
 
 # ---------- API generate ----------
 @app.route("/api/generate", methods=["POST"])
@@ -205,6 +219,7 @@ def api_generate():
         "image_url": image_url
     })
 
+
 # ---------- Blogger: list blogs ----------
 @app.route("/api/blogger/blogs", methods=["GET"])
 def api_blogger_blogs():
@@ -212,11 +227,11 @@ def api_blogger_blogs():
     if not svc:
         return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
 
-    # 내 블로그 목록 가져오기
     res = svc.blogs().listByUser(userId="self").execute()
     items = res.get("items", [])
     out = [{"id": b.get("id"), "name": b.get("name"), "url": b.get("url")} for b in items]
     return jsonify({"ok": True, "count": len(out), "items": out})
+
 
 # ---------- Blogger: publish post ----------
 @app.route("/api/blogger/publish", methods=["POST"])
@@ -244,14 +259,20 @@ def api_blogger_publish():
     created = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
     return jsonify({"ok": True, "id": created.get("id"), "url": created.get("url")})
 
-# ---------- 기존 publish queue ----------
+
+# ---------- 기존 publish queue (유지) ----------
 @app.route("/api/publish/list", methods=["GET"])
 def api_publish_list():
-    q = load_queue()
-    return jsonify({"ok": True, "count": len(q), "items": q})
+    if not os.path.exists(PUBLISH_FILE):
+        return jsonify({"ok": True, "count": 0, "items": []})
+    try:
+        with open(PUBLISH_FILE, "r", encoding="utf-8") as f:
+            q = json.load(f) or []
+        return jsonify({"ok": True, "count": len(q), "items": q})
+    except Exception:
+        return jsonify({"ok": True, "count": 0, "items": []})
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
-
-
