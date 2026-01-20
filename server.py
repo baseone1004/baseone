@@ -9,7 +9,8 @@ from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
-app = Flask(__name__, static_folder=".", static_url_path="")
+app = Flask(__name__)
+(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
 # 세션 쿠키용 (필수)
@@ -252,3 +253,5 @@ def api_publish_list():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
+
