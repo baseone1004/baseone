@@ -2,3 +2,6 @@ flask
 flask-cors
 requests
 gunicorn
+google-auth
+google-auth-oauthlib
+google-api-python-client
