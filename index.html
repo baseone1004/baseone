@@ -1,304 +1,206 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>BaseOne</title>
+  <title>BaseOne (Simple)</title>
   <style>
     :root{
-      --bg:#121a33;
-      --panel:#1c2647;
-      --panel2:#24315c;
+      --bg:#0f1630;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.08);
       --text:#f8faff;
-      --muted:#cfd7ff;
-      --border:rgba(255,255,255,.18);
+      --muted:rgba(248,250,255,.75);
+      --border:rgba(255,255,255,.14);
       --primary:#7aa7ff;
       --good:#38e1c1;
-      --warn:#ffd166;
       --danger:#ff7b7b;
-      --shadow:0 12px 28px rgba(0,0,0,.18);
+      --shadow:0 10px 24px rgba(0,0,0,.22);
     }
     [data-theme="light"]{
       --bg:#f5f7ff;
       --panel:#ffffff;
       --panel2:#f0f3ff;
       --text:#0f1630;
-      --muted:#3a4a7a;
-      --border:rgba(15,22,48,.14);
+      --muted:rgba(15,22,48,.7);
+      --border:rgba(15,22,48,.12);
       --primary:#2f6bff;
       --good:#00b894;
-      --warn:#f39c12;
       --danger:#e74c3c;
       --shadow:0 10px 22px rgba(15,22,48,.10);
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Noto Sans KR", Segoe UI, Roboto, sans-serif;
       background:
-        radial-gradient(1200px 700px at 10% 0%, rgba(122,167,255,.35), transparent 55%),
-        radial-gradient(1200px 700px at 90% 10%, rgba(170,140,255,.22), transparent 55%),
-        radial-gradient(900px 520px at 50% 90%, rgba(56,225,193,.18), transparent 55%),
-        linear-gradient(180deg,#0f1630,var(--bg));
+        radial-gradient(1200px 700px at 10% 0%, rgba(122,167,255,.22), transparent 55%),
+        radial-gradient(1000px 600px at 90% 20%, rgba(56,225,193,.16), transparent 55%),
+        linear-gradient(180deg, var(--bg), #0a1022);
       color:var(--text);
       font-size:13px;
     }
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:1060px;margin:0 auto;padding:10px}
-
+    .wrap{max-width:980px;margin:0 auto;padding:12px}
     .top{
       display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
-      padding:10px 6px;
+      padding:8px 4px;
     }
     .brand{display:flex;align-items:center;gap:10px}
     .logo{
-      width:36px;height:36px;border-radius:14px;
+      width:34px;height:34px;border-radius:12px;
       background:linear-gradient(135deg,var(--primary), var(--good));
       display:flex;align-items:center;justify-content:center;
-      font-weight:900;
-      box-shadow:var(--shadow);
-      color:#fff;
+      font-weight:900;color:#fff;box-shadow:var(--shadow);
     }
-    [data-theme="light"] .logo{color:#fff}
     .title{font-size:18px;font-weight:900;line-height:1}
-    .subtitle{font-size:12px;color:var(--muted);opacity:.95;margin-top:4px}
-
+    .subtitle{font-size:12px;color:var(--muted);margin-top:4px}
     .pill{
       display:inline-flex;align-items:center;gap:6px;
       padding:6px 10px;border-radius:999px;
-      background:rgba(35,49,91,.18);
+      background:rgba(255,255,255,.06);
       border:1px solid var(--border);
       color:var(--muted);font-size:12px;
-      backdrop-filter: blur(6px);
-    }
-
-    .btn{
-      padding:8px 11px;border-radius:12px;border:1px solid var(--border);
-      background:rgba(255,255,255,.06);
-      color:var(--text);cursor:pointer;font-weight:900;
-      transition:transform .05s ease, filter .15s ease;
-      font-size:12px;
-    }
-    [data-theme="light"] .btn{background:rgba(15,22,48,.04)}
-    .btn:hover{filter:brightness(1.07)}
-    .btn:active{transform:translateY(1px)}
-    .btn.primary{
-      background:linear-gradient(135deg,var(--primary), #2f6bff);
-      border:none;color:#fff;
-    }
-    .btn.good{
-      background:linear-gradient(135deg, var(--good), #1fb6ff);
-      border:none;color:#fff;
-    }
-    .btn.danger{
-      background:rgba(255,107,107,.12);
-      border:1px solid rgba(255,107,107,.35);
-      color:var(--danger);
     }
 
     .box{
-      background:rgba(31,43,77,.38);
+      background:var(--panel);
       border:1px solid var(--border);
       padding:12px;
-      border-radius:18px;
+      border-radius:16px;
       margin:10px 0;
       box-shadow:var(--shadow);
       backdrop-filter: blur(8px);
     }
-    [data-theme="light"] .box{background:rgba(255,255,255,.86)}
+    [data-theme="light"] .box{backdrop-filter:none}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
 
     input, select, textarea{
       padding:9px 10px;border-radius:12px;border:1px solid var(--border);
-      background:rgba(35,49,91,.28);
+      background:rgba(255,255,255,.06);
       color:var(--text);outline:none;
       font-size:12.5px;
     }
     [data-theme="light"] input,[data-theme="light"] select,[data-theme="light"] textarea{
       background:rgba(15,22,48,.04);
     }
-    select{min-width:310px}
+    select{min-width:280px}
     textarea{width:100%;min-height:160px;line-height:1.6}
 
-    .small{font-size:12px;color:var(--muted)}
-    .hint{
-      padding:8px 10px;border-radius:12px;
-      border:1px solid rgba(56,225,193,.28);
-      background:rgba(56,225,193,.10);
-      color:var(--muted)
+    .btn{
+      padding:8px 11px;border-radius:12px;border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--text);cursor:pointer;font-weight:900;font-size:12px;
+      transition:transform .05s ease, filter .15s ease;
     }
+    [data-theme="light"] .btn{background:rgba(15,22,48,.04)}
+    .btn:hover{filter:brightness(1.06)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:linear-gradient(135deg,var(--primary), #2f6bff);border:none;color:#fff}
+    .btn.good{background:linear-gradient(135deg,var(--good), #1fb6ff);border:none;color:#fff}
+    .btn.danger{background:rgba(255,107,107,.10);border:1px solid rgba(255,107,107,.35);color:var(--danger)}
 
+    .small{font-size:12px;color:var(--muted)}
     .grid{
       display:grid;
-      grid-template-columns:repeat(6,1fr);
+      grid-template-columns:repeat(4,1fr);
       gap:8px;
       margin-top:10px;
     }
-    @media(max-width:980px){.grid{grid-template-columns:repeat(4,1fr)}}
-    @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}}
-
+    @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
     .cat{
-      background:rgba(35,49,91,.22);
-      border:1px solid rgba(255,255,255,.14);
-      padding:10px 10px;
-      border-radius:16px;
+      background:var(--panel2);
+      border:1px solid var(--border);
+      padding:10px;
+      border-radius:14px;
       cursor:pointer;
-      display:flex;justify-content:space-between;align-items:flex-start;gap:8px;
-      transition:transform .08s ease, border-color .15s ease, filter .15s ease;
-      min-height:56px;
+      transition:transform .08s ease, filter .15s ease, border-color .15s ease;
     }
-    [data-theme="light"] .cat{background:rgba(15,22,48,.04)}
-    .cat:hover{transform:translateY(-1px);border-color:rgba(122,167,255,.60);filter:brightness(1.06)}
-    .cat b{font-size:12.8px;letter-spacing:-.2px}
-    .cat .desc{font-size:11.5px;color:var(--muted);opacity:.92;margin-top:4px}
-    .badge{
-      font-size:11.5px;color:var(--muted);
-      background:rgba(31,43,77,.20);
-      border:1px solid rgba(255,255,255,.14);
-      padding:3px 7px;border-radius:999px;
-      white-space:nowrap;
-    }
+    .cat:hover{transform:translateY(-1px);filter:brightness(1.05);border-color:rgba(122,167,255,.55)}
+    .cat b{font-size:13px}
+    .cat .desc{font-size:11.5px;color:var(--muted);margin-top:4px}
 
-    .topicScroll{max-height:360px;overflow:auto;margin-top:10px;padding-right:6px}
-    .topicScroll::-webkit-scrollbar{width:10px}
-    .topicScroll::-webkit-scrollbar-thumb{background:rgba(122,167,255,.35);border-radius:10px}
-    .topicScroll::-webkit-scrollbar-track{background:rgba(35,49,91,.15);border-radius:10px}
-
-    .card{
-      background:rgba(35,49,91,.22);
-      border:1px solid rgba(255,255,255,.14);
-      padding:10px 10px;border-radius:16px;
+    .list{max-height:320px;overflow:auto;margin-top:10px;padding-right:6px}
+    .item{
+      background:var(--panel2);
+      border:1px solid var(--border);
+      padding:10px;
+      border-radius:14px;
       display:flex;justify-content:space-between;gap:10px;align-items:center;
       margin-bottom:8px;
-    }
-    [data-theme="light"] .card{background:rgba(15,22,48,.04)}
-    .cardTitle{display:flex;align-items:center;gap:8px;font-weight:900}
-    .card .meta{font-size:11.5px;color:var(--muted);opacity:.95;margin-top:4px}
-    .chip{
-      display:inline-flex;align-items:center;gap:6px;
-      padding:5px 9px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(35,49,91,.15);
-      color:var(--muted);
-      font-size:11.5px;
-    }
-    [data-theme="light"] .chip{background:rgba(15,22,48,.04)}
-
-    .card.selected{
-      border-color:rgba(122,167,255,.85);
-      box-shadow:0 0 0 2px rgba(122,167,255,.25);
-      background:linear-gradient(135deg, rgba(122,167,255,.16), rgba(56,225,193,.12));
-    }
-
-    .starBtn{
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(31,43,77,.15);
-      color:var(--muted);
-      border-radius:12px;
-      padding:7px 10px;
-      font-size:12px;
       cursor:pointer;
-      font-weight:900;
     }
-    [data-theme="light"] .starBtn{background:rgba(15,22,48,.04)}
-    .starBtn.on{
-      background:rgba(255,215,0,.12);
-      border-color:rgba(255,215,0,.35);
-      color:#c08b00;
+    .item.active{
+      border-color:rgba(122,167,255,.85);
+      box-shadow:0 0 0 2px rgba(122,167,255,.18);
+      background:linear-gradient(135deg, rgba(122,167,255,.12), rgba(56,225,193,.10));
     }
+    .itemTitle{font-weight:900}
+    .itemMeta{font-size:11.5px;color:var(--muted);margin-top:4px}
 
-    /* 로그 */
-    #genBox{display:none}
-    #genLog{
-      margin-top:10px;
-      background:rgba(35,49,91,.18);
-      border:1px solid rgba(255,255,255,.14);
+    .progWrap{
+      margin-top:10px;border:1px solid var(--border);
+      border-radius:999px;overflow:hidden;height:12px;background:rgba(255,255,255,.08);
+    }
+    [data-theme="light"] .progWrap{background:rgba(15,22,48,.05)}
+    .progBar{height:100%;width:0%;background:linear-gradient(90deg,var(--primary),var(--good));transition:width .2s ease}
+
+    /* preview */
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    @media(max-width:900px){.two{grid-template-columns:1fr}}
+    .card{
+      background:var(--panel2);
+      border:1px solid var(--border);
       border-radius:14px;
+      padding:10px;
+    }
+    .pre{
+      margin-top:8px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px;
+      min-height:180px;
+      white-space:pre-wrap;
+      overflow:auto;
+      background:rgba(0,0,0,.10);
+    }
+    [data-theme="light"] .pre{background:rgba(15,22,48,.03)}
+    .iframeWrap{
+      margin-top:8px;
+      background:#fff;border-radius:12px;overflow:hidden;
+      border:1px solid var(--border);min-height:320px;
+    }
+    iframe{width:100%;height:320px;border:0}
+
+    /* log */
+    #logBox{display:none}
+    #log{
+      margin-top:10px;
+      background:var(--panel2);
+      border:1px solid var(--border);
+      border-radius:12px;
       padding:10px;
       max-height:220px;
       overflow:auto;
       font-size:12px;
       line-height:1.6;
     }
-    [data-theme="light"] #genLog{background:rgba(15,22,48,.04)}
-
-    /* 미리보기 */
-    #finalBox{display:none}
-    .finalGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    @media(max-width:900px){.finalGrid{grid-template-columns:1fr}}
-    .finalCard{
-      background:rgba(35,49,91,.18);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:16px;
-      padding:10px;
-    }
-    [data-theme="light"] .finalCard{background:rgba(15,22,48,.04)}
-    .finalText{
-      margin-top:8px;
-      background:rgba(31,43,77,.14);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:14px;
-      padding:10px;
-      min-height:220px;
-      white-space:pre-wrap;
-      overflow:auto;
-      font-size:12.5px;
-      line-height:1.7;
-    }
-    [data-theme="light"] .finalText{background:rgba(15,22,48,.03)}
-
-    /* 링크 */
-    .linkRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .linkBtn{
-      display:inline-flex;align-items:center;gap:6px;
-      padding:7px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(31,43,77,.15);
-      color:var(--muted);
-      font-weight:900;
-      font-size:12px;
-    }
-    [data-theme="light"] .linkBtn{background:rgba(15,22,48,.04)}
-
-    /* 진행률 바 */
-    .progWrap{
-      margin-top:10px;
-      border:1px solid var(--border);
-      border-radius:999px;
-      overflow:hidden;
-      height:12px;
-      background:rgba(255,255,255,.10);
-    }
-    [data-theme="light"] .progWrap{background:rgba(15,22,48,.06)}
-    .progBar{
-      height:100%;
-      width:0%;
-      background:linear-gradient(90deg,var(--primary),var(--good));
-      transition:width .2s ease;
-    }
-
-    /* 드래그 안내 */
-    .dragHint{font-size:12px;color:var(--muted)}
-    .dragHandle{cursor:grab; user-select:none; padding:6px 8px; border-radius:10px; border:1px solid rgba(255,255,255,.14); background:rgba(31,43,77,.12)}
-    [data-theme="light"] .dragHandle{background:rgba(15,22,48,.04)}
   </style>
 </head>
 
 <body>
 <div class="wrap">
-
   <div class="top">
     <div class="brand">
       <div class="logo">B</div>
       <div>
-        <div class="title">BaseOne ✨</div>
-        <div class="subtitle">🧠 주제 → ✨ AI 생성(단건/일괄) → 🚀 저장/발행</div>
+        <div class="title">BaseOne</div>
+        <div class="subtitle">주제 선택 → AI 생성 → 미리보기 → 즉시발행</div>
       </div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <span class="pill">🛰️ 서버 <b id="sv">-</b></span>
-      <button class="btn" onclick="toggleTheme()">🌓 다크/라이트</button>
+      <button class="btn" onclick="toggleTheme()">🌓</button>
       <a href="/settings"><button class="btn">⚙️ 설정</button></a>
     </div>
   </div>
@@ -307,439 +209,93 @@
   <div class="box">
     <div class="row">
       <div>
-        <b>🗂️ 블로그 선택</b>
-        <div class="small">설정에 저장된 주소가 자동으로 뜹니다.</div>
+        <b>1) 블로그 선택</b>
+        <div class="small">저장된 블로그 주소가 뜹니다.</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <select id="blogSelect"></select>
-        <button class="btn" onclick="loadBlogsToSelect()">🔄 새로고침</button>
+        <button class="btn" onclick="loadBlogsToSelect()">🔄</button>
       </div>
     </div>
     <div class="small" style="margin-top:8px">✅ 현재 선택: <b id="blogNow">-</b></div>
   </div>
 
-  <!-- 템플릿 -->
-  <div class="box" id="templateBox">
-    <div class="row">
-      <div>
-        <b>🧩 플랫폼별 프롬프트 템플릿</b>
-        <div class="small">템플릿은 플랫폼별로 저장됩니다.</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" onclick="toggleTemplateBox()">👁 숨기기/보이기</button>
-        <button class="btn" onclick="saveTemplates()">💾 저장</button>
-        <button class="btn danger" onclick="resetTemplates()">♻️ 기본값</button>
-      </div>
-    </div>
-
-    <div id="templateInner">
-      <div class="small" style="margin-top:10px">
-        변수: <span class="chip">{{topic}}</span> <span class="chip">{{category}}</span>
-        <span class="chip">{{image_url}}</span> <span class="chip">{{body_prompt}}</span>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="small"><b>📝 본문 템플릿</b></div>
-        <textarea id="tplBody"></textarea>
-      </div>
-
-      <div style="margin-top:10px">
-        <div class="small"><b>🖼️ 이미지 템플릿(선택)</b></div>
-        <textarea id="tplImage" style="min-height:120px"></textarea>
-      </div>
-
-      <div class="small" style="margin-top:10px">현재 적용: <b id="tplNow">-</b></div>
-
-      <div class="hint small" style="margin-top:10px">
-        🔐 OAuth 자동 업로드(블로그스팟)는 서버 작업이 필요합니다. (아래에 server.py 골격도 제공)
-      </div>
-    </div>
-  </div>
-
-  <!-- 주제 -->
+  <!-- 주제 생성 -->
   <div class="box">
     <div class="row">
       <div>
-        <b>🧠 주제 생성</b>
-        <div class="small">카테고리를 선택하면 클릭 유도형 제목이 30개 생성됩니다.</div>
+        <b>2) 주제 선택</b>
+        <div class="small">카테고리를 누르면 주제가 생성됩니다.</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <input id="filter" placeholder="🔎 검색 (⭐만: star)" oninput="render()">
+        <input id="filter" placeholder="🔎 검색" oninput="renderTopics()">
         <button class="btn" onclick="copyAll()">📋 전체복사</button>
-        <button class="btn" onclick="showStarOnly()">⭐</button>
-        <button class="btn primary" onclick="aiGenerateSelected()">✨ AI 생성(선택 1개)</button>
-        <button class="btn good" onclick="aiGenerateBulk()">🧺 일괄 생성</button>
-        <button class="btn good" onclick="makeMoney()">💰 수익형 100</button>
+        <button class="btn primary" onclick="aiGenerate()">✨ AI 생성</button>
       </div>
     </div>
 
     <div class="grid" id="catGrid"></div>
-  </div>
-<!-- ✅ 실시간 실행 보기 (주제생성 아래) -->
-<div class="box" id="runBox">
-  <div class="row">
-    <div>
-      <b>🟢 실시간 실행 보기</b>
-      <div class="small">AI 생성/발행 진행 상황이 여기 실시간으로 기록됩니다.</div>
+
+    <div class="progWrap">
+      <div class="progBar" id="progBar"></div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn" onclick="toggleRunBox()">👀 토글</button>
-      <button class="btn danger" onclick="clearRunLog()">🧹 지우기</button>
-    </div>
+    <div class="small" id="progText" style="margin-top:6px">진행률: 0%</div>
+
+    <div class="list" id="topicList"></div>
   </div>
 
-  <!-- 진행률 바 -->
-  <div style="margin-top:10px">
-    <div class="small" id="progressLabel">진행률: 0%</div>
-    <div style="height:10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);overflow:hidden">
-      <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(135deg,var(--primary),var(--good));"></div>
-    </div>
-  </div>
-
-  <div id="runLog" style="margin-top:10px;background:rgba(35,49,91,.78);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:10px;max-height:220px;overflow:auto;font-size:12px;line-height:1.6"></div>
-</div>
-
-<!-- ✅ 작성글 미리보기 -->
-<div class="box" id="previewBox" style="display:none">
-  <div class="row">
-    <div>
-      <b>👀 작성글 미리보기</b>
-      <div class="small" id="previewMeta">-</div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn" onclick="togglePreview()">👀 토글</button>
-      <button class="btn" onclick="openPreviewWindow()">🧾 새창으로 보기</button>
-    </div>
-  </div>
-
-  <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
-    <div class="finalCard">
-      <div class="finalHead">
-        <div class="finalTitle">🖼️ 이미지 미리보기</div>
+  <!-- 미리보기 + 발행 -->
+  <div class="box" id="previewBox" style="display:none">
+    <div class="row">
+      <div>
+        <b>3) 미리보기 / 발행</b>
+        <div class="small" id="previewMeta">-</div>
       </div>
-      <div style="margin-top:8px">
-        <div class="small">image_url</div>
-        <div class="finalText" id="previewImageUrl" style="min-height:60px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="openPreviewWindow()">🧾 새창</button>
+        <button class="btn good" onclick="publishNow()">🚀 즉시발행</button>
+        <button class="btn" onclick="toggleLog()">🧾 로그</button>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <div style="font-weight:900">📝 본문(원문)</div>
+        <div class="pre" id="finalBody"></div>
+      </div>
+      <div class="card">
+        <div style="font-weight:900">🖼️ 이미지(URL/프롬프트)</div>
+        <div class="pre" id="finalImage"></div>
         <div style="margin-top:10px">
-          <img id="previewImg" src="" alt="preview" style="width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.14);display:none"/>
-          <div class="small" id="previewImgHint" style="margin-top:8px;color:var(--muted)">이미지 URL이 없으면 미리보기가 안 보일 수 있어요.</div>
+          <img id="previewImg" alt="preview" style="width:100%;border-radius:12px;border:1px solid var(--border);display:none"/>
+          <div class="small" id="imgHint" style="margin-top:8px">이미지 URL이 있으면 아래에 보입니다.</div>
         </div>
       </div>
     </div>
 
-    <div class="finalCard">
-      <div class="finalHead">
-        <div class="finalTitle">📝 본문 HTML 미리보기</div>
+    <div class="card" style="margin-top:10px">
+      <div style="font-weight:900">👀 HTML 미리보기</div>
+      <div class="iframeWrap">
+        <iframe id="previewIframe"></iframe>
       </div>
-      <div id="previewHtmlFrame" style="margin-top:8px;background:#fff;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.14);min-height:360px">
-        <iframe id="previewIframe" style="width:100%;height:360px;border:0"></iframe>
+    </div>
+
+    <div class="box" id="logBox">
+      <div class="row">
+        <b>🧾 로그</b>
+        <div style="display:flex;gap:8px">
+          <button class="btn" onclick="toggleLog()">👀 토글</button>
+          <button class="btn danger" onclick="clearLog()">🧹 지우기</button>
+        </div>
       </div>
+      <div id="log"></div>
     </div>
   </div>
-</div>
-
-<!-- ✅ 실행목록 -->
-<div class="box" id="historyBox">
-  <div class="row">
-    <div>
-      <b>📌 실행목록</b>
-      <div class="small">최근 실행 기록이 저장됩니다(브라우저에 저장).</div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn" onclick="clearHistory()">🧹 전체삭제</button>
-    </div>
-  </div>
-  <div id="historyList" class="topicScroll" style="max-height:260px"></div>
-</div>
-
-  <!-- 주제 목록 -->
-  <div class="box">
-    <div class="row">
-      <div>
-        <b>📚 주제 목록</b>
-        <div class="small" id="selInfo">선택 주제: -</div>
-        <div class="dragHint">🧲 카드 왼쪽 핸들을 드래그해서 순서를 바꿀 수 있어요.</div>
-      </div>
-      <div class="hint small">✅ 체크 선택 → “일괄 생성” 가능</div>
-    </div>
-
-    <div class="progWrap" style="margin-top:10px">
-      <div class="progBar" id="progBar"></div>
-    </div>
-    <div class="small" style="margin-top:6px" id="progText">진행률: 0%</div>
-
-    <div class="topicScroll" id="topics"></div>
-  </div>
-
-  <!-- 진행상황 -->
-  <div class="box" id="genBox">
-    <div class="row">
-      <b>🧾 진행 로그</b>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" onclick="toggleGenBox()">👀 토글</button>
-        <button class="btn danger" onclick="clearGenLog()">🧹 지우기</button>
-      </div>
-    </div>
-    <div id="genLog"></div>
-  </div>
-
-  <!-- 생성완료 -->
-  <div class="box" id="finalBox">
-    <div class="row">
-      <div>
-        <b>✅ 생성 완료 미리보기(통으로)</b>
-        <div class="small" id="finalMeta">-</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" onclick="copyText(document.getElementById('finalBody').textContent)">📋 본문 복사</button>
-        <button class="btn" onclick="copyText(document.getElementById('finalImage').textContent)">🖼️ 이미지 복사</button>
-        <button class="btn primary" onclick="oauthStart()">🔐 OAuth 연결(블로그스팟)</button>
-      </div>
-    </div>
-
-    <div class="linkRow" id="linkRow"></div>
-
-    <div class="finalGrid">
-      <div class="finalCard">
-        <div style="font-weight:900">📝 본문</div>
-        <div class="finalText" id="finalBody"></div>
-      </div>
-      <div class="finalCard">
-        <div style="font-weight:900">🖼️ 이미지</div>
-        <div class="finalText" id="finalImage"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 발행 -->
-  <div class="box">
-    <div class="row">
-      <div>
-        <b>🚀 발행</b>
-        <div class="small">현재는 서버에 “요청 저장” 단계입니다. (OAuth 붙이면 실제 업로드 가능)</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <label class="small">⏱ 간격</label>
-        <select id="intervalHours" style="min-width:110px">
-          <option value="1">1시간</option><option value="2">2시간</option><option value="3">3시간</option>
-          <option value="4">4시간</option><option value="6">6시간</option><option value="12">12시간</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row" style="margin-top:10px">
-<button class="btn good" onclick="publishInstant()">🚀 즉시발행</button>
-<button class="btn" onclick="showPreview()">👀 작성글 미리보기</button>
-
-      <button class="btn" onclick="loadPublishList()">📦 발행요청 리스트</button>
-    </div>
-
-    <div id="publishList" style="margin-top:10px"></div>
-  </div>
-
 </div>
 
 <script>
-  // ===========================
-// ✅ 실시간 실행 로그 + 진행률
-// ===========================
-function toggleRunBox(){
-  const box = document.getElementById("runBox");
-  box.style.display = (box.style.display==="none" ? "block" : "none");
-}
-function clearRunLog(){ document.getElementById("runLog").innerHTML=""; setProgress(0); }
-function runLine(icon, color, msg){
-  const log = document.getElementById("runLog");
-  const t = new Date();
-  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-  log.innerHTML += `<div style="color:${color}">${icon} <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
-  log.scrollTop = log.scrollHeight;
-}
-function runInfo(msg){ runLine("🟦","#f6f8ff",msg); }
-function runOk(msg){ runLine("✅","#9ff5d2",msg); }
-function runErr(msg){ runLine("❌","#ffb4b4",msg); }
-
-function setProgress(pct){
-  const p = Math.max(0, Math.min(100, Number(pct)||0));
-  document.getElementById("progressBar").style.width = p + "%";
-  document.getElementById("progressLabel").textContent = `진행률: ${p}%`;
-}
-
-// ===========================
-// ✅ 실행목록(히스토리) 저장
-// ===========================
-const HISTORY_KEY = "baseone_run_history_v1";
-function loadHistory(){
-  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]") || []; }catch(e){ return []; }
-}
-function saveHistory(arr){
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0,200)));
-}
-function pushHistory(item){
-  const h = loadHistory();
-  h.unshift(item);
-  saveHistory(h);
-  renderHistory();
-}
-function clearHistory(){
-  localStorage.removeItem(HISTORY_KEY);
-  renderHistory();
-}
-function renderHistory(){
-  const box = document.getElementById("historyList");
-  if(!box) return;
-  const h = loadHistory();
-  if(!h.length){
-    box.innerHTML = `<div class="small">기록 없음</div>`;
-    return;
-  }
-  box.innerHTML = h.map(it=>{
-    const status = it.status==="ok" ? "✅" : it.status==="err" ? "❌" : "🟦";
-    return `
-      <div class="card">
-        <div style="flex:1">
-          <div class="cardTitle">${status} ${escapeHtml(it.title || "-")}</div>
-          <div class="meta">${escapeHtml(it.time || "")} · ${escapeHtml(it.action || "")} · ${escapeHtml(it.blog || "")}</div>
-          ${it.url ? `<div class="meta"><a href="${it.url}" target="_blank" rel="noopener noreferrer">🔗 ${escapeHtml(it.url)}</a></div>` : ""}
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-document.addEventListener("DOMContentLoaded", renderHistory);
-
-// ===========================
-// ✅ 작성글 미리보기
-// ===========================
-function showPreview(){
-  const body = document.getElementById("finalBody")?.textContent?.trim() || "";
-  const imgUrl = document.getElementById("finalImage")?.textContent?.trim() || "";
-
-  if(!body){
-    alert("먼저 ✨ AI 생성으로 본문을 만든 뒤 미리보기를 확인하세요!");
-    return;
-  }
-
-  const meta = document.getElementById("finalMeta")?.textContent || "";
-  document.getElementById("previewMeta").textContent = meta;
-
-  document.getElementById("previewImageUrl").textContent = imgUrl;
-  const img = document.getElementById("previewImg");
-  const hint = document.getElementById("previewImgHint");
-
-  // finalImage에는 프롬프트+URL이 같이 들어갈 수 있으니 URL만 뽑아보자
-  const urlMatch = (imgUrl.match(/https?:\/\/[^\s]+/g) || [])[0] || "";
-  if(urlMatch){
-    img.src = urlMatch;
-    img.style.display = "block";
-    hint.style.display = "none";
-  }else{
-    img.style.display = "none";
-    hint.style.display = "block";
-  }
-
-  // iframe 미리보기(HTML)
-  const iframe = document.getElementById("previewIframe");
-  const doc = `
-<!doctype html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>미리보기</title>
-<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;padding:16px;line-height:1.7}</style>
-</head><body>${body}</body></html>`;
-  iframe.srcdoc = doc;
-
-  document.getElementById("previewBox").style.display = "block";
-}
-function togglePreview(){
-  const box = document.getElementById("previewBox");
-  box.style.display = (box.style.display==="none" ? "block" : "none");
-}
-function openPreviewWindow(){
-  const body = document.getElementById("finalBody")?.textContent?.trim() || "";
-  if(!body){ alert("본문이 없습니다."); return; }
-  const w = window.open("", "_blank");
-  w.document.open();
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>미리보기</title></head><body>${body}</body></html>`);
-  w.document.close();
-}
-
-// ===========================
-// ✅ 즉시발행: "저장"이 아니라 "바로 포스팅"
-// ===========================
-async function publishInstant(){
-  const blog=getSelectedBlog();
-  if(!blog || !selectedTopic){
-    alert("블로그와 주제를 선택하세요");
-    return;
-  }
-
-  // 반드시 AI 생성 결과가 있어야 함
-  const html = document.getElementById("finalBody")?.textContent?.trim() || "";
-  if(!html){
-    alert("먼저 ✨ AI 생성 후 발행하세요!");
-    return;
-  }
-
-  // blog_id 필수 (서버에서 /api/blogger/blogs로 받아온 경우 존재)
-  if(!blog.blog_id){
-    alert("blog_id가 없습니다. 블로그 목록을 /api/blogger/blogs에서 불러오는 방식인지 확인하세요.");
-    return;
-  }
-
-  setProgress(5);
-  runInfo(`🛰️ 서버: ${API_BASE}`);
-  runInfo(`🗂️ 블로그: ${blog.name || blog.url || "-"} (${blog.type})`);
-  runInfo(`🧠 주제: ${selectedTopic}`);
-  runInfo("🚀 즉시발행 시작...");
-  pushHistory({time:new Date().toLocaleString(), action:"즉시발행 시작", title:selectedTopic, blog:(blog.name||blog.url||""), status:"run"});
-
-  const payload={
-    blog_type: blog.type,
-    blog_id: blog.blog_id,
-    blog_url: blog.url,
-    category: selectedCat || "정보",
-    title: selectedTopic,
-    html: html
-  };
-
-  try{
-    setProgress(35);
-    runInfo("1) 서버에 업로드 요청 전송");
-
-    const res = await fetch(API_BASE+"/api/publish/now",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(payload)
-    });
-
-    setProgress(70);
-    const j = await res.json().catch(()=> ({}));
-
-    if(!res.ok || !j.ok){
-      setProgress(0);
-      runErr("❌ 발행 실패: " + (j.error || "unknown error"));
-      pushHistory({time:new Date().toLocaleString(), action:"즉시발행 실패", title:selectedTopic, blog:(blog.name||blog.url||""), status:"err"});
-      alert("발행 실패: " + (j.error || "unknown error"));
-      return;
-    }
-
-    setProgress(100);
-    runOk("✅ 발행 완료!");
-    if(j.url) runOk("🔗 " + j.url);
-
-    pushHistory({time:new Date().toLocaleString(), action:"즉시발행 완료", title:selectedTopic, blog:(blog.name||blog.url||""), status:"ok", url:j.url||""});
-    alert("발행 완료!\n" + (j.url || ""));
-
-  }catch(e){
-    setProgress(0);
-    runErr("❌ 서버 연결 실패(네트워크/CORS/API_BASE 확인)");
-    pushHistory({time:new Date().toLocaleString(), action:"즉시발행 서버연결실패", title:selectedTopic, blog:(blog.name||blog.url||""), status:"err"});
-    alert("서버 연결 실패!");
-  }
-}
-
 /* ---------------- Theme ---------------- */
-const THEME_KEY="baseone_theme_v1";
+const THEME_KEY="baseone_theme_simple_v1";
 (function initTheme(){
   const saved = localStorage.getItem(THEME_KEY) || "dark";
   document.documentElement.setAttribute("data-theme", saved);
@@ -767,281 +323,41 @@ document.addEventListener("DOMContentLoaded", ()=> {
 function escapeHtml(s){
   return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
-function escapeAttr(s){
-  return String(s).replaceAll("\\","\\\\").replaceAll("'","\\'");
+function copyAll(){
+  if(!topics.length){ alert("주제 없음"); return; }
+  navigator.clipboard.writeText(topics.map(x=>x.title).join("\n"));
+  alert("전체 복사 완료!");
 }
-function safeStr(x){ return (x===undefined || x===null) ? "" : String(x); }
-function applyTemplate(tpl, vars){
-  let out = safeStr(tpl);
-  Object.keys(vars).forEach(k=> out = out.replaceAll(`{{${k}}}`, safeStr(vars[k])) );
-  return out;
-}
-function copyText(t){ navigator.clipboard.writeText(t); alert("복사 완료!"); }
-
-/* ---------------- Logs ---------------- */
-function showGenBox(){ document.getElementById("genBox").style.display = "block"; }
-function toggleGenBox(){
-  const box = document.getElementById("genBox");
-  box.style.display = (box.style.display==="none" ? "block" : "none");
-}
-function addGenLine(icon, color, msg){
-  showGenBox();
-  const log = document.getElementById("genLog");
-  const t = new Date();
-  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
-  log.innerHTML += `<div style="color:${color}">${icon} <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
-  log.scrollTop = log.scrollHeight;
-}
-function addGenLog(msg){ addGenLine("🟦","var(--text)",msg); }
-function addGenOk(msg){ addGenLine("✅","var(--good)",msg); }
-function addGenErr(msg){ addGenLine("❌","var(--danger)",msg); }
-function clearGenLog(){ document.getElementById("genLog").innerHTML = ""; }
-
-/* ---------------- Template Toggle ---------------- */
-function toggleTemplateBox(){
-  const inner = document.getElementById("templateInner");
-  if(!inner) return;
-  inner.style.display = (inner.style.display==="none" ? "block" : "none");
-}
-
-/* ---------------- Categories ---------------- */
-const CATS=[
-  {k:"건강", s:"🏃 운동·영양"},
-  {k:"컴퓨터/IT", s:"💻 유틸·보안"},
-  {k:"자동차", s:"🚗 정비·보험"},
-  {k:"생활/가전", s:"🏠 살림·절약"},
-  {k:"육아", s:"🍼 육아·교육"},
-  {k:"돈/재테크", s:"💰 절약·세금"},
-  {k:"여행", s:"🧳 코스·꿀팁"},
-  {k:"요리", s:"🍳 레시피"},
-  {k:"자기계발", s:"📈 습관"},
-  {k:"공부/자격증", s:"📚 합격"},
-  {k:"반려동물", s:"🐶 케어"},
-  {k:"패션/뷰티", s:"💄 관리"},
-  {k:"취미", s:"🎨 DIY"},
-  {k:"스포츠", s:"🏋️ 루틴"},
-  {k:"게임", s:"🎮 팁"},
-  {k:"영화/드라마", s:"🎬 리뷰"}
-];
-const grid=document.getElementById("catGrid");
-CATS.forEach(obj=>{
-  const d=document.createElement("div");
-  d.className="cat";
-  d.onclick=()=>makeTopics(obj.k);
-  d.innerHTML = `
-    <div>
-      <b>${obj.k}</b>
-      <div class="desc">${obj.s}</div>
-    </div>
-    <span class="badge">30</span>
-  `;
-  grid.appendChild(d);
-});
-
-/* ---------------- Topic State ---------------- */
-let topics=[];           // [{id, title}]
-let selectedTopicId="";  // active one
-let selectedCat="";
-const checked = new Set(); // multi-select ids
-
 function setProgress(pct){
-  const v = Math.max(0, Math.min(100, Math.round(pct)));
+  const v = Math.max(0, Math.min(100, Math.round(Number(pct)||0)));
   document.getElementById("progBar").style.width = v + "%";
   document.getElementById("progText").textContent = `진행률: ${v}%`;
 }
 
-/* ---- Star ---- */
-const STAR_KEY="baseone_fav_topics_v1";
-function getStars(){ try{ const s=JSON.parse(localStorage.getItem(STAR_KEY)||"[]"); return Array.isArray(s)?s:[]; }catch(e){ return []; } }
-function setStars(arr){ localStorage.setItem(STAR_KEY, JSON.stringify(arr)); }
-function isStar(title){ return getStars().includes(title); }
-function toggleStar(title){
-  const s=getStars(); const i=s.indexOf(title);
-  if(i>=0) s.splice(i,1); else s.unshift(title);
-  setStars(s.slice(0,300));
-  render();
+/* ---------------- Log (ONE) ---------------- */
+function toggleLog(){
+  const box=document.getElementById("logBox");
+  box.style.display = (box.style.display==="none" ? "block" : "none");
 }
-function showStarOnly(){ document.getElementById("filter").value="star"; render(); }
-
-/* ---- Better Topic Generator ---- */
-function buildIdeas(cat, n=30){
-  const hooks=[
-    "초보도 바로 되는", "실패 없는", "하루 10분", "돈 새는 구멍 막는", "검색 1위가 자주 나오는",
-    "의외로 다들 놓치는", "요즘 사람들이 가장 궁금해하는", "정리 한 번에 끝내는", "오늘부터 적용 가능한"
-  ];
-  const patternsByCat={
-    "건강":[
-      "면역력 올리는 습관 {x}가지", "피곤이 계속될 때 점검 체크리스트", "잠 잘 오는 환경 세팅법",
-      "혈당/혈압 관리 식단 루틴", "운동 초보가 망하는 이유와 해결법", "아침 컨디션 좋아지는 루틴"
-    ],
-    "돈/재테크":[
-      "월 {x}만원 아끼는 고정비 점검표", "통신비/보험료 줄이는 순서", "초보 예산관리(가계부 없이)",
-      "연말정산에서 자주 놓치는 항목", "카드 혜택 200% 쓰는 방법", "비상금 통장 만드는 법"
-    ],
-    "여행":[
-      "주말 1박2일 코스 추천", "실패 없는 숙소 고르는 법", "여행경비 줄이는 꿀팁",
-      "대중교통만으로도 편한 코스", "비 오는 날에도 좋은 일정", "사진 잘 나오는 스팟 추천"
-    ]
-  };
-  const bases = patternsByCat[cat] || [
-    "{cat} 시작할 때 꼭 알아야 할 기본", "{cat}에서 자주 하는 실수 TOP {x}",
-    "{cat} 초보가 바로 쓰는 체크리스트", "{cat} 비용/시간 아끼는 방법",
-    "{cat} Q&A: 사람들이 가장 많이 묻는 질문"
-  ];
-
-  const out=new Set();
-  let tries=0;
-  while(out.size<n && tries<500){
-    tries++;
-    const h = hooks[Math.floor(Math.random()*hooks.length)];
-    const b = bases[Math.floor(Math.random()*bases.length)];
-    const x = 5 + Math.floor(Math.random()*6); // 5~10
-    let t = (h+" "+b).replaceAll("{x}", String(x)).replaceAll("{cat}", cat);
-    t = t.replaceAll("  "," ").trim();
-    out.add(t);
-  }
-  return Array.from(out).slice(0,n);
+function clearLog(){ document.getElementById("log").innerHTML=""; setProgress(0); }
+function logLine(icon, color, msg){
+  const log=document.getElementById("log");
+  const t=new Date();
+  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+  log.innerHTML += `<div style="color:${color}">${icon} <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+  log.scrollTop = log.scrollHeight;
 }
+function logInfo(m){ logLine("🟦","var(--text)",m); }
+function logOk(m){ logLine("✅","var(--good)",m); }
+function logErr(m){ logLine("❌","var(--danger)",m); }
 
-function makeTopics(cat){
-  selectedCat=cat;
-  const titles = buildIdeas(cat, 30);
-  topics = titles.map((t,i)=>({id:`${Date.now()}_${i}`, title:t}));
-  selectedTopicId = topics[0]?.id || "";
-  checked.clear();
-  if(selectedTopicId) checked.add(selectedTopicId);
-  updateSel();
-  setProgress(0);
-  render();
-}
-
-function makeMoney(){
-  selectedCat="수익형";
-  const list = [
-    "보험료 줄이기 현실 체크리스트","신용카드 혜택 제대로 받는 법","통신비 절약하는 순서",
-    "전기요금 줄이는 습관","가스요금 절약 팁","대출 이자 줄이는 방법","IRP/연금 기초",
-    "세금 아끼는 기본","자동차보험 비교 팁","중고차 구매 체크리스트"
-  ];
-  const titles = [];
-  for(let i=0;i<30;i++){
-    const base=list[i%list.length];
-    titles.push(`${base} (초보용) – 실수 7가지와 해결법`);
-  }
-  topics = titles.map((t,i)=>({id:`M_${Date.now()}_${i}`, title:t}));
-  selectedTopicId = topics[0]?.id || "";
-  checked.clear();
-  if(selectedTopicId) checked.add(selectedTopicId);
-  updateSel();
-  setProgress(0);
-  render();
-}
-
-function getSelectedTitle(){
-  return topics.find(x=>x.id===selectedTopicId)?.title || "";
-}
-
-function updateSel(){
-  document.getElementById("selInfo").textContent = `선택 주제: ${getSelectedTitle() || "-"}`;
-}
-
-function setSelected(id){
-  selectedTopicId = id;
-  checked.add(id);
-  updateSel();
-  render();
-}
-
-/* ---- Drag & Drop (reorder) ---- */
-let dragId=null;
-function onDragStart(id){ dragId=id; }
-function onDrop(targetId){
-  if(!dragId || dragId===targetId) return;
-  const a = topics.findIndex(x=>x.id===dragId);
-  const b = topics.findIndex(x=>x.id===targetId);
-  if(a<0 || b<0) return;
-  const item = topics.splice(a,1)[0];
-  topics.splice(b,0,item);
-  dragId=null;
-  render();
-}
-
-/* ---- Render List ---- */
-function render(){
-  const q=(document.getElementById("filter").value||"").trim().toLowerCase();
-  const list=document.getElementById("topics");
-  list.innerHTML="";
-
-  let arr = topics.slice();
-
-  if(q==="star"){
-    const stars = getStars();
-    arr = stars.map((t,i)=>({id:`S_${i}`, title:t}));
-  }else if(q){
-    arr = arr.filter(x=>x.title.toLowerCase().includes(q));
-  }
-
-  if(!arr.length){
-    list.innerHTML = `<div class="small">목록이 비었습니다.</div>`;
-    return;
-  }
-
-  arr.forEach(item=>{
-    const title = item.title;
-    const starOn = isStar(title);
-    const isSel = (item.id===selectedTopicId);
-    const isChecked = checked.has(item.id);
-
-    const d=document.createElement("div");
-    d.className="card"+(isSel?" selected":"");
-    d.setAttribute("draggable","true");
-    d.ondragstart=()=>onDragStart(item.id);
-    d.ondragover=(e)=>e.preventDefault();
-    d.ondrop=()=>onDrop(item.id);
-
-    d.innerHTML=`
-      <div style="flex:1;min-width:240px">
-        <div class="cardTitle">
-          <span class="dragHandle" title="드래그로 순서 변경">⠿</span>
-          <span>${starOn?"⭐":"☆"}</span>
-          <span>${escapeHtml(title)}</span>
-        </div>
-        <div class="meta">${selectedCat?`🏷️ ${escapeHtml(selectedCat)}`:""}</div>
-      </div>
-
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <label class="small" style="display:flex;gap:6px;align-items:center">
-          <input type="checkbox" ${isChecked?"checked":""}
-            onchange="toggleCheck('${escapeAttr(item.id)}', this.checked)">
-          선택
-        </label>
-
-        <button class="starBtn ${starOn?"on":""}" onclick="toggleStar('${escapeAttr(title)}')">${starOn?"⭐":"☆"}</button>
-        <button class="btn" onclick="setSelected('${escapeAttr(item.id)}')">활성</button>
-        <button class="btn" onclick="copyText('${escapeAttr(title)}')">복사</button>
-      </div>
-    `;
-    list.appendChild(d);
-  });
-}
-function toggleCheck(id, on){
-  if(on) checked.add(id); else checked.delete(id);
-}
-
-/* ---- Copy All ---- */
-function copyAll(){
-  if(!topics.length){alert("주제 없음");return;}
-  navigator.clipboard.writeText(topics.map(x=>x.title).join("\n"));
-  alert("전체 복사 완료!");
-}
-
-/* ---------------- Blog Select (v2 + v3 fallback) ---------------- */
+/* ---------------- Blog Select ---------------- */
 function loadBlogsToSelect(){
   const sel=document.getElementById("blogSelect");
   const now=document.getElementById("blogNow");
   sel.innerHTML="";
 
-  // 1) v2 우선
-  let v2 = null;
+  let v2=null;
   try{ v2 = JSON.parse(localStorage.getItem("baseone_settings_v2")||"null"); }catch(e){}
   const v3 = JSON.parse(localStorage.getItem("baseone_settings_v3")||"{}");
 
@@ -1066,7 +382,7 @@ function loadBlogsToSelect(){
 
   options.forEach(o=>{
     const opt=document.createElement("option");
-    opt.value=JSON.stringify({type:o.type,url:o.url});
+    opt.value=JSON.stringify({type:o.type,url:o.url}); // (필요하면 blog_id/name도 여기에 저장)
     opt.textContent=o.label;
     sel.appendChild(opt);
   });
@@ -1079,7 +395,6 @@ function loadBlogsToSelect(){
   }
   updateBlogNow();
 }
-
 function updateBlogNow(){
   const sel=document.getElementById("blogSelect");
   const now=document.getElementById("blogNow");
@@ -1089,104 +404,130 @@ function updateBlogNow(){
   try{
     const obj=JSON.parse(v);
     now.textContent=`${obj.type} / ${obj.url}`;
-    setPromptTab(obj.type);
   }catch(e){ now.textContent="-"; }
 }
-document.addEventListener("change",(e)=>{
-  if(e.target && e.target.id==="blogSelect") updateBlogNow();
-});
-loadBlogsToSelect();
-
-/* ---------------- Templates ---------------- */
-const PROMPT_KEY="baseone_prompts_v1";
-const PLATFORMS=[
-  {k:"blogspot",label:"🟦 블로그스팟"},
-  {k:"naver",label:"🟩 네이버"},
-  {k:"tistory",label:"🟧 티스토리"},
-];
-let currentPlatform="blogspot";
-
-function defaultTemplates(){
-  return {
-    blogspot:{ body:`너는 블로그스팟 전문 작가야.\n주제: {{topic}}\n카테고리: {{category}}\n\n{{body_prompt}}`,
-              image:`{{image_prompt}}\n{{image_url}}` },
-    naver:{ body:`너는 네이버 블로그 전문 작가야.\n주제: {{topic}}\n카테고리: {{category}}\n\n{{body_prompt}}`,
-            image:`{{image_prompt}}\n{{image_url}}` },
-    tistory:{ body:`너는 티스토리 전문 작가야.\n주제: {{topic}}\n카테고리: {{category}}\n\n{{body_prompt}}`,
-              image:`{{image_prompt}}\n{{image_url}}` }
-  };
-}
-function getTemplates(){
-  try{
-    const saved=JSON.parse(localStorage.getItem(PROMPT_KEY)||"null");
-    if(saved && typeof saved==="object") return saved;
-  }catch(e){}
-  const d=defaultTemplates();
-  localStorage.setItem(PROMPT_KEY, JSON.stringify(d));
-  return d;
-}
-function setTemplates(obj){ localStorage.setItem(PROMPT_KEY, JSON.stringify(obj)); }
-
-function setPromptTab(k){
-  currentPlatform=k;
-  const tpls=getTemplates();
-  const body=(tpls[k]&&tpls[k].body)?tpls[k].body:"";
-  const image=(tpls[k]&&tpls[k].image)?tpls[k].image:"";
-  document.getElementById("tplBody").value=body;
-  document.getElementById("tplImage").value=image;
-  document.getElementById("tplNow").textContent = (PLATFORMS.find(p=>p.k===k)?.label || k);
-}
-function saveTemplates(){
-  const t=getTemplates();
-  t[currentPlatform]=t[currentPlatform]||{};
-  t[currentPlatform].body=document.getElementById("tplBody").value||"";
-  t[currentPlatform].image=document.getElementById("tplImage").value||"";
-  setTemplates(t);
-  alert("저장 완료!");
-}
-function resetTemplates(){
-  const d=defaultTemplates();
-  setTemplates(d);
-  setPromptTab(currentPlatform);
-  alert("기본값 복구 완료!");
-}
-setPromptTab(currentPlatform);
-
 function getSelectedBlog(){
   const v=document.getElementById("blogSelect").value;
   if(!v) return null;
   try{ return JSON.parse(v); }catch(e){ return null; }
 }
+document.addEventListener("change",(e)=>{
+  if(e.target && e.target.id==="blogSelect") updateBlogNow();
+});
 
-/* ---------------- AI Generate (single) ---------------- */
-async function aiGenerateSelected(){
-  const title = getSelectedTitle();
-  if(!title){ alert("주제를 먼저 선택하세요!"); return; }
+/* ---------------- Categories + Topics ---------------- */
+const CATS=[
+  {k:"돈/재테크", s:"💰 절약·세금"},
+  {k:"생활/가전", s:"🏠 살림·절약"},
+  {k:"컴퓨터/IT", s:"💻 유틸·보안"},
+  {k:"여행", s:"🧳 코스·꿀팁"},
+  {k:"건강", s:"🏃 운동·영양"},
+  {k:"요리", s:"🍳 레시피"},
+  {k:"자기계발", s:"📈 습관"},
+  {k:"공부/자격증", s:"📚 합격"},
+];
+const catGrid=document.getElementById("catGrid");
+CATS.forEach(obj=>{
+  const d=document.createElement("div");
+  d.className="cat";
+  d.onclick=()=>makeTopics(obj.k);
+  d.innerHTML = `<b>${obj.k}</b><div class="desc">${obj.s}</div>`;
+  catGrid.appendChild(d);
+});
 
+let topics=[];           // [{id,title}]
+let selectedCat="";
+let selectedTopicId="";
+
+function buildIdeas(cat, n=24){
+  const hooks=["초보도 바로 되는","실패 없는","하루 10분","돈 새는 구멍 막는","오늘부터 적용 가능한","정리 한 번에 끝내는"];
+  const basesByCat={
+    "돈/재테크":["월 {x}만원 아끼는 고정비 점검표","카드 혜택 200% 쓰는 법","통신비 줄이는 순서","비상금 통장 만드는 법","연말정산 놓치기 쉬운 항목"],
+    "생활/가전":["전기요금 줄이는 습관","가전 수명 늘리는 관리법","청소 시간 반으로 줄이는 팁","정리정돈 루틴","생활비 절약 체크리스트"],
+    "컴퓨터/IT":["PC 느릴 때 해결 순서","윈도우 필수 설정","보안(피싱) 예방 체크","크롬 최적화","용량 줄이는 방법"],
+    "여행":["주말 1박2일 코스","경비 줄이는 꿀팁","숙소 고르는 법","비 오는 날 일정","사진 스팟 추천"],
+    "건강":["면역력 루틴","잠 잘 오는 환경","피곤할 때 체크","운동 초보 루틴","식단 기본"],
+    "요리":["실패 없는 레시피","재료 3개 요리","10분 완성","냉장고 털이","간단 도시락"],
+    "자기계발":["습관 만드는 법","시간관리 루틴","미루는 습관 끊기","목표 설정법","하루 루틴"],
+    "공부/자격증":["합격 공부 루틴","암기 팁","오답노트 방법","시험 직전 체크","계획 세우기"],
+  };
+  const bases = basesByCat[cat] || ["{cat} 기본 가이드","{cat} 실수 TOP {x}","{cat} 체크리스트"];
+  const out=new Set();
+  let tries=0;
+  while(out.size<n && tries<400){
+    tries++;
+    const h = hooks[Math.floor(Math.random()*hooks.length)];
+    const b = bases[Math.floor(Math.random()*bases.length)];
+    const x = 5 + Math.floor(Math.random()*6);
+    out.add((h+" "+b).replaceAll("{x}", String(x)).replaceAll("{cat}", cat).trim());
+  }
+  return Array.from(out);
+}
+function makeTopics(cat){
+  selectedCat=cat;
+  const titles=buildIdeas(cat, 24);
+  topics = titles.map((t,i)=>({id:`${Date.now()}_${i}`, title:t}));
+  selectedTopicId = topics[0]?.id || "";
+  renderTopics();
+}
+function getSelectedTitle(){
+  return topics.find(x=>x.id===selectedTopicId)?.title || "";
+}
+function renderTopics(){
+  const q=(document.getElementById("filter").value||"").trim().toLowerCase();
+  const box=document.getElementById("topicList");
+  box.innerHTML="";
+  let arr=topics.slice();
+  if(q) arr=arr.filter(x=>x.title.toLowerCase().includes(q));
+  if(!arr.length){
+    box.innerHTML=`<div class="small">주제가 없습니다. 카테고리를 먼저 눌러주세요.</div>`;
+    return;
+  }
+  arr.forEach(it=>{
+    const d=document.createElement("div");
+    d.className="item"+(it.id===selectedTopicId?" active":"");
+    d.onclick=()=>{ selectedTopicId=it.id; renderTopics(); };
+    d.innerHTML=`
+      <div style="flex:1">
+        <div class="itemTitle">${escapeHtml(it.title)}</div>
+        <div class="itemMeta">🏷️ ${escapeHtml(selectedCat || "-")}</div>
+      </div>
+      <button class="btn" onclick="event.stopPropagation(); navigator.clipboard.writeText('${it.title.replaceAll("'","\\'")}'); alert('복사 완료!');">복사</button>
+    `;
+    box.appendChild(d);
+  });
+}
+
+/* ---------------- AI Generate ---------------- */
+function applyTemplate(bodyPrompt){
+  // "사람들이 보기 편하게" 최소만: 서버가 body_prompt/html을 주면 그대로 쓰고, 없으면 body_prompt를 표시
+  return bodyPrompt || "";
+}
+
+async function aiGenerate(){
   const blog=getSelectedBlog();
-  const blogType=blog?.type||"blogspot";
-  setPromptTab(blogType);
+  const title=getSelectedTitle();
+  if(!blog){ alert("블로그를 먼저 선택하세요"); return; }
+  if(!title){ alert("주제를 먼저 선택하세요"); return; }
 
-  document.getElementById("finalBox").style.display="none";
-
-  showGenBox();
-  addGenLog(`🛰️ 서버: ${API_BASE}`);
-  addGenLog(`🗂️ 블로그: ${blogType}`);
-  addGenLog(`🧠 주제: ${title}`);
-  addGenLog(`🏷️ 카테고리: ${selectedCat || "-"}`);
+  document.getElementById("previewBox").style.display="none";
+  setProgress(5);
+  logInfo(`🛰️ 서버: ${API_BASE}`);
+  logInfo(`🧠 주제: ${title}`);
+  logInfo(`🏷️ 카테고리: ${selectedCat || "-"}`);
 
   const sV3 = JSON.parse(localStorage.getItem("baseone_settings_v3")||"{}");
-  const v2 = JSON.parse(localStorage.getItem("baseone_settings_v2")||"{}");
-
+  const v2  = JSON.parse(localStorage.getItem("baseone_settings_v2")||"{}");
   const payload={
     topic:title,
     category:selectedCat,
-    blog:blogType,
+    blog:blog.type || "blogspot",
     img_provider:(v2.imgProvider || sV3.img_provider || "pexels"),
     pexels_key:(v2.pexelsKey || sV3.pexels_key || "")
   };
 
   try{
+    setProgress(15);
     const res=await fetch(API_BASE+"/api/generate",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -1194,214 +535,122 @@ async function aiGenerateSelected(){
     });
     if(!res.ok){
       const t=await res.text();
-      addGenErr("생성 실패: "+t);
+      setProgress(0);
+      logErr("생성 실패: "+t);
       alert("생성 실패: "+t);
       return;
     }
     const data=await res.json();
-    addGenOk("생성 완료");
-    renderFinalPreview(data, blogType);
+    setProgress(80);
+    logOk("생성 완료");
+
+    // 서버 응답 호환: body_prompt/html 둘 다 대응
+    const body = applyTemplate(data.html || data.body_prompt || "");
+    const imageText = (data.image_url ? data.image_url : (data.image_prompt||""));
+
+    // 화면
+    document.getElementById("finalBody").textContent = body;
+    document.getElementById("finalImage").textContent = (data.image_prompt ? (data.image_prompt+"\n"+(data.image_url||"")) : (data.image_url||""));
+    document.getElementById("previewMeta").textContent =
+      `🧠 ${data.topic||title} / 🏷️ ${data.category||selectedCat||"-"} / 🗂️ ${blog.type} / ⏱️ ${data.generated_at||""}`;
+
+    // iframe 미리보기
+    const iframe=document.getElementById("previewIframe");
+    const doc = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+      <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;padding:16px;line-height:1.7}</style>
+      </head><body>${body}</body></html>`;
+    iframe.srcdoc = doc;
+
+    // 이미지 미리보기
+    const urlMatch = ((data.image_url||"").match(/https?:\/\/[^\s]+/g) || [])[0] || "";
+    const img=document.getElementById("previewImg");
+    const hint=document.getElementById("imgHint");
+    if(urlMatch){
+      img.src=urlMatch;
+      img.style.display="block";
+      hint.style.display="none";
+    }else{
+      img.style.display="none";
+      hint.style.display="block";
+    }
+
+    document.getElementById("previewBox").style.display="block";
+    setProgress(100);
+
   }catch(e){
-    addGenErr("서버 연결 실패");
+    setProgress(0);
+    logErr("서버 연결 실패(네트워크/CORS/API_BASE 확인)");
     alert("서버 연결 실패! 설정의 서버 주소(API_BASE)를 확인하세요.");
   }
 }
 
-/* ---------------- AI Generate (bulk) ---------------- */
-async function aiGenerateBulk(){
-  const ids = Array.from(checked);
-  if(!ids.length){ alert("체크된 주제가 없습니다."); return; }
+/* ---------------- Preview Window ---------------- */
+function openPreviewWindow(){
+  const body = document.getElementById("finalBody")?.textContent?.trim() || "";
+  if(!body){ alert("본문이 없습니다. 먼저 AI 생성하세요."); return; }
+  const w = window.open("", "_blank");
+  w.document.open();
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>미리보기</title>
+    <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;padding:16px;line-height:1.7}</style>
+  </head><body>${body}</body></html>`);
+  w.document.close();
+}
 
+/* ---------------- Publish (Now) ----------------
+   ⚠️ 중요:
+   - "진짜 즉시발행"은 서버가 Blogger OAuth 완료 + 실제 글 업로드 로직이 있어야 합니다.
+   - 지금은 /api/publish/now 가 무엇을 하는지(저장인지 업로드인지) 서버 구현에 따라 달라요.
+*/
+async function publishNow(){
   const blog=getSelectedBlog();
-  const blogType=blog?.type||"blogspot";
-  setPromptTab(blogType);
+  const title=getSelectedTitle();
+  const html = document.getElementById("finalBody")?.textContent?.trim() || "";
 
-  showGenBox();
-  addGenLog(`🧺 일괄 생성 시작 (${ids.length}개)`);
+  if(!blog || !title){ alert("블로그와 주제를 선택하세요"); return; }
+  if(!html){ alert("먼저 AI 생성 후 발행하세요!"); return; }
 
-  setProgress(0);
+  setProgress(10);
+  logInfo("🚀 즉시발행 요청...");
+  const payload={
+    blog_type: blog.type,
+    blog_url: blog.url,
+    category: selectedCat,
+    topic: title,
+    html: html
+  };
 
-  for(let i=0;i<ids.length;i++){
-    const id = ids[i];
-    const title = topics.find(x=>x.id===id)?.title || "";
-    if(!title) continue;
+  try{
+    const res=await fetch(API_BASE+"/api/publish/now",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
 
-    selectedTopicId = id;
-    updateSel();
-    render();
+    let j={};
+    try{ j = await res.json(); }catch(e){}
 
-    addGenLog(`(${i+1}/${ids.length}) 생성: ${title}`);
-
-    const sV3 = JSON.parse(localStorage.getItem("baseone_settings_v3")||"{}");
-    const v2 = JSON.parse(localStorage.getItem("baseone_settings_v2")||"{}");
-    const payload={
-      topic:title,
-      category:selectedCat,
-      blog:blogType,
-      img_provider:(v2.imgProvider || sV3.img_provider || "pexels"),
-      pexels_key:(v2.pexelsKey || sV3.pexels_key || "")
-    };
-
-    try{
-      const res=await fetch(API_BASE+"/api/generate",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(payload)
-      });
-      if(!res.ok){
-        const t=await res.text();
-        addGenErr(`실패: ${title} / ${t}`);
-      }else{
-        const data=await res.json();
-        addGenOk(`완료: ${title}`);
-        // 마지막 건은 미리보기 띄워줌
-        if(i===ids.length-1){
-          renderFinalPreview(data, blogType);
-        }
-      }
-    }catch(e){
-      addGenErr(`서버 연결 실패: ${title}`);
+    if(!res.ok){
+      setProgress(0);
+      logErr("발행 실패: " + (j.error || j.message || "unknown"));
+      alert("발행 실패: " + (j.error || j.message || "unknown"));
+      return;
     }
 
-    setProgress(((i+1)/ids.length)*100);
-  }
+    setProgress(100);
+    logOk(j.message || "발행 요청 완료");
+    alert(j.message || "발행 요청 완료");
 
-  addGenOk("✅ 일괄 생성 종료");
-}
-
-function renderFinalPreview(data, blogType){
-  const tpls=getTemplates();
-  const tpl=(tpls[blogType]||tpls["blogspot"]||{body:"{{body_prompt}}",image:"{{image_prompt}}\n{{image_url}}"});
-
-  const vars={
-    topic:data.topic||getSelectedTitle()||"",
-    category:data.category||selectedCat||"",
-    image_url:data.image_url||"",
-    body_prompt:data.body_prompt||"",
-    image_prompt:data.image_prompt||""
-  };
-
-  const appliedBody=applyTemplate(tpl.body||"{{body_prompt}}",vars);
-  const appliedImage=applyTemplate(tpl.image||"{{image_prompt}}\n{{image_url}}",vars);
-
-  document.getElementById("finalMeta").textContent =
-    `🧠 ${vars.topic} / 🏷️ ${vars.category} / 🗂️ ${blogType} / ⏱️ ${data.generated_at || ""}`;
-
-  document.getElementById("finalBody").textContent = appliedBody;
-  document.getElementById("finalImage").textContent = appliedImage;
-
-  const q=encodeURIComponent(`${vars.topic} ${vars.category}`.trim());
-  const links=[
-    {label:"🔎 구글", url:`https://www.google.com/search?q=${q}`},
-    {label:"📰 뉴스", url:`https://www.google.com/search?q=${q}+site:news`},
-    {label:"📌 네이버", url:`https://search.naver.com/search.naver?query=${q}`},
-    {label:"▶️ 유튜브", url:`https://www.youtube.com/results?search_query=${q}`},
-    {label:"🖼️ 이미지", url:`https://www.google.com/search?tbm=isch&q=${q}`},
-  ];
-  document.getElementById("linkRow").innerHTML =
-    links.map(l=>`<a class="linkBtn" href="${l.url}" target="_blank" rel="noopener noreferrer">${l.label}</a>`).join("");
-
-  document.getElementById("finalBox").style.display="block";
-}
-
-/* ---------------- Publish Save ---------------- */
-async function publishInstant(){
-  const blog=getSelectedBlog();
-  const title = getSelectedTitle();
-  if(!blog || !title){ alert("블로그와 주제를 선택하세요"); return; }
-  showGenBox();
-  addGenLog("🚀 즉시발행(저장) 클릭");
-
-  const payload={
-    blog_type:blog.type,
-    blog_url:blog.url,
-    category:selectedCat,
-    topic:title,
-    start_time:"NOW",
-    interval_hours:"0"
-  };
-
-  try{
-    const res=await fetch(API_BASE+"/api/publish/now",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    const j=await res.json();
-    addGenOk("저장 완료");
-    alert(j.message || "저장 완료");
-    loadPublishList();
   }catch(e){
-    addGenErr("서버 연결 실패");
+    setProgress(0);
+    logErr("서버 연결 실패");
     alert("서버 연결 실패!");
   }
-}
-
-async function publishWithInterval(){
-  const blog=getSelectedBlog();
-  const title = getSelectedTitle();
-  if(!blog || !title){ alert("블로그와 주제를 선택하세요"); return; }
-  const interval_hours=document.getElementById("intervalHours").value;
-
-  showGenBox();
-  addGenLog("⏱ 예약 저장 클릭");
-
-  const payload={
-    blog_type:blog.type,
-    blog_url:blog.url,
-    category:selectedCat,
-    topic:title,
-    start_time:"NOW",
-    interval_hours
-  };
-
-  try{
-    const res=await fetch(API_BASE+"/api/publish/now",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    const j=await res.json();
-    addGenOk("예약 저장 완료");
-    alert(j.message || "저장 완료");
-    loadPublishList();
-  }catch(e){
-    addGenErr("서버 연결 실패");
-    alert("서버 연결 실패!");
-  }
-}
-
-function fmtMaybe(o, keys){ for(const k of keys){ if(o && o[k]) return String(o[k]); } return "-"; }
-async function loadPublishList(){
-  const box=document.getElementById("publishList");
-  box.innerHTML=`<div class="small">불러오는 중…</div>`;
-  try{
-    const res=await fetch(API_BASE+"/api/publish/list");
-    const data=await res.json();
-    const items=data.items||[];
-    if(!items.length){ box.innerHTML=`<div class="small">요청 0개</div>`; return; }
-
-    let html=`<div class="small">총 <b>${items.length}</b>개</div>`;
-    items.slice().reverse().forEach(it=>{
-      html += `
-        <div class="box" style="margin-top:8px">
-          <b>📝 ${escapeHtml(fmtMaybe(it,["topic"]))}</b>
-          <div class="small" style="margin-top:6px;line-height:1.6">
-            🗂️ ${escapeHtml(fmtMaybe(it,["blog_type"]))} / 🔗 ${escapeHtml(fmtMaybe(it,["blog_url"]))}<br/>
-            🏷️ ${escapeHtml(fmtMaybe(it,["category"]))} / ⏱️ ${escapeHtml(fmtMaybe(it,["created_at"]))}
-          </div>
-        </div>
-      `;
-    });
-    box.innerHTML=html;
-  }catch(e){
-    box.innerHTML=`<div class="small" style="color:var(--danger)">서버 연결 실패</div>`;
-  }
-}
-
-/* ---------------- OAuth Start (front only) ---------------- */
-function oauthStart(){
-  // 서버에서 OAuth 시작 URL을 만들어줘야 함
-  window.open(API_BASE + "/oauth/start", "_blank");
 }
 
 /* ---------------- init ---------------- */
-setProgress(0);
-render();
-updateSel();
+loadBlogsToSelect();
+renderTopics();
 </script>
 </body>
 </html>
-
