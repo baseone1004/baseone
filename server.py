@@ -231,6 +231,39 @@ def api_blogger_blogs():
     items = res.get("items", [])
     out = [{"id": b.get("id"), "name": b.get("name"), "url": b.get("url")} for b in items]
     return jsonify({"ok": True, "count": len(out), "items": out})
+# ---------- API: 즉시 발행(간격) 요청 저장 ----------
+@app.route("/api/publish/now", methods=["POST"])
+def api_publish_now():
+    payload = request.get_json(silent=True) or {}
+
+    blog_type = (payload.get("blog_type") or "").strip()
+    blog_url = (payload.get("blog_url") or "").strip()
+    category = (payload.get("category") or "").strip() or "정보"
+    topic = (payload.get("topic") or "").strip()
+    start_time = (payload.get("start_time") or "").strip() or "NOW"
+    interval_hours = str(payload.get("interval_hours") or "0").strip()
+
+    if not blog_type or not blog_url:
+        return jsonify({"ok": False, "error": "blog_type/blog_url is required"}), 400
+    if not topic:
+        return jsonify({"ok": False, "error": "topic is required"}), 400
+
+    item = {
+        "type": "now_interval",
+        "created_at": now_str(),
+        "blog_type": blog_type,
+        "blog_url": blog_url,
+        "category": category,
+        "topic": topic,
+        "start_time": start_time,
+        "interval_hours": interval_hours
+    }
+
+    q = load_queue()
+    q.append(item)
+    save_queue(q)
+
+    return jsonify({"ok": True, "message": "즉시발행 요청 저장 완료 ✅", "saved": item})
 
 
 # ---------- Blogger: publish post ----------
@@ -276,3 +309,4 @@ def api_publish_list():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
