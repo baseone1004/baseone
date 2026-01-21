@@ -224,6 +224,35 @@ def api_generate():
 @app.route("/api/blogger/blogs", methods=["GET"])
 def api_blogger_blogs():
     svc = get_blogger_client()
+    @app.route("/api/blogger/post", methods=["POST"])
+def api_blogger_post():
+    svc = get_blogger_client()
+    if not svc:
+        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
+
+    payload = request.get_json(silent=True) or {}
+    blog_id = str(payload.get("blog_id", "")).strip()
+    title = str(payload.get("title", "")).strip()
+    html = str(payload.get("html", "")).strip()
+
+    if not blog_id:
+        return jsonify({"ok": False, "error": "blog_id missing"}), 400
+    if not title:
+        return jsonify({"ok": False, "error": "title missing"}), 400
+    if not html:
+        return jsonify({"ok": False, "error": "html missing"}), 400
+
+    try:
+        post_body = {
+            "kind": "blogger#post",
+            "title": title,
+            "content": html
+        }
+        res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
+        return jsonify({"ok": True, "id": res.get("id"), "url": res.get("url")})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
     if not svc:
         return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
 
@@ -289,6 +318,7 @@ def api_publish_list():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
 
 
 
