@@ -612,6 +612,18 @@ async function publishNow(){
 
   setProgress(10);
   logInfo("🚀 즉시발행 요청...");
+  const payload = {
+  blog_id: blog.blog_id,   // 반드시 있어야 함
+  title: getSelectedTitle(),
+  html: document.getElementById("finalBody").textContent
+};
+
+const res = await fetch(API_BASE + "/api/blogger/post", {
+  method: "POST",
+  headers: {"Content-Type":"application/json"},
+  body: JSON.stringify(payload)
+});
+
   const payload={
     blog_type: blog.type,
     blog_url: blog.url,
@@ -654,3 +666,4 @@ renderTopics();
 </script>
 </body>
 </html>
+
