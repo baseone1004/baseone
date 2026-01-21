@@ -375,6 +375,82 @@
 
     <div class="grid" id="catGrid"></div>
   </div>
+<!-- ✅ 실시간 실행 보기 (주제생성 아래) -->
+<div class="box" id="runBox">
+  <div class="row">
+    <div>
+      <b>🟢 실시간 실행 보기</b>
+      <div class="small">AI 생성/발행 진행 상황이 여기 실시간으로 기록됩니다.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="toggleRunBox()">👀 토글</button>
+      <button class="btn danger" onclick="clearRunLog()">🧹 지우기</button>
+    </div>
+  </div>
+
+  <!-- 진행률 바 -->
+  <div style="margin-top:10px">
+    <div class="small" id="progressLabel">진행률: 0%</div>
+    <div style="height:10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);overflow:hidden">
+      <div id="progressBar" style="height:100%;width:0%;background:linear-gradient(135deg,var(--primary),var(--good));"></div>
+    </div>
+  </div>
+
+  <div id="runLog" style="margin-top:10px;background:rgba(35,49,91,.78);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:10px;max-height:220px;overflow:auto;font-size:12px;line-height:1.6"></div>
+</div>
+
+<!-- ✅ 작성글 미리보기 -->
+<div class="box" id="previewBox" style="display:none">
+  <div class="row">
+    <div>
+      <b>👀 작성글 미리보기</b>
+      <div class="small" id="previewMeta">-</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="togglePreview()">👀 토글</button>
+      <button class="btn" onclick="openPreviewWindow()">🧾 새창으로 보기</button>
+    </div>
+  </div>
+
+  <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="finalCard">
+      <div class="finalHead">
+        <div class="finalTitle">🖼️ 이미지 미리보기</div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="small">image_url</div>
+        <div class="finalText" id="previewImageUrl" style="min-height:60px"></div>
+        <div style="margin-top:10px">
+          <img id="previewImg" src="" alt="preview" style="width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.14);display:none"/>
+          <div class="small" id="previewImgHint" style="margin-top:8px;color:var(--muted)">이미지 URL이 없으면 미리보기가 안 보일 수 있어요.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="finalCard">
+      <div class="finalHead">
+        <div class="finalTitle">📝 본문 HTML 미리보기</div>
+      </div>
+      <div id="previewHtmlFrame" style="margin-top:8px;background:#fff;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.14);min-height:360px">
+        <iframe id="previewIframe" style="width:100%;height:360px;border:0"></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ 실행목록 -->
+<div class="box" id="historyBox">
+  <div class="row">
+    <div>
+      <b>📌 실행목록</b>
+      <div class="small">최근 실행 기록이 저장됩니다(브라우저에 저장).</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="clearHistory()">🧹 전체삭제</button>
+    </div>
+  </div>
+  <div id="historyList" class="topicScroll" style="max-height:260px"></div>
+</div>
 
   <!-- 주제 목록 -->
   <div class="box">
@@ -452,8 +528,9 @@
     </div>
 
     <div class="row" style="margin-top:10px">
-      <button class="btn good" onclick="publishInstant()">🚀 즉시발행(저장)</button>
-      <button class="btn primary" onclick="publishWithInterval()">⏱ 즉시발행(예약 저장)</button>
+<button class="btn good" onclick="publishInstant()">🚀 즉시발행</button>
+<button class="btn" onclick="showPreview()">👀 작성글 미리보기</button>
+
       <button class="btn" onclick="loadPublishList()">📦 발행요청 리스트</button>
     </div>
 
@@ -463,6 +540,204 @@
 </div>
 
 <script>
+  // ===========================
+// ✅ 실시간 실행 로그 + 진행률
+// ===========================
+function toggleRunBox(){
+  const box = document.getElementById("runBox");
+  box.style.display = (box.style.display==="none" ? "block" : "none");
+}
+function clearRunLog(){ document.getElementById("runLog").innerHTML=""; setProgress(0); }
+function runLine(icon, color, msg){
+  const log = document.getElementById("runLog");
+  const t = new Date();
+  const time = String(t.getHours()).padStart(2,"0")+":"+String(t.getMinutes()).padStart(2,"0")+":"+String(t.getSeconds()).padStart(2,"0");
+  log.innerHTML += `<div style="color:${color}">${icon} <b>[${time}]</b> ${escapeHtml(msg)}</div>`;
+  log.scrollTop = log.scrollHeight;
+}
+function runInfo(msg){ runLine("🟦","#f6f8ff",msg); }
+function runOk(msg){ runLine("✅","#9ff5d2",msg); }
+function runErr(msg){ runLine("❌","#ffb4b4",msg); }
+
+function setProgress(pct){
+  const p = Math.max(0, Math.min(100, Number(pct)||0));
+  document.getElementById("progressBar").style.width = p + "%";
+  document.getElementById("progressLabel").textContent = `진행률: ${p}%`;
+}
+
+// ===========================
+// ✅ 실행목록(히스토리) 저장
+// ===========================
+const HISTORY_KEY = "baseone_run_history_v1";
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]") || []; }catch(e){ return []; }
+}
+function saveHistory(arr){
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(arr.slice(0,200)));
+}
+function pushHistory(item){
+  const h = loadHistory();
+  h.unshift(item);
+  saveHistory(h);
+  renderHistory();
+}
+function clearHistory(){
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+}
+function renderHistory(){
+  const box = document.getElementById("historyList");
+  if(!box) return;
+  const h = loadHistory();
+  if(!h.length){
+    box.innerHTML = `<div class="small">기록 없음</div>`;
+    return;
+  }
+  box.innerHTML = h.map(it=>{
+    const status = it.status==="ok" ? "✅" : it.status==="err" ? "❌" : "🟦";
+    return `
+      <div class="card">
+        <div style="flex:1">
+          <div class="cardTitle">${status} ${escapeHtml(it.title || "-")}</div>
+          <div class="meta">${escapeHtml(it.time || "")} · ${escapeHtml(it.action || "")} · ${escapeHtml(it.blog || "")}</div>
+          ${it.url ? `<div class="meta"><a href="${it.url}" target="_blank" rel="noopener noreferrer">🔗 ${escapeHtml(it.url)}</a></div>` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+document.addEventListener("DOMContentLoaded", renderHistory);
+
+// ===========================
+// ✅ 작성글 미리보기
+// ===========================
+function showPreview(){
+  const body = document.getElementById("finalBody")?.textContent?.trim() || "";
+  const imgUrl = document.getElementById("finalImage")?.textContent?.trim() || "";
+
+  if(!body){
+    alert("먼저 ✨ AI 생성으로 본문을 만든 뒤 미리보기를 확인하세요!");
+    return;
+  }
+
+  const meta = document.getElementById("finalMeta")?.textContent || "";
+  document.getElementById("previewMeta").textContent = meta;
+
+  document.getElementById("previewImageUrl").textContent = imgUrl;
+  const img = document.getElementById("previewImg");
+  const hint = document.getElementById("previewImgHint");
+
+  // finalImage에는 프롬프트+URL이 같이 들어갈 수 있으니 URL만 뽑아보자
+  const urlMatch = (imgUrl.match(/https?:\/\/[^\s]+/g) || [])[0] || "";
+  if(urlMatch){
+    img.src = urlMatch;
+    img.style.display = "block";
+    hint.style.display = "none";
+  }else{
+    img.style.display = "none";
+    hint.style.display = "block";
+  }
+
+  // iframe 미리보기(HTML)
+  const iframe = document.getElementById("previewIframe");
+  const doc = `
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>미리보기</title>
+<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;padding:16px;line-height:1.7}</style>
+</head><body>${body}</body></html>`;
+  iframe.srcdoc = doc;
+
+  document.getElementById("previewBox").style.display = "block";
+}
+function togglePreview(){
+  const box = document.getElementById("previewBox");
+  box.style.display = (box.style.display==="none" ? "block" : "none");
+}
+function openPreviewWindow(){
+  const body = document.getElementById("finalBody")?.textContent?.trim() || "";
+  if(!body){ alert("본문이 없습니다."); return; }
+  const w = window.open("", "_blank");
+  w.document.open();
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>미리보기</title></head><body>${body}</body></html>`);
+  w.document.close();
+}
+
+// ===========================
+// ✅ 즉시발행: "저장"이 아니라 "바로 포스팅"
+// ===========================
+async function publishInstant(){
+  const blog=getSelectedBlog();
+  if(!blog || !selectedTopic){
+    alert("블로그와 주제를 선택하세요");
+    return;
+  }
+
+  // 반드시 AI 생성 결과가 있어야 함
+  const html = document.getElementById("finalBody")?.textContent?.trim() || "";
+  if(!html){
+    alert("먼저 ✨ AI 생성 후 발행하세요!");
+    return;
+  }
+
+  // blog_id 필수 (서버에서 /api/blogger/blogs로 받아온 경우 존재)
+  if(!blog.blog_id){
+    alert("blog_id가 없습니다. 블로그 목록을 /api/blogger/blogs에서 불러오는 방식인지 확인하세요.");
+    return;
+  }
+
+  setProgress(5);
+  runInfo(`🛰️ 서버: ${API_BASE}`);
+  runInfo(`🗂️ 블로그: ${blog.name || blog.url || "-"} (${blog.type})`);
+  runInfo(`🧠 주제: ${selectedTopic}`);
+  runInfo("🚀 즉시발행 시작...");
+  pushHistory({time:new Date().toLocaleString(), action:"즉시발행 시작", title:selectedTopic, blog:(blog.name||blog.url||""), status:"run"});
+
+  const payload={
+    blog_type: blog.type,
+    blog_id: blog.blog_id,
+    blog_url: blog.url,
+    category: selectedCat || "정보",
+    title: selectedTopic,
+    html: html
+  };
+
+  try{
+    setProgress(35);
+    runInfo("1) 서버에 업로드 요청 전송");
+
+    const res = await fetch(API_BASE+"/api/publish/now",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+
+    setProgress(70);
+    const j = await res.json().catch(()=> ({}));
+
+    if(!res.ok || !j.ok){
+      setProgress(0);
+      runErr("❌ 발행 실패: " + (j.error || "unknown error"));
+      pushHistory({time:new Date().toLocaleString(), action:"즉시발행 실패", title:selectedTopic, blog:(blog.name||blog.url||""), status:"err"});
+      alert("발행 실패: " + (j.error || "unknown error"));
+      return;
+    }
+
+    setProgress(100);
+    runOk("✅ 발행 완료!");
+    if(j.url) runOk("🔗 " + j.url);
+
+    pushHistory({time:new Date().toLocaleString(), action:"즉시발행 완료", title:selectedTopic, blog:(blog.name||blog.url||""), status:"ok", url:j.url||""});
+    alert("발행 완료!\n" + (j.url || ""));
+
+  }catch(e){
+    setProgress(0);
+    runErr("❌ 서버 연결 실패(네트워크/CORS/API_BASE 확인)");
+    pushHistory({time:new Date().toLocaleString(), action:"즉시발행 서버연결실패", title:selectedTopic, blog:(blog.name||blog.url||""), status:"err"});
+    alert("서버 연결 실패!");
+  }
+}
+
 /* ---------------- Theme ---------------- */
 const THEME_KEY="baseone_theme_v1";
 (function initTheme(){
@@ -1129,3 +1404,4 @@ updateSel();
 </script>
 </body>
 </html>
+
