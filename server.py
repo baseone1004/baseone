@@ -234,63 +234,43 @@ def api_blogger_blogs():
 # ---------- API: 즉시 발행(간격) 요청 저장 ----------
 @app.route("/api/publish/now", methods=["POST"])
 def api_publish_now():
-    payload = request.get_json(silent=True) or {}
+    try:
+        payload = request.get_json(force=True)
 
-    blog_type = (payload.get("blog_type") or "").strip()
-    blog_url = (payload.get("blog_url") or "").strip()
-    category = (payload.get("category") or "").strip() or "정보"
-    topic = (payload.get("topic") or "").strip()
-    start_time = (payload.get("start_time") or "").strip() or "NOW"
-    interval_hours = str(payload.get("interval_hours") or "0").strip()
+        blog_type = str(payload.get("blog_type", "")).strip()
+        blog_url = str(payload.get("blog_url", "")).strip()
+        category = str(payload.get("category", "정보")).strip()
+        topic = str(payload.get("topic", "")).strip()
+        start_time = str(payload.get("start_time", "NOW"))
+        interval_hours = str(payload.get("interval_hours", "0"))
 
-    if not blog_type or not blog_url:
-        return jsonify({"ok": False, "error": "blog_type/blog_url is required"}), 400
-    if not topic:
-        return jsonify({"ok": False, "error": "topic is required"}), 400
+        if not blog_type or not blog_url:
+            return jsonify({"ok": False, "error": "blog_type or blog_url missing"}), 400
 
-    item = {
-        "type": "now_interval",
-        "created_at": now_str(),
-        "blog_type": blog_type,
-        "blog_url": blog_url,
-        "category": category,
-        "topic": topic,
-        "start_time": start_time,
-        "interval_hours": interval_hours
-    }
+        if not topic:
+            return jsonify({"ok": False, "error": "topic missing"}), 400
 
-    q = load_queue()
-    q.append(item)
-    save_queue(q)
+        item = {
+            "type": "now_interval",
+            "created_at": now_str(),
+            "blog_type": blog_type,
+            "blog_url": blog_url,
+            "category": category,
+            "topic": topic,
+            "start_time": start_time,
+            "interval_hours": interval_hours
+        }
 
-    return jsonify({"ok": True, "message": "즉시발행 요청 저장 완료 ✅", "saved": item})
+        q = load_queue()
+        q.append(item)
+        save_queue(q)
 
+        return jsonify({"ok": True, "message": "즉시 발행 요청 저장 완료", "saved": item})
 
-# ---------- Blogger: publish post ----------
-@app.route("/api/blogger/publish", methods=["POST"])
-def api_blogger_publish():
-    svc = get_blogger_client()
-    if not svc:
-        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
+    except Exception as e:
+        print("PUBLISH_NOW_ERROR:", e)
+        return jsonify({"ok": False, "error": str(e)}), 500
 
-    payload = request.get_json(silent=True) or {}
-    blog_id = (payload.get("blog_id") or "").strip()
-    title = (payload.get("title") or "").strip()
-    html = (payload.get("html") or "").strip()
-
-    if not blog_id:
-        return jsonify({"ok": False, "error": "blog_id is required"}), 400
-    if not title or not html:
-        return jsonify({"ok": False, "error": "title/html is required"}), 400
-
-    post_body = {
-        "kind": "blogger#post",
-        "title": title,
-        "content": html
-    }
-
-    created = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
-    return jsonify({"ok": True, "id": created.get("id"), "url": created.get("url")})
 
 
 # ---------- 기존 publish queue (유지) ----------
@@ -309,5 +289,6 @@ def api_publish_list():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
 
 
