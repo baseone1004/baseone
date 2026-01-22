@@ -13,12 +13,23 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
 
-# ---------- OAuth (Blogger) ----------
-from google_auth_oauthlib.flow import Flow
-from google.oauth2.credentials import Credentials
-from google.auth.transport.requests import Request as GoogleRequest
-from googleapiclient.discovery import build
 
+# =========================
+# Flask App (가장 중요!)
+# =========================
+app = Flask(__name__, static_folder=".", static_url_path="")
+CORS(app)
+
+# Render/프록시 환경에서 https/host 인식 보정
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
+
+# 세션 (OAuth state 저장용)
+app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
+
+
+# =========================
+# Env / Const
+# =========================
 SCOPES = ["https://www.googleapis.com/auth/blogger"]
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
@@ -27,97 +38,31 @@ OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")
 
 TOKEN_FILE = "google_token.json"
 
-def save_token(creds: Credentials):
-    data = {
-        "token": creds.token,
-        "refresh_token": creds.refresh_token,
-        "token_uri": creds.token_uri,
-        "client_id": creds.client_id,
-        "client_secret": creds.client_secret,
-        "scopes": creds.scopes,
-    }
-    with open(TOKEN_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
 
-def load_token():
-    if not os.path.exists(TOKEN_FILE):
-        return None
-    try:
-        with open(TOKEN_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return Credentials(**data)
-    except Exception:
-        return None
-
-def get_blogger_client():
-    creds = load_token()
-    if not creds:
-        return None
-    try:
-        if creds.expired and creds.refresh_token:
-            creds.refresh(GoogleRequest())
-            save_token(creds)
-    except Exception:
-        return None
-    return build("blogger", "v3", credentials=creds)
-
-def make_flow():
-    if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
-        raise RuntimeError("OAuth env vars missing: GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / OAUTH_REDIRECT_URI")
-
-    client_config = {
-        "web": {
-            "client_id": GOOGLE_CLIENT_ID,
-            "client_secret": GOOGLE_CLIENT_SECRET,
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-        }
-    }
-
-    return Flow.from_client_config(
-        client_config=client_config,
-        scopes=SCOPES,
-        redirect_uri=OAUTH_REDIRECT_URI
-    )
-
-@app.route("/oauth/start")
-def oauth_start():
-    flow = make_flow()
-    auth_url, state = flow.authorization_url(
-        access_type="offline",
-        include_granted_scopes="true",
-        prompt="consent"
-    )
-    session["oauth_state"] = state
-    return redirect(auth_url)
-
-@app.route("/oauth/callback")
-def oauth_callback():
-    flow = make_flow()
-    flow.fetch_token(authorization_response=request.url)
-    creds = flow.credentials
-    save_token(creds)
-    return redirect("/?oauth=ok")
-
-@app.route("/api/oauth/status")
-def oauth_status():
-    return jsonify({"ok": True, "connected": bool(load_token())})
-
-@app.route("/__routes")
-def __routes():
-    return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
+def now_str():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-
-# ---------- Static Pages ----------
+# =========================
+# Static Pages
+# =========================
 @app.route("/")
 def home():
     return send_from_directory(".", "index.html")
 
 
 @app.route("/settings")
-def settings():
+def settings_page():
     return send_from_directory(".", "settings.html")
+
+
+# 정적 파일(로고, js, css 등) 404 방지용
+@app.route("/<path:filename>")
+def static_files(filename):
+    # 파일이 실제로 존재할 때만 서빙
+    if os.path.exists(os.path.join(".", filename)):
+        return send_from_directory(".", filename)
+    return ("Not Found", 404)
 
 
 @app.route("/health")
@@ -125,7 +70,14 @@ def health():
     return jsonify({"ok": True, "time": now_str()})
 
 
-# ---------- Token Save/Load ----------
+@app.route("/__routes")
+def __routes():
+    return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
+
+
+# =========================
+# Token Save/Load
+# =========================
 def save_token(creds: Credentials):
     data = {
         "token": creds.token,
@@ -165,11 +117,13 @@ def get_blogger_client():
     return build("blogger", "v3", credentials=creds)
 
 
-# ---------- OAuth ----------
+# =========================
+# OAuth
+# =========================
 def make_flow():
     if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
         raise RuntimeError(
-            "OAuth env vars missing. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OAUTH_REDIRECT_URI"
+            "OAuth env vars missing: GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / OAUTH_REDIRECT_URI"
         )
 
     client_config = {
@@ -217,11 +171,12 @@ def oauth_callback():
 
 @app.route("/api/oauth/status")
 def oauth_status():
-    creds = load_token()
-    return jsonify({"ok": True, "connected": bool(creds)})
+    return jsonify({"ok": True, "connected": bool(load_token())})
 
 
-# ---------- Pexels ----------
+# =========================
+# Pexels
+# =========================
 def pexels_search_image_url(pexels_key: str, query: str) -> str:
     if not pexels_key:
         return ""
@@ -243,7 +198,9 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
         return ""
 
 
-# ---------- Prompt ----------
+# =========================
+# Prompt (현재는 Gemini 생성 붙이기 전)
+# =========================
 def make_body_prompt(topic: str, category: str) -> str:
     return f"""너는 수익형 정보블로그 작가다.
 아래 조건으로 '{topic}' 글을 한국어로 작성해줘.
@@ -264,7 +221,6 @@ def make_image_prompt(topic: str, category: str) -> str:
     return f'{category} 관련 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
 
 
-# ---------- API generate ----------
 @app.route("/api/generate", methods=["POST"])
 def api_generate():
     payload = request.get_json(silent=True) or {}
@@ -290,7 +246,7 @@ def api_generate():
         "category": category,
         "generated_at": now_str(),
         "title": topic,
-        "html": "",  # 지금은 Gemini 생성 붙이기 전이라 비워둠
+        "html": "",  # ✅ 아직 Gemini 글 생성 붙이기 전이라 비워둠
         "body_prompt": body_prompt,
         "image_prompt": image_prompt,
         "image_provider": img_provider,
@@ -298,7 +254,9 @@ def api_generate():
     })
 
 
-# ---------- Blogger: list blogs ----------
+# =========================
+# Blogger APIs
+# =========================
 @app.route("/api/blogger/blogs", methods=["GET"])
 def api_blogger_blogs():
     svc = get_blogger_client()
@@ -311,7 +269,6 @@ def api_blogger_blogs():
     return jsonify({"ok": True, "count": len(out), "items": out})
 
 
-# ---------- Blogger: post ----------
 @app.route("/api/blogger/post", methods=["POST"])
 def api_blogger_post():
     svc = get_blogger_client()
@@ -338,13 +295,9 @@ def api_blogger_post():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# =========================
+# Local Run
+# =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
-@app.route("/__routes")
-def __routes():
-    return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
-
-
-
-
