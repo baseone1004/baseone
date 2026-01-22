@@ -13,23 +13,100 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
 
-app = Flask(__name__, static_folder=".", static_url_path="")
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # ✅ Render/프록시 환경 필수급
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+# ---------- OAuth (Blogger) ----------
+from google_auth_oauthlib.flow import Flow
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request as GoogleRequest
+from googleapiclient.discovery import build
 
-app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
-
-TOKEN_FILE = "google_token.json"
+SCOPES = ["https://www.googleapis.com/auth/blogger"]
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")
 
-SCOPES = ["https://www.googleapis.com/auth/blogger"]
+TOKEN_FILE = "google_token.json"
 
+def save_token(creds: Credentials):
+    data = {
+        "token": creds.token,
+        "refresh_token": creds.refresh_token,
+        "token_uri": creds.token_uri,
+        "client_id": creds.client_id,
+        "client_secret": creds.client_secret,
+        "scopes": creds.scopes,
+    }
+    with open(TOKEN_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-def now_str():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+def load_token():
+    if not os.path.exists(TOKEN_FILE):
+        return None
+    try:
+        with open(TOKEN_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return Credentials(**data)
+    except Exception:
+        return None
+
+def get_blogger_client():
+    creds = load_token()
+    if not creds:
+        return None
+    try:
+        if creds.expired and creds.refresh_token:
+            creds.refresh(GoogleRequest())
+            save_token(creds)
+    except Exception:
+        return None
+    return build("blogger", "v3", credentials=creds)
+
+def make_flow():
+    if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
+        raise RuntimeError("OAuth env vars missing: GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / OAUTH_REDIRECT_URI")
+
+    client_config = {
+        "web": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+        }
+    }
+
+    return Flow.from_client_config(
+        client_config=client_config,
+        scopes=SCOPES,
+        redirect_uri=OAUTH_REDIRECT_URI
+    )
+
+@app.route("/oauth/start")
+def oauth_start():
+    flow = make_flow()
+    auth_url, state = flow.authorization_url(
+        access_type="offline",
+        include_granted_scopes="true",
+        prompt="consent"
+    )
+    session["oauth_state"] = state
+    return redirect(auth_url)
+
+@app.route("/oauth/callback")
+def oauth_callback():
+    flow = make_flow()
+    flow.fetch_token(authorization_response=request.url)
+    creds = flow.credentials
+    save_token(creds)
+    return redirect("/?oauth=ok")
+
+@app.route("/api/oauth/status")
+def oauth_status():
+    return jsonify({"ok": True, "connected": bool(load_token())})
+
+@app.route("/__routes")
+def __routes():
+    return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
+
 
 
 # ---------- Static Pages ----------
@@ -267,6 +344,7 @@ if __name__ == "__main__":
 @app.route("/__routes")
 def __routes():
     return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
+
 
 
 
