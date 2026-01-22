@@ -164,6 +164,38 @@
         <button class="btn primary" onclick="aiGenerate()">✨ 다시 생성</button>
         <button class="btn good" onclick="publishNow()">🚀 즉시발행</button>
 <script>
+  async function fetchMyBloggerBlogs(){
+  try{
+    const res = await fetch(API_BASE + "/api/blogger/blogs");
+    const j = await res.json();
+    if(!res.ok || !j.ok) {
+      alert("내 블로그 불러오기 실패: " + (j.error || "unknown"));
+      return;
+    }
+
+    const sel = document.getElementById("blogSelect");
+    sel.innerHTML = "";
+
+    (j.items || []).forEach((b, i) => {
+      const opt = document.createElement("option");
+      // ✅ blog_id 포함해서 저장
+      opt.value = JSON.stringify({
+        type:"blogspot",
+        blog_id: b.id,
+        name: b.name,
+        url: b.url
+      });
+      opt.textContent = `🟦 블로그스팟 ${i+1} - ${b.name} (${b.url})`;
+      sel.appendChild(opt);
+    });
+
+    updateBlogNow();
+    alert("블로그 불러오기 완료!");
+  }catch(e){
+    alert("내 블로그 불러오기 실패(서버 연결): " + e);
+  }
+}
+
 async function publishNow(){
   const blog=getSelectedBlog();
   const title=getSelectedTitle();
@@ -843,6 +875,7 @@ renderTopics();
   /* ✅ 디버그 바/텍스트 숨김 (init... 같은 거 나오는 경우) */
   #debug, .debug, #statusBar, #devBar { display:none !important; }
 </style>
+
 
 
 
