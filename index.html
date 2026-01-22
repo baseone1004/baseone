@@ -6,6 +6,14 @@
 <title>BaseOne - 수익형 글 자동화</title>
 <style>
 body{margin:0;font-family:"Noto Sans KR",system-ui;background:#0f1630;color:#fff}
+.wrap{max-width:900px;margin:0 auto;<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BaseOne - 수익형 글 자동화</title>
+<style>
+body{margin:0;font-family:"Noto Sans KR",system-ui;background:#0f1630;color:#fff}
 .wrap{max-width:900px;margin:0 auto;padding:16px}
 .box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;margin:12px 0}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
@@ -202,3 +210,200 @@ loadBlogs();
 </script>
 </body>
 </html>
+padding:16px}
+.box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;margin:12px 0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+button,select,input{padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff}
+button{cursor:pointer;font-weight:700}
+.primary{background:linear-gradient(135deg,#7aa7ff,#38e1c1);border:none}
+.list{max-height:280px;overflow:auto;margin-top:10px}
+.item{padding:8px;border:1px solid rgba(255,255,255,.15);border-radius:10px;margin-bottom:6px;cursor:pointer}
+.item.active{border-color:#7aa7ff;background:rgba(122,167,255,.15)}
+.small{font-size:12px;opacity:.8}
+textarea{width:100%;min-height:180px}
+iframe{width:100%;height:300px;border:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h2>BaseOne – 수익형 자동 글쓰기</h2>
+
+<div class="box">
+  <b>1) 블로그 선택</b><br>
+  <select id="blogSelect"></select>
+  <div class="small">현재: <span id="blogNow">-</span></div>
+</div>
+
+<div class="box">
+  <b>2) 수익형 주제 선택</b>
+  <div style="margin-top:6px">
+    <button onclick="makeTopics('돈/재테크')">돈/재테크</button>
+    <button onclick="makeTopics('생활비')">생활비</button>
+    <button onclick="makeTopics('IT')">IT</button>
+    <button onclick="makeTopics('건강')">건강</button>
+  </div>
+  <div class="list" id="topicList"></div>
+  <button class="primary" onclick="aiGenerate()">✨ AI 글 생성</button>
+</div>
+
+<div class="box" id="previewBox" style="display:none">
+  <b>3) 생성 결과</b>
+  <div class="small" id="meta">-</div>
+
+  <h4>본문</h4>
+  <textarea id="finalBody"></textarea>
+
+  <h4>이미지</h4>
+  <input id="finalImage">
+  <img id="previewImg" style="width:100%;margin-top:6px;display:none">
+
+  <h4>HTML 미리보기</h4>
+  <iframe id="previewIframe"></iframe>
+
+  <button class="primary" onclick="publishNow()">🚀 즉시 발행</button>
+</div>
+
+</div>
+
+<script>
+/* ---------- API BASE ---------- */
+function getApiBase(){
+  const s=JSON.parse(localStorage.getItem("baseone_settings_v3")||"{}");
+  return (s.backend||"http://127.0.0.1:5000").replace(/\/+$/,"");
+}
+const API_BASE=getApiBase();
+
+/* ---------- BLOG SELECT ---------- */
+function loadBlogs(){
+  const sel=document.getElementById("blogSelect");
+  const now=document.getElementById("blogNow");
+  sel.innerHTML="";
+  const v3=JSON.parse(localStorage.getItem("baseone_settings_v3")||"{}");
+  const blogs=(v3.blogspot||[]).map(u=>({type:"blogspot",url:u}));
+  if(!blogs.length){
+    sel.innerHTML=`<option>설정에서 블로그 먼저 추가</option>`;
+    return;
+  }
+  blogs.forEach((b,i)=>{
+    const o=document.createElement("option");
+    o.value=JSON.stringify(b);
+    o.textContent=`블로그 ${i+1} - ${b.url}`;
+    sel.appendChild(o);
+  });
+  updateBlog();
+}
+function updateBlog(){
+  const v=document.getElementById("blogSelect").value;
+  try{
+    const o=JSON.parse(v);
+    document.getElementById("blogNow").textContent=o.type+" / "+o.url;
+  }catch(e){
+    document.getElementById("blogNow").textContent="-";
+  }
+}
+document.getElementById("blogSelect").onchange=updateBlog;
+function getBlog(){
+  try{return JSON.parse(document.getElementById("blogSelect").value)}catch(e){return null}
+}
+
+/* ---------- TOPICS ---------- */
+let topics=[],selectedId="",selectedCat="";
+function buildIdeas(cat){
+  const base=[
+    "월 10만원 아끼는 방법",
+    "고정비 줄이는 순서",
+    "카드 혜택 200% 쓰기",
+    "전기요금 절약법",
+    "보험료 줄이기"
+  ];
+  return base.map(b=>`${cat} - ${b}`);
+}
+function makeTopics(cat){
+  selectedCat=cat;
+  const arr=buildIdeas(cat);
+  topics=arr.map((t,i)=>({id:"t"+i,title:t}));
+  selectedId=topics[0]?.id||"";
+  renderTopics();
+}
+function renderTopics(){
+  const box=document.getElementById("topicList");
+  box.innerHTML="";
+  topics.forEach(t=>{
+    const d=document.createElement("div");
+    d.className="item"+(t.id===selectedId?" active":"");
+    d.textContent=t.title;
+    d.onclick=()=>{selectedId=t.id;renderTopics()};
+    box.appendChild(d);
+  });
+}
+function getTitle(){
+  return topics.find(x=>x.id===selectedId)?.title||"";
+}
+
+/* ---------- AI GENERATE ---------- */
+async function aiGenerate(){
+  const blog=getBlog();
+  const title=getTitle();
+  if(!blog){alert("블로그 선택");return;}
+  if(!title){alert("주제 선택");return;}
+
+  const s=JSON.parse(localStorage.getItem("baseone_settings_v3")||"{}");
+  const payload={
+    topic:title,
+    category:selectedCat,
+    img_provider:"pexels",
+    pexels_key:s.pexels_key||""
+  };
+
+  const res=await fetch(API_BASE+"/api/generate",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  });
+  const data=await res.json();
+
+  document.getElementById("previewBox").style.display="block";
+  document.getElementById("finalBody").value=data.body_prompt||"";
+  document.getElementById("finalImage").value=data.image_url||"";
+  document.getElementById("meta").textContent=data.topic+" / "+data.category;
+
+  const iframe=document.getElementById("previewIframe");
+  iframe.srcdoc=`<html><body>${data.body_prompt||""}</body></html>`;
+
+  const img=document.getElementById("previewImg");
+  if(data.image_url){
+    img.src=data.image_url;
+    img.style.display="block";
+  }else img.style.display="none";
+}
+
+/* ---------- PUBLISH ---------- */
+async function publishNow(){
+  const blog=getBlog();
+  const title=getTitle();
+  const html=document.getElementById("finalBody").value;
+  if(!blog||!title||!html){alert("정보 부족");return;}
+
+  const payload={
+    blog_id: blog.blog_id,
+    title: title,
+    html: html
+  };
+
+  const res=await fetch(API_BASE+"/api/blogger/post",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(payload)
+  });
+  const j=await res.json();
+  if(!res.ok){alert("실패: "+(j.error||""));return;}
+  alert("발행 완료!\n"+j.url);
+}
+
+/* ---------- INIT ---------- */
+loadBlogs();
+</script>
+</body>
+</html>
+
