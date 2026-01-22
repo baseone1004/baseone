@@ -1,155 +1,203 @@
+import os
+import json
+import time
+import sqlite3
+import threading
+from datetime import datetime, timezone
+from typing import Optional, Dict, Any
+
+import requests
 from flask import Flask, request, jsonify, send_from_directory, redirect, session
 from flask_cors import CORS
-import os, json, time, threading
-from datetime import datetime
-import requests
-from typing import Optional, List, Dict, Any
 
-# Google OAuth / Blogger
+# Blogger OAuth / API
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
 
+
+# -----------------------------
+# App
+# -----------------------------
 app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
 
-TOKEN_FILE = "google_token.json"         # Render free는 재시작시 날아갈 수 있음(임시)
-QUEUE_FILE = "publish_queue.json"        # 예약/요청 저장
-SCOPES = ["https://www.googleapis.com/auth/blogger"]
+DB_FILE = os.environ.get("BASEONE_DB", "baseone.db")
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
-OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")
+OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")  # ex) https://xxxx.onrender.com/oauth/blogger/callback
 
-# Gemini
-GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta"
+SCOPES = ["https://www.googleapis.com/auth/blogger"]
 
 
-def now_str():
+def now_str() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-# ---------------- Static Pages ----------------
+def utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def parse_iso(dt_str: str) -> datetime:
+    # "2026-01-22T14:30" (no tz) or ISO
+    try:
+        if dt_str.endswith("Z"):
+            return datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+        return datetime.fromisoformat(dt_str)
+    except Exception:
+        # fallback: local naive -> treat as local time (no tz)
+        return datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+
+
+# -----------------------------
+# DB helpers
+# -----------------------------
+def db() -> sqlite3.Connection:
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS kv (
+        k TEXT PRIMARY KEY,
+        v TEXT NOT NULL
+    )
+    """)
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        platform TEXT NOT NULL,            -- "blogspot" | "naver" | "tistory"
+        blog_id TEXT,                      -- blogspot uses blog_id
+        blog_url TEXT,
+        title TEXT NOT NULL,
+        html TEXT NOT NULL,
+        run_at TEXT NOT NULL,              -- ISO string
+        status TEXT NOT NULL DEFAULT 'pending', -- pending | running | ok | err | canceled
+        result_url TEXT,
+        error TEXT,
+        created_at TEXT NOT NULL
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+
+def kv_set(k: str, v: Dict[str, Any]):
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO kv(k,v) VALUES(?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v", (k, json.dumps(v)))
+    conn.commit()
+    conn.close()
+
+
+def kv_get(k: str) -> Optional[Dict[str, Any]]:
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("SELECT v FROM kv WHERE k=?", (k,))
+    row = cur.fetchone()
+    conn.close()
+    if not row:
+        return None
+    try:
+        return json.loads(row["v"])
+    except Exception:
+        return None
+
+
+# -----------------------------
+# Static
+# -----------------------------
 @app.route("/")
 def home():
     return send_from_directory(".", "index.html")
 
+
 @app.route("/settings")
-def settings_page():
+def settings():
     return send_from_directory(".", "settings.html")
+
 
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "time": now_str()})
 
 
-# ---------------- File Queue ----------------
-def load_queue() -> List[Dict[str, Any]]:
-    if not os.path.exists(QUEUE_FILE):
-        return []
-    try:
-        with open(QUEUE_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f) or []
-        return data if isinstance(data, list) else []
-    except Exception:
-        return []
+# -----------------------------
+# Gemini (Text)
+#   - key is passed from client for simplicity (solo use)
+#   - REST endpoint + x-goog-api-key header :contentReference[oaicite:5]{index=5}
+# -----------------------------
+def gemini_generate_text(*, api_key: str, model: str, prompt: str, temperature: float = 0.6) -> str:
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY is missing")
 
-def save_queue(items: List[Dict[str, Any]]):
-    with open(QUEUE_FILE, "w", encoding="utf-8") as f:
-        json.dump(items, f, ensure_ascii=False, indent=2)
-
-def add_queue(item: Dict[str, Any]):
-    q = load_queue()
-    q.append(item)
-    save_queue(q)
-
-
-# ---------------- Token Save/Load ----------------
-def save_token(creds: Credentials):
-    data = {
-        "token": creds.token,
-        "refresh_token": creds.refresh_token,
-        "token_uri": creds.token_uri,
-        "client_id": creds.client_id,
-        "client_secret": creds.client_secret,
-        "scopes": creds.scopes,
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    headers = {
+        "x-goog-api-key": api_key,
+        "Content-Type": "application/json",
     }
-    with open(TOKEN_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-def load_token() -> Optional[Credentials]:
-    if not os.path.exists(TOKEN_FILE):
-        return None
-    try:
-        with open(TOKEN_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return Credentials(**data)
-    except Exception:
-        return None
-
-def get_blogger_client():
-    creds = load_token()
-    if not creds:
-        return None
-    try:
-        if creds.expired and creds.refresh_token:
-            creds.refresh(GoogleRequest())
-            save_token(creds)
-    except Exception:
-        return None
-    return build("blogger", "v3", credentials=creds)
-
-
-# ---------------- OAuth ----------------
-def make_flow():
-    if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
-        raise RuntimeError(
-            "OAuth env vars missing. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OAUTH_REDIRECT_URI"
-        )
-
-    client_config = {
-        "web": {
-            "client_id": GOOGLE_CLIENT_ID,
-            "client_secret": GOOGLE_CLIENT_SECRET,
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": temperature,
         }
     }
-
-    return Flow.from_client_config(
-        client_config=client_config,
-        scopes=SCOPES,
-        redirect_uri=OAUTH_REDIRECT_URI
-    )
-
-@app.route("/oauth/start")
-def oauth_start():
-    flow = make_flow()
-    auth_url, state = flow.authorization_url(
-        access_type="offline",
-        include_granted_scopes="true",
-        prompt="consent"
-    )
-    session["oauth_state"] = state
-    return redirect(auth_url)
-
-@app.route("/oauth/callback")
-def oauth_callback():
-    flow = make_flow()
-    flow.fetch_token(authorization_response=request.url)
-    creds = flow.credentials
-    save_token(creds)
-    return redirect("/?oauth=ok")
-
-@app.route("/api/oauth/status")
-def oauth_status():
-    return jsonify({"ok": True, "connected": bool(load_token())})
+    r = requests.post(url, headers=headers, json=payload, timeout=60)
+    if r.status_code != 200:
+        raise RuntimeError(f"Gemini error {r.status_code}: {r.text[:500]}")
+    data = r.json()
+    # candidates[0].content.parts[0].text
+    try:
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception:
+        return json.dumps(data, ensure_ascii=False)
 
 
-# ---------------- Pexels ----------------
+def money_topic_prompt(count: int = 30) -> str:
+    return f"""
+너는 한국 수익형 정보블로그(애드센스/애드포스트) 전문 기획자다.
+
+조건:
+- 클릭을 부르는 제목 {count}개
+- 돈 되는 키워드 위주(절약/세금/보험/대출/연금/부동산/신용/통신비/전기요금/정부지원금/환급/연말정산/카드혜택)
+- 과장 금지, 합법적/현실적 내용
+- 출력 형식: JSON 배열(문자열만) 예) ["제목1","제목2",...]
+
+JSON만 출력해.
+""".strip()
+
+
+def article_html_prompt(topic: str, category: str) -> str:
+    return f"""
+너는 한국 수익형 정보블로그 전문 작가다.
+아래 조건으로 "{topic}" 글을 한국어로 작성해줘.
+
+- 카테고리: {category}
+- 분량: 6,000~10,000자 (너무 길게 말고 실제로 읽히게)
+- 구조: H2 6~8개 + 필요시 H3
+- 표 1개 포함(<table>)
+- 박스형 안내 2개 이상 (✅ TIP / ⚠️ 주의 / 💡 핵심요약 등)
+- 마지막: 5줄 요약 + FAQ 5개 + 행동유도(댓글/구독/다음글)
+
+중요:
+- 애드센스 정책 위반될 만한 과장/확정수익 표현 금지
+- 의료/법률/투자 조언은 "일반 정보" 고지 포함
+
+출력은 블로그에 바로 붙여넣기 좋은 HTML로만 출력해.
+""".strip()
+
+
+# -----------------------------
+# Pexels
+# -----------------------------
 def pexels_search_image_url(pexels_key: str, query: str) -> str:
     if not pexels_key:
         return ""
@@ -157,7 +205,7 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
     headers = {"Authorization": pexels_key}
     params = {"query": query, "per_page": 1, "orientation": "landscape", "size": "large"}
     try:
-        r = requests.get(url, headers=headers, params=params, timeout=20)
+        r = requests.get(url, headers=headers, params=params, timeout=15)
         if r.status_code != 200:
             return ""
         data = r.json()
@@ -170,128 +218,164 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
         return ""
 
 
-# ---------------- Gemini (text) ----------------
-def gemini_generate_text(api_key: str, model: str, prompt: str) -> str:
-    if not api_key:
-        raise RuntimeError("GEMINI_API_KEY missing")
-
-    url = f"{GEMINI_API_BASE}/models/{model}:generateContent?key={api_key}"
-    payload = {
-        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": 0.7,
-            "maxOutputTokens": 8192,
+# -----------------------------
+# Blogger OAuth + Client
+# -----------------------------
+def make_blogger_flow() -> Flow:
+    if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
+        raise RuntimeError("OAuth env vars missing. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OAUTH_REDIRECT_URI")
+    client_config = {
+        "web": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
         }
     }
-    r = requests.post(url, json=payload, timeout=60)
-    if r.status_code != 200:
-        raise RuntimeError(f"Gemini error {r.status_code}: {r.text[:400]}")
-    data = r.json()
-
-    # candidates[0].content.parts[].text
-    cands = data.get("candidates", [])
-    if not cands:
-        return ""
-    parts = (cands[0].get("content", {}) or {}).get("parts", []) or []
-    texts = [p.get("text", "") for p in parts if isinstance(p, dict)]
-    return "\n".join([t for t in texts if t]).strip()
+    return Flow.from_client_config(client_config=client_config, scopes=SCOPES, redirect_uri=OAUTH_REDIRECT_URI)
 
 
-# ---------------- Prompts ----------------
-def make_money_topic_prompt(n: int = 30) -> str:
-    return f"""
-너는 애드센스/애드포스트 수익형 블로그 기획자다.
-한국어로 "클릭/검색수/광고단가"가 높은 주제 위주로 제목 {n}개만 뽑아줘.
-
-조건:
-- 생활비 절약, 세금/연말정산, 보험, 통신비, 대출/금리, 정부지원금, 신용점수, 자격증, IT문제해결(보안/속도), 자동차 비용절감, 건강검진/실비 같은 실용 주제 위주
-- 제목은 과장 금지(허위/사기 느낌 X), 하지만 클릭 유도는 가능
-- 형식: 한 줄에 제목 1개, 번호 붙이지 말 것
-""".strip()
-
-def make_body_prompt(topic: str, category: str) -> str:
-    return f"""
-너는 수익형 정보블로그 작가다.
-아래 조건으로 '{topic}' 글을 한국어로 작성해줘.
-
-- 카테고리: {category}
-- 분량: 5,000~8,000자 (너무 길면 품질이 떨어짐)
-- H2 소제목 7~9개
-- 표 1개 포함(<table>)
-- 체크박스/박스 디자인(✅💡⚠️)을 <div>로 2~4개 사용
-- 마지막: 요약(3~5줄) + FAQ 5개 + 행동유도 2줄
-- 출력은 블로그에 붙여넣기 좋은 "HTML"로 작성
-
-중요:
-- 의료/금융은 과장 금지, "개인차/상황별 상이" 고지
-- 출처가 필요한 수치/정책은 일반화하지 말고 "확인 필요"로 처리
-""".strip()
-
-def make_image_prompt(topic: str, category: str) -> str:
-    return f'{category} 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 미니멀, 고해상도, 16:9'
+def save_google_token(creds: Credentials):
+    data = {
+        "token": creds.token,
+        "refresh_token": creds.refresh_token,
+        "token_uri": creds.token_uri,
+        "client_id": creds.client_id,
+        "client_secret": creds.client_secret,
+        "scopes": creds.scopes,
+    }
+    kv_set("google_token", data)
 
 
-# ---------------- API: profit topics ----------------
-@app.route("/api/topics/profit", methods=["POST"])
-def api_topics_profit():
+def load_google_token() -> Optional[Credentials]:
+    data = kv_get("google_token")
+    if not data:
+        return None
+    try:
+        return Credentials(**data)
+    except Exception:
+        return None
+
+
+def get_blogger_client():
+    creds = load_google_token()
+    if not creds:
+        return None
+    try:
+        if creds.expired and creds.refresh_token:
+            creds.refresh(GoogleRequest())
+            save_google_token(creds)
+    except Exception:
+        return None
+    return build("blogger", "v3", credentials=creds)
+
+
+@app.route("/oauth/blogger/start")
+def oauth_blogger_start():
+    flow = make_blogger_flow()
+    auth_url, state = flow.authorization_url(access_type="offline", include_granted_scopes="true", prompt="consent")
+    session["oauth_state"] = state
+    return redirect(auth_url)
+
+
+@app.route("/oauth/blogger/callback")
+def oauth_blogger_callback():
+    flow = make_blogger_flow()
+    flow.fetch_token(authorization_response=request.url)
+    creds = flow.credentials
+    save_google_token(creds)
+    return redirect("/settings?oauth=blogger_ok")
+
+
+@app.route("/api/blogger/status")
+def blogger_status():
+    return jsonify({"ok": True, "connected": bool(load_google_token())})
+
+
+@app.route("/api/blogger/blogs")
+def blogger_blogs():
+    svc = get_blogger_client()
+    if not svc:
+        return jsonify({"ok": False, "error": "Blogger OAuth not connected. Go /oauth/blogger/start"}), 401
+
+    res = svc.blogs().listByUser(userId="self").execute()
+    items = res.get("items", [])
+    out = [{"id": b.get("id"), "name": b.get("name"), "url": b.get("url")} for b in items]
+    return jsonify({"ok": True, "items": out})
+
+
+@app.route("/api/blogger/post", methods=["POST"])
+def blogger_post_now():
+    svc = get_blogger_client()
+    if not svc:
+        return jsonify({"ok": False, "error": "Blogger OAuth not connected. Go /oauth/blogger/start"}), 401
+
     payload = request.get_json(silent=True) or {}
-    api_key = (payload.get("gemini_key") or "").strip()
-    model = (payload.get("gemini_model") or "gemini-2.0-flash").strip()
-    n = int(payload.get("n") or 30)
+    blog_id = str(payload.get("blog_id", "")).strip()
+    title = str(payload.get("title", "")).strip()
+    html = str(payload.get("html", "")).strip()
 
-    # Gemini 키 없으면 간단 폴백
-    if not api_key:
-        fallback = [
-            "연말정산 환급 늘리는 공제 항목 체크리스트",
-            "통신비 한 달에 2만원 줄이는 순서",
-            "실손보험 청구할 때 자주 놓치는 서류 7가지",
-            "신용점수 올리는 가장 쉬운 습관 5가지",
-            "전기요금 줄이는 집안 설정 10분 점검표",
-        ]
-        while len(fallback) < n:
-            fallback.append(f"생활비 절약 체크리스트 {len(fallback)+1}")
-        return jsonify({"ok": True, "items": fallback[:n], "source": "fallback"})
+    if not blog_id:
+        return jsonify({"ok": False, "error": "blog_id is required"}), 400
+    if not title:
+        return jsonify({"ok": False, "error": "title is required"}), 400
+    if not html:
+        return jsonify({"ok": False, "error": "html is required"}), 400
 
     try:
-        txt = gemini_generate_text(api_key, model, make_money_topic_prompt(n))
-        items = [line.strip() for line in txt.splitlines() if line.strip()]
-        # 너무 길거나 이상한 줄 제거
-        items = [x[:80] for x in items if len(x) >= 6]
-        return jsonify({"ok": True, "items": items[:n], "source": "gemini"})
+        post_body = {"kind": "blogger#post", "title": title, "content": html}
+        # posts.insert 
+        res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
+        return jsonify({"ok": True, "id": res.get("id"), "url": res.get("url")})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-# ---------------- API: generate post ----------------
+# -----------------------------
+# API: money topics / generate article
+# -----------------------------
+@app.route("/api/topics/money", methods=["POST"])
+def api_topics_money():
+    payload = request.get_json(silent=True) or {}
+    api_key = str(payload.get("gemini_key", "")).strip()
+    model = str(payload.get("gemini_model", "")).strip() or "gemini-3-flash-preview"
+    count = int(payload.get("count", 30) or 30)
+
+    text = gemini_generate_text(api_key=api_key, model=model, prompt=money_topic_prompt(count), temperature=0.7)
+    # expect JSON array
+    try:
+        arr = json.loads(text)
+        arr = [str(x).strip() for x in arr if str(x).strip()]
+        return jsonify({"ok": True, "items": arr[:count]})
+    except Exception:
+        # fallback: split lines
+        lines = [x.strip("-• \t") for x in text.splitlines() if x.strip()]
+        return jsonify({"ok": True, "items": lines[:count], "raw": text})
+
+
 @app.route("/api/generate", methods=["POST"])
 def api_generate():
     payload = request.get_json(silent=True) or {}
-    topic = (payload.get("topic") or "").strip()
-    category = (payload.get("category") or "정보").strip()
-    gemini_key = (payload.get("gemini_key") or "").strip()
-    gemini_model = (payload.get("gemini_model") or "gemini-2.0-flash").strip()
+    topic = str(payload.get("topic", "")).strip()
+    category = str(payload.get("category", "")).strip() or "돈/재테크"
 
-    img_provider = (payload.get("img_provider") or "pexels").strip()  # pexels|gemini(추후)
-    pexels_key = (payload.get("pexels_key") or "").strip()
+    gemini_key = str(payload.get("gemini_key", "")).strip()
+    gemini_model = str(payload.get("gemini_model", "")).strip() or "gemini-3-flash-preview"
+
+    img_provider = str(payload.get("img_provider", "")).strip() or "pexels"  # pexels | gemini(prompt only)
+    pexels_key = str(payload.get("pexels_key", "")).strip()
 
     if not topic:
         return jsonify({"ok": False, "error": "topic is required"}), 400
 
-    body_prompt = make_body_prompt(topic, category)
-    image_prompt = make_image_prompt(topic, category)
+    html = gemini_generate_text(
+        api_key=gemini_key,
+        model=gemini_model,
+        prompt=article_html_prompt(topic, category),
+        temperature=0.6
+    )
 
-    # 글 생성(Gemini)
-    html = ""
-    if gemini_key:
-        try:
-            html = gemini_generate_text(gemini_key, gemini_model, body_prompt)
-        except Exception as e:
-            return jsonify({"ok": False, "error": f"Gemini failed: {str(e)}"}), 500
-    else:
-        # 키 없으면 프롬프트만 반환(테스트)
-        html = body_prompt
-
-    # 이미지: Pexels(안정)
+    image_prompt = f'{category} 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 미니멀, 고해상도, 16:9'
     image_url = ""
     if img_provider == "pexels":
         q = f"{topic} {category}".strip()
@@ -302,184 +386,173 @@ def api_generate():
         "topic": topic,
         "category": category,
         "generated_at": now_str(),
-        "title": topic,
         "html": html,
-        "body_prompt": body_prompt,
-        "image_prompt": image_prompt,
         "image_provider": img_provider,
+        "image_prompt": image_prompt,
         "image_url": image_url
     })
 
 
-# ---------------- Blogger: list blogs ----------------
-@app.route("/api/blogger/blogs", methods=["GET"])
-def api_blogger_blogs():
-    svc = get_blogger_client()
-    if not svc:
-        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
-    res = svc.blogs().listByUser(userId="self").execute()
-    items = res.get("items", [])
-    out = [{"id": b.get("id"), "name": b.get("name"), "url": b.get("url")} for b in items]
-    return jsonify({"ok": True, "count": len(out), "items": out})
+# -----------------------------
+# Scheduler / Tasks
+# -----------------------------
+def task_add(platform: str, blog_id: str, blog_url: str, title: str, html: str, run_at: str) -> int:
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO tasks(platform, blog_id, blog_url, title, html, run_at, status, created_at)
+        VALUES(?,?,?,?,?,?, 'pending', ?)
+    """, (platform, blog_id, blog_url, title, html, run_at, utc_now_iso()))
+    conn.commit()
+    tid = cur.lastrowid
+    conn.close()
+    return tid
 
 
-# ---------------- Blogger: post now ----------------
-@app.route("/api/blogger/post", methods=["POST"])
-def api_blogger_post():
-    svc = get_blogger_client()
-    if not svc:
-        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
-
-    payload = request.get_json(silent=True) or {}
-    blog_id = str(payload.get("blog_id", "")).strip()
-    title = str(payload.get("title", "")).strip()
-    html = str(payload.get("html", "")).strip()
-    is_draft = bool(payload.get("is_draft", False))
-
-    if not blog_id:
-        return jsonify({"ok": False, "error": "blog_id missing"}), 400
-    if not title:
-        return jsonify({"ok": False, "error": "title missing"}), 400
-    if not html:
-        return jsonify({"ok": False, "error": "html missing"}), 400
-
-    try:
-        post_body = {"kind": "blogger#post", "title": title, "content": html}
-        res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=is_draft).execute()
-        return jsonify({"ok": True, "id": res.get("id"), "url": res.get("url")})
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+def task_list(limit: int = 200):
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM tasks ORDER BY id DESC LIMIT ?", (limit,))
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+    return rows
 
 
-# ---------------- Publish Queue: add (all platforms) ----------------
-@app.route("/api/publish/add", methods=["POST"])
-def api_publish_add():
-    """
-    공통 예약/요청 저장.
-    - blog_type: blogspot|naver|tistory
-    - blog_id: (blogspot만 필요)
-    - blog_url: 선택
-    - run_at: "YYYY-MM-DD HH:MM" (없으면 NOW)
-    - title/html/image_url...
-    """
-    payload = request.get_json(force=True)
-    blog_type = str(payload.get("blog_type", "")).strip()
-    blog_id = str(payload.get("blog_id", "")).strip()
-    blog_url = str(payload.get("blog_url", "")).strip()
-    title = str(payload.get("title", "")).strip()
-    html = str(payload.get("html", "")).strip()
-
-    run_at = str(payload.get("run_at", "NOW")).strip()
-    image_url = str(payload.get("image_url", "")).strip()
-    category = str(payload.get("category", "정보")).strip()
-
-    if blog_type not in ("blogspot", "naver", "tistory"):
-        return jsonify({"ok": False, "error": "blog_type must be blogspot|naver|tistory"}), 400
-    if not title or not html:
-        return jsonify({"ok": False, "error": "title/html required"}), 400
-
-    item = {
-        "id": f"q_{int(time.time()*1000)}",
-        "created_at": now_str(),
-        "blog_type": blog_type,
-        "blog_id": blog_id,
-        "blog_url": blog_url,
-        "category": category,
-        "title": title,
-        "html": html,
-        "image_url": image_url,
-        "run_at": run_at,   # NOW or "YYYY-MM-DD HH:MM"
-        "status": "queued",
-        "result_url": ""
-    }
-    add_queue(item)
-    return jsonify({"ok": True, "saved": item})
+def task_cancel(tid: int):
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("UPDATE tasks SET status='canceled' WHERE id=? AND status IN ('pending')", (tid,))
+    conn.commit()
+    conn.close()
 
 
-@app.route("/api/publish/list", methods=["GET"])
-def api_publish_list():
-    q = load_queue()
-    return jsonify({"ok": True, "count": len(q), "items": q})
-
-
-@app.route("/api/publish/delete", methods=["POST"])
-def api_publish_delete():
-    payload = request.get_json(silent=True) or {}
-    qid = str(payload.get("id", "")).strip()
-    q = load_queue()
-    nq = [x for x in q if x.get("id") != qid]
-    save_queue(nq)
-    return jsonify({"ok": True, "count": len(nq)})
-
-
-# ---------------- Worker: run due BLOGSPOT only ----------------
-def parse_run_at(s: str) -> Optional[datetime]:
-    s = (s or "").strip()
-    if not s or s.upper() == "NOW":
-        return datetime.now()
-    try:
-        return datetime.strptime(s, "%Y-%m-%d %H:%M")
-    except Exception:
+def task_claim_due() -> Optional[Dict[str, Any]]:
+    """Pick one due task and mark running"""
+    conn = db()
+    cur = conn.cursor()
+    now_iso = utc_now_iso()
+    # run_at may be naive; store ISO; compare as string is ok if all ISO UTC. We'll store UTC in UI.
+    cur.execute("""
+        SELECT * FROM tasks
+        WHERE status='pending' AND run_at <= ?
+        ORDER BY run_at ASC, id ASC
+        LIMIT 1
+    """, (now_iso,))
+    row = cur.fetchone()
+    if not row:
+        conn.close()
         return None
+    tid = row["id"]
+    cur.execute("UPDATE tasks SET status='running' WHERE id=? AND status='pending'", (tid,))
+    conn.commit()
+    # re-read
+    cur.execute("SELECT * FROM tasks WHERE id=?", (tid,))
+    got = cur.fetchone()
+    conn.close()
+    return dict(got) if got else None
+
+
+def task_finish(tid: int, ok: bool, result_url: str = "", error: str = ""):
+    conn = db()
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE tasks
+        SET status=?, result_url=?, error=?
+        WHERE id=?
+    """, ("ok" if ok else "err", result_url, error, tid))
+    conn.commit()
+    conn.close()
+
+
+def execute_task(task: Dict[str, Any]):
+    tid = int(task["id"])
+    platform = task["platform"]
+    title = task["title"]
+    html = task["html"]
+    blog_id = task.get("blog_id") or ""
+    blog_url = task.get("blog_url") or ""
+
+    if platform == "blogspot":
+        svc = get_blogger_client()
+        if not svc:
+            task_finish(tid, False, error="Blogger OAuth not connected")
+            return
+        if not blog_id:
+            task_finish(tid, False, error="blog_id missing (fetch blogs first)")
+            return
+        try:
+            post_body = {"kind": "blogger#post", "title": title, "content": html}
+            res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
+            task_finish(tid, True, result_url=res.get("url") or "")
+        except Exception as e:
+            task_finish(tid, False, error=str(e))
+        return
+
+    if platform == "naver":
+        # Official posting API is not provided in a stable way for personal Naver Blog.
+        task_finish(tid, False, error="Naver auto-post not supported (no stable official posting API). Use copy/paste.")
+        return
+
+    if platform == "tistory":
+        # Tistory Open API is officially marked as ended in their docs, so we don't execute.
+        task_finish(tid, False, error="Tistory Open API is marked ended. Auto-post not supported reliably.")
+        return
+
+    task_finish(tid, False, error=f"Unknown platform: {platform}")
+
 
 def worker_loop():
     while True:
         try:
-            q = load_queue()
-            changed = False
-            now = datetime.now()
-
-            for item in q:
-                if item.get("status") != "queued":
-                    continue
-
-                run_at = parse_run_at(item.get("run_at", "NOW"))
-                if not run_at or run_at > now:
-                    continue
-
-                # 자동발행은 blogspot만 (naver/tistory는 큐 저장까지만)
-                if item.get("blog_type") != "blogspot":
-                    item["status"] = "ready_for_manual"
-                    changed = True
-                    continue
-
-                svc = get_blogger_client()
-                if not svc:
-                    item["status"] = "error"
-                    item["error"] = "OAuth not connected"
-                    changed = True
-                    continue
-
-                blog_id = str(item.get("blog_id") or "").strip()
-                if not blog_id:
-                    item["status"] = "error"
-                    item["error"] = "blog_id missing for blogspot"
-                    changed = True
-                    continue
-
-                try:
-                    post_body = {"kind": "blogger#post", "title": item["title"], "content": item["html"]}
-                    res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
-                    item["status"] = "done"
-                    item["result_url"] = res.get("url") or ""
-                    changed = True
-                except Exception as e:
-                    item["status"] = "error"
-                    item["error"] = str(e)
-                    changed = True
-
-            if changed:
-                save_queue(q)
-
+            task = task_claim_due()
+            if task:
+                execute_task(task)
         except Exception:
             pass
-
         time.sleep(20)
 
-# 백그라운드 워커 시작(서버 실행 중일 때만 동작)
-threading.Thread(target=worker_loop, daemon=True).start()
+
+@app.route("/api/tasks/add", methods=["POST"])
+def api_tasks_add():
+    payload = request.get_json(silent=True) or {}
+    platform = str(payload.get("platform", "")).strip()  # blogspot | naver | tistory
+    blog_id = str(payload.get("blog_id", "")).strip()
+    blog_url = str(payload.get("blog_url", "")).strip()
+    title = str(payload.get("title", "")).strip()
+    html = str(payload.get("html", "")).strip()
+    run_at = str(payload.get("run_at", "")).strip()  # ISO UTC
+
+    if platform not in ("blogspot", "naver", "tistory"):
+        return jsonify({"ok": False, "error": "platform must be blogspot/naver/tistory"}), 400
+    if not title or not html:
+        return jsonify({"ok": False, "error": "title/html required"}), 400
+    if not run_at:
+        return jsonify({"ok": False, "error": "run_at required (ISO UTC)"}), 400
+
+    tid = task_add(platform, blog_id, blog_url, title, html, run_at)
+    return jsonify({"ok": True, "id": tid})
 
 
+@app.route("/api/tasks/list")
+def api_tasks_list():
+    return jsonify({"ok": True, "items": task_list()})
+
+
+@app.route("/api/tasks/cancel/<int:tid>", methods=["POST"])
+def api_tasks_cancel(tid: int):
+    task_cancel(tid)
+    return jsonify({"ok": True})
+
+
+# -----------------------------
+# Main
+# -----------------------------
 if __name__ == "__main__":
+    init_db()
+
+    # start worker thread
+    t = threading.Thread(target=worker_loop, daemon=True)
+    t.start()
+
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
