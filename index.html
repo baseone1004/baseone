@@ -677,6 +677,100 @@ async function cancelTask(id){
   await fetch(apiBase()+`/api/tasks/cancel/${id}`, {method:"POST"});
   refreshTasks();
 }
+<!-- ✅ (선택) 예약 간격 입력 UI가 없으면 아래 input 하나 추가해도 됨 -->
+<!-- <input id="intervalMin" value="60" /> -->
+
+<script>
+/* ===============================
+   ✅ 10×10 자동예약 + 블로그 불러오기 + OAuth
+   (기존 <script> 맨 아래에 추가)
+   =============================== */
+
+async function oauthConnect(){
+  window.open(API_BASE + "/oauth/start", "_blank");
+}
+
+async function loadBlogsFromServer(){
+  try{
+    const res = await fetch(API_BASE + "/api/blogger/blogs");
+    const j = await res.json();
+
+    if(!res.ok || !j.ok){
+      alert("블로그 불러오기 실패: " + (j.error || "unknown") + "\n먼저 OAuth 연결하세요.");
+      return;
+    }
+
+    // v3에 blogspot 목록 저장 (최대 10개)
+    const v3 = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
+    v3.blogspot_blogs = (j.items || []).slice(0, 10).map(b=>({
+      type: "blogspot",
+      blog_id: b.id,
+      name: b.name,
+      url: b.url
+    }));
+    localStorage.setItem("baseone_settings_v3", JSON.stringify(v3));
+
+    alert(`블로그스팟 ${v3.blogspot_blogs.length}개 불러옴`);
+    loadBlogsToSelect();
+  }catch(e){
+    alert("서버 연결 실패: " + e);
+  }
+}
+
+async function distributeSchedule(){
+  const v3 = JSON.parse(localStorage.getItem("baseone_settings_v3") || "{}");
+  const blogs = (v3.blogspot_blogs || []).slice(0, 10);
+
+  if(!blogs.length){
+    alert("먼저 📥 내블로그 버튼을 눌러서 블로그를 불러오세요.");
+    return;
+  }
+  if(!topics.length){
+    alert("먼저 카테고리를 눌러서 주제를 생성하세요.");
+    return;
+  }
+
+  // 각 블로그당 10개씩 = 최대 100개 사용
+  const titles = topics.map(x=>x.title).slice(0, 100);
+
+  // 예약 간격(분) - 없으면 기본 60분
+  let interval = 60;
+  const el = document.getElementById("intervalMin");
+  if(el && el.value) interval = Math.max(1, Number(el.value) || 60);
+
+  const payload = {
+    blogs: blogs.map(b=>({
+      blog_type: b.type,
+      blog_id: b.blog_id,
+      blog_url: b.url,
+      blog_name: b.name
+    })),
+    titles,
+    category: selectedCat || "돈/재테크",
+    per_blog: 10,
+    interval_minutes: interval,
+    start_time: "NOW"
+  };
+
+  try{
+    const res = await fetch(API_BASE + "/api/schedule/distribute",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const j = await res.json();
+
+    if(!res.ok || !j.ok){
+      alert("자동예약 실패: " + (j.error || "unknown"));
+      return;
+    }
+
+    alert(`자동예약 완료! 총 ${j.created}개 (블로그당 10개)`);
+  }catch(e){
+    alert("서버 연결 실패");
+  }
+}
+</script>
 
 /* ---- init ---- */
 onPlatformChange();
@@ -691,3 +785,4 @@ renderTopics();
   <option value="120">120분</option>
   <option value="180">180분</option>
 </select>
+
