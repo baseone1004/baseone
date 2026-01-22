@@ -15,28 +15,21 @@ from googleapiclient.discovery import build
 
 
 # =========================
-# Flask App (가장 중요!)
+# App
 # =========================
 app = Flask(__name__, static_folder=".", static_url_path="")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Render/프록시 환경에서 https/host 인식
 CORS(app)
 
-# Render/프록시 환경에서 https/host 인식 보정
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
-
-# 세션 (OAuth state 저장용)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
 
+TOKEN_FILE = "google_token.json"
 
-# =========================
-# Env / Const
-# =========================
 SCOPES = ["https://www.googleapis.com/auth/blogger"]
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")
-
-TOKEN_FILE = "google_token.json"
 
 
 def now_str():
@@ -56,27 +49,18 @@ def settings_page():
     return send_from_directory(".", "settings.html")
 
 
-# 정적 파일(로고, js, css 등) 404 방지용
-@app.route("/<path:filename>")
-def static_files(filename):
-    # 파일이 실제로 존재할 때만 서빙
-    if os.path.exists(os.path.join(".", filename)):
-        return send_from_directory(".", filename)
-    return ("Not Found", 404)
-
-
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "time": now_str()})
 
 
 @app.route("/__routes")
-def __routes():
+def routes():
     return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
 
 
 # =========================
-# Token Save/Load
+# Token Save / Load
 # =========================
 def save_token(creds: Credentials):
     data = {
@@ -123,7 +107,7 @@ def get_blogger_client():
 def make_flow():
     if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
         raise RuntimeError(
-            "OAuth env vars missing: GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET / OAUTH_REDIRECT_URI"
+            "OAuth env vars missing. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OAUTH_REDIRECT_URI"
         )
 
     client_config = {
@@ -183,7 +167,6 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
     url = "https://api.pexels.com/v1/search"
     headers = {"Authorization": pexels_key}
     params = {"query": query, "per_page": 1, "orientation": "landscape", "size": "large"}
-
     try:
         r = requests.get(url, headers=headers, params=params, timeout=15)
         if r.status_code != 200:
@@ -198,9 +181,6 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
         return ""
 
 
-# =========================
-# Prompt (현재는 Gemini 생성 붙이기 전)
-# =========================
 def make_body_prompt(topic: str, category: str) -> str:
     return f"""너는 수익형 정보블로그 작가다.
 아래 조건으로 '{topic}' 글을 한국어로 작성해줘.
@@ -221,6 +201,10 @@ def make_image_prompt(topic: str, category: str) -> str:
     return f'{category} 관련 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
 
 
+# =========================
+# API: generate (현재는 프롬프트 + pexels만)
+# - Gemini 생성은 다음 단계에서 붙이면 됨 (네가 키 넣을 UI도 만들어야 해서)
+# =========================
 @app.route("/api/generate", methods=["POST"])
 def api_generate():
     payload = request.get_json(silent=True) or {}
@@ -246,7 +230,7 @@ def api_generate():
         "category": category,
         "generated_at": now_str(),
         "title": topic,
-        "html": "",  # ✅ 아직 Gemini 글 생성 붙이기 전이라 비워둠
+        "html": "",  # ✅ 여기 다음 단계에서 Gemini 결과 HTML 넣으면 됨
         "body_prompt": body_prompt,
         "image_prompt": image_prompt,
         "image_provider": img_provider,
@@ -255,7 +239,7 @@ def api_generate():
 
 
 # =========================
-# Blogger APIs
+# Blogger: list blogs
 # =========================
 @app.route("/api/blogger/blogs", methods=["GET"])
 def api_blogger_blogs():
@@ -269,6 +253,9 @@ def api_blogger_blogs():
     return jsonify({"ok": True, "count": len(out), "items": out})
 
 
+# =========================
+# Blogger: post publish
+# =========================
 @app.route("/api/blogger/post", methods=["POST"])
 def api_blogger_post():
     svc = get_blogger_client()
@@ -295,9 +282,6 @@ def api_blogger_post():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-# =========================
-# Local Run
-# =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
