@@ -163,8 +163,62 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn primary" onclick="aiGenerate()">✨ 다시 생성</button>
         <button class="btn good" onclick="publishNow()">🚀 즉시발행</button>
-        <button class="btn" onclick="scheduleOne()">🗓️ 예약발행</button>
-        <input id="runAtOne" type="datetime-local" />
+<script>
+async function publishNow(){
+  const blog=getSelectedBlog();
+  const title=getSelectedTitle();
+  const html = document.getElementById("finalBody")?.textContent?.trim() || "";
+
+  if(!blog || !title){ alert("블로그와 주제를 선택하세요"); return; }
+  if(!html){ alert("먼저 AI 생성 후 발행하세요!"); return; }
+
+  // ✅ 블로그스팟 자동발행은 blog_id가 필수
+  if(blog.type === "blogspot" && !blog.blog_id){
+    alert("blog_id가 없습니다.\n오른쪽의 '내 블로그 불러오기'로 blog_id를 먼저 가져오도록 연결해야 합니다.");
+    return;
+  }
+
+  try{
+    setProgress(10);
+    logInfo("🚀 발행 시작...");
+
+    // ✅ 블로그스팟은 /api/blogger/post 로 실제 업로드
+    if(blog.type === "blogspot"){
+      const payload = { blog_id: blog.blog_id, title, html };
+
+      const res = await fetch(API_BASE + "/api/blogger/post",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      });
+
+      const j = await res.json().catch(()=> ({}));
+      if(!res.ok || !j.ok){
+        setProgress(0);
+        logErr("발행 실패: " + (j.error || "unknown"));
+        alert("발행 실패: " + (j.error || "unknown"));
+        return;
+      }
+
+      setProgress(100);
+      logOk("✅ 발행 완료!");
+      if(j.url) logOk("URL: " + j.url);
+      alert("발행 완료!\n" + (j.url || ""));
+      return;
+    }
+
+    // ✅ 네이버/티스토리: 공식 API로 자동발행은 보통 불가(또는 매우 까다로움)
+    alert("네이버/티스토리는 이 버전에서 자동발행을 지원하지 않습니다.\n(복사/수동발행 방식으로 사용하세요.)");
+    setProgress(0);
+
+  }catch(e){
+    setProgress(0);
+    logErr("서버 연결 실패");
+    alert("서버 연결 실패!");
+  }
+}
+</script>
+
       </div>
     </div>
 
@@ -789,5 +843,6 @@ renderTopics();
   /* ✅ 디버그 바/텍스트 숨김 (init... 같은 거 나오는 경우) */
   #debug, .debug, #statusBar, #devBar { display:none !important; }
 </style>
+
 
 
