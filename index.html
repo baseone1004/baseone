@@ -681,8 +681,13 @@ async function cancelTask(id){
 /* ---- init ---- */
 onPlatformChange();
 makeLocalTopics();
-refreshTasks();
-updateStatusLine();
-</script>
-</body>
-</html>
+loadBlogsToSelect();
+renderTopics();
+<button class="btn" onclick="oauthConnect()">🔐 OAuth</button>
+<button class="btn" onclick="loadBlogsFromServer()">📥 내블로그</button>
+<button class="btn good" onclick="distributeSchedule()">📅 10×10 자동예약</button>
+<select id="intervalMin" style="min-width:120px">
+  <option value="60">60분</option>
+  <option value="120">120분</option>
+  <option value="180">180분</option>
+</select>
