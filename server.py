@@ -109,13 +109,8 @@ def make_flow():
     )
 
 @app.route("/oauth/start")
-@app.route("/oauth/start")
 def oauth_start():
-    try:
-        flow = make_flow()
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
-
+    flow = make_flow()
     auth_url, state = flow.authorization_url(
         access_type="offline",
         include_granted_scopes="true",
@@ -253,4 +248,3 @@ def api_publish_list():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
-
