@@ -1,208 +1,174 @@
-import os
-import json
-import time
-import sqlite3
-import threading
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any
-
-import requests
 from flask import Flask, request, jsonify, send_from_directory, redirect, session
 from flask_cors import CORS
+import os, json, time, threading
+from datetime import datetime, timedelta, timezone
+import requests
+from typing import Optional, List, Dict
 
-# Blogger OAuth / API
+# Google OAuth / Blogger
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
 
-
-# -----------------------------
-# App
-# -----------------------------
 app = Flask(__name__, static_folder=".", static_url_path="")
-CORS(app)
+CORS(app, supports_credentials=True)
 
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
 
-DB_FILE = os.environ.get("BASEONE_DB", "baseone.db")
+# files (Render free: file can be wiped after restart)
+TOKEN_FILE = "google_token.json"
+QUEUE_FILE = "publish_queue.json"
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
-OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")  # ex) https://xxxx.onrender.com/oauth/blogger/callback
+OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+PEXELS_API_KEY = os.environ.get("PEXELS_API_KEY", "")
 
 SCOPES = ["https://www.googleapis.com/auth/blogger"]
 
-
-def now_str() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+KST = timezone(timedelta(hours=9))
 
 
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+# ---------------- Utils ----------------
+def now_str():
+    return datetime.now(KST).strftime("%Y-%m-%d %H:%M:%S")
 
+def utc_now():
+    return datetime.now(timezone.utc)
 
-def parse_iso(dt_str: str) -> datetime:
-    # "2026-01-22T14:30" (no tz) or ISO
+def load_json_file(path: str, default):
+    if not os.path.exists(path):
+        return default
     try:
-        if dt_str.endswith("Z"):
-            return datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
-        return datetime.fromisoformat(dt_str)
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
     except Exception:
-        # fallback: local naive -> treat as local time (no tz)
-        return datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+        return default
 
+def save_json_file(path: str, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-# -----------------------------
-# DB helpers
-# -----------------------------
-def db() -> sqlite3.Connection:
-    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    return conn
+def load_queue() -> List[Dict]:
+    return load_json_file(QUEUE_FILE, [])
 
+def save_queue(q: List[Dict]):
+    save_json_file(QUEUE_FILE, q)
 
-def init_db():
-    conn = db()
-    cur = conn.cursor()
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS kv (
-        k TEXT PRIMARY KEY,
-        v TEXT NOT NULL
-    )
-    """)
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS tasks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        platform TEXT NOT NULL,            -- "blogspot" | "naver" | "tistory"
-        blog_id TEXT,                      -- blogspot uses blog_id
-        blog_url TEXT,
-        title TEXT NOT NULL,
-        html TEXT NOT NULL,
-        run_at TEXT NOT NULL,              -- ISO string
-        status TEXT NOT NULL DEFAULT 'pending', -- pending | running | ok | err | canceled
-        result_url TEXT,
-        error TEXT,
-        created_at TEXT NOT NULL
-    )
-    """)
-    conn.commit()
-    conn.close()
-
-
-def kv_set(k: str, v: Dict[str, Any]):
-    conn = db()
-    cur = conn.cursor()
-    cur.execute("INSERT INTO kv(k,v) VALUES(?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v", (k, json.dumps(v)))
-    conn.commit()
-    conn.close()
-
-
-def kv_get(k: str) -> Optional[Dict[str, Any]]:
-    conn = db()
-    cur = conn.cursor()
-    cur.execute("SELECT v FROM kv WHERE k=?", (k,))
-    row = cur.fetchone()
-    conn.close()
-    if not row:
-        return None
+def iso_to_dt(s: str) -> Optional[datetime]:
     try:
-        return json.loads(row["v"])
+        return datetime.fromisoformat(s.replace("Z","+00:00"))
     except Exception:
         return None
 
 
-# -----------------------------
-# Static
-# -----------------------------
+# ---------------- Static Pages ----------------
 @app.route("/")
 def home():
     return send_from_directory(".", "index.html")
 
-
 @app.route("/settings")
 def settings():
     return send_from_directory(".", "settings.html")
-
 
 @app.route("/health")
 def health():
     return jsonify({"ok": True, "time": now_str()})
 
 
-# -----------------------------
-# Gemini (Text)
-#   - key is passed from client for simplicity (solo use)
-#   - REST endpoint + x-goog-api-key header :contentReference[oaicite:5]{index=5}
-# -----------------------------
-def gemini_generate_text(*, api_key: str, model: str, prompt: str, temperature: float = 0.6) -> str:
-    if not api_key:
-        raise RuntimeError("GEMINI_API_KEY is missing")
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-    headers = {
-        "x-goog-api-key": api_key,
-        "Content-Type": "application/json",
+# ---------------- Token Save/Load ----------------
+def save_token(creds: Credentials):
+    data = {
+        "token": creds.token,
+        "refresh_token": creds.refresh_token,
+        "token_uri": creds.token_uri,
+        "client_id": creds.client_id,
+        "client_secret": creds.client_secret,
+        "scopes": creds.scopes,
     }
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": temperature,
+    save_json_file(TOKEN_FILE, data)
+
+def load_token() -> Optional[Credentials]:
+    if not os.path.exists(TOKEN_FILE):
+        return None
+    try:
+        data = load_json_file(TOKEN_FILE, None)
+        if not data:
+            return None
+        return Credentials(**data)
+    except Exception:
+        return None
+
+def get_blogger_client():
+    creds = load_token()
+    if not creds:
+        return None
+    try:
+        if creds.expired and creds.refresh_token:
+            creds.refresh(GoogleRequest())
+            save_token(creds)
+    except Exception:
+        return None
+    return build("blogger", "v3", credentials=creds)
+
+
+# ---------------- OAuth ----------------
+def make_flow():
+    if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
+        raise RuntimeError(
+            "OAuth env vars missing. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OAUTH_REDIRECT_URI."
+        )
+
+    client_config = {
+        "web": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
         }
     }
-    r = requests.post(url, headers=headers, json=payload, timeout=60)
-    if r.status_code != 200:
-        raise RuntimeError(f"Gemini error {r.status_code}: {r.text[:500]}")
-    data = r.json()
-    # candidates[0].content.parts[0].text
-    try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        return json.dumps(data, ensure_ascii=False)
+
+    flow = Flow.from_client_config(
+        client_config=client_config,
+        scopes=SCOPES,
+        redirect_uri=OAUTH_REDIRECT_URI
+    )
+    return flow
+
+@app.route("/oauth/start")
+def oauth_start():
+    flow = make_flow()
+    auth_url, state = flow.authorization_url(
+        access_type="offline",
+        include_granted_scopes="true",
+        prompt="consent"
+    )
+    session["oauth_state"] = state
+    return redirect(auth_url)
+
+@app.route("/oauth/callback")
+def oauth_callback():
+    flow = make_flow()
+    flow.fetch_token(authorization_response=request.url)
+    creds = flow.credentials
+    save_token(creds)
+    return redirect("/?oauth=ok")
+
+@app.route("/api/oauth/status")
+def oauth_status():
+    return jsonify({"ok": True, "connected": bool(load_token())})
 
 
-def money_topic_prompt(count: int = 30) -> str:
-    return f"""
-너는 한국 수익형 정보블로그(애드센스/애드포스트) 전문 기획자다.
-
-조건:
-- 클릭을 부르는 제목 {count}개
-- 돈 되는 키워드 위주(절약/세금/보험/대출/연금/부동산/신용/통신비/전기요금/정부지원금/환급/연말정산/카드혜택)
-- 과장 금지, 합법적/현실적 내용
-- 출력 형식: JSON 배열(문자열만) 예) ["제목1","제목2",...]
-
-JSON만 출력해.
-""".strip()
-
-
-def article_html_prompt(topic: str, category: str) -> str:
-    return f"""
-너는 한국 수익형 정보블로그 전문 작가다.
-아래 조건으로 "{topic}" 글을 한국어로 작성해줘.
-
-- 카테고리: {category}
-- 분량: 6,000~10,000자 (너무 길게 말고 실제로 읽히게)
-- 구조: H2 6~8개 + 필요시 H3
-- 표 1개 포함(<table>)
-- 박스형 안내 2개 이상 (✅ TIP / ⚠️ 주의 / 💡 핵심요약 등)
-- 마지막: 5줄 요약 + FAQ 5개 + 행동유도(댓글/구독/다음글)
-
-중요:
-- 애드센스 정책 위반될 만한 과장/확정수익 표현 금지
-- 의료/법률/투자 조언은 "일반 정보" 고지 포함
-
-출력은 블로그에 바로 붙여넣기 좋은 HTML로만 출력해.
-""".strip()
-
-
-# -----------------------------
-# Pexels
-# -----------------------------
-def pexels_search_image_url(pexels_key: str, query: str) -> str:
-    if not pexels_key:
+# ---------------- Pexels ----------------
+def pexels_search_image_url(query: str) -> str:
+    key = PEXELS_API_KEY
+    if not key:
         return ""
     url = "https://api.pexels.com/v1/search"
-    headers = {"Authorization": pexels_key}
+    headers = {"Authorization": key}
     params = {"query": query, "per_page": 1, "orientation": "landscape", "size": "large"}
     try:
         r = requests.get(url, headers=headers, params=params, timeout=15)
@@ -217,98 +183,120 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
     except Exception:
         return ""
 
+@app.route("/api/image/pexels", methods=["POST"])
+def api_pexels():
+    payload = request.get_json(silent=True) or {}
+    q = (payload.get("query") or "").strip()
+    if not q:
+        return jsonify({"ok": False, "error": "query required"}), 400
+    return jsonify({"ok": True, "image_url": pexels_search_image_url(q)})
 
-# -----------------------------
-# Blogger OAuth + Client
-# -----------------------------
-def make_blogger_flow() -> Flow:
-    if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
-        raise RuntimeError("OAuth env vars missing. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OAUTH_REDIRECT_URI")
-    client_config = {
-        "web": {
-            "client_id": GOOGLE_CLIENT_ID,
-            "client_secret": GOOGLE_CLIENT_SECRET,
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-        }
+
+# ---------------- Gemini (Text) ----------------
+def gemini_generate_html(topic: str, category: str, tone: str = "수익형 정보블로그") -> str:
+    """
+    Gemini REST API 호출 (SDK 없이 requests로)
+    """
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY is missing in environment variables.")
+
+    prompt = f"""
+너는 {tone} 전문 작가다.
+주제: {topic}
+카테고리: {category}
+
+조건:
+- 한국어
+- 블로그에 붙여넣기 좋은 HTML
+- H2 소제목 8개
+- 각 소제목 500~900자
+- 표 1개 포함(<table>)
+- ✅💡⚠️ 박스 2개 이상(div class 사용 가능)
+- 마지막: 요약 3~5줄 + FAQ 5개 + 행동유도
+- 과장/허위 금지, 일반 정보로 작성
+""".strip()
+
+    # 모델은 필요에 따라 바꿔도 됨
+    model = os.environ.get("GEMINI_MODEL", "gemini-1.5-flash")
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192}
     }
-    return Flow.from_client_config(client_config=client_config, scopes=SCOPES, redirect_uri=OAUTH_REDIRECT_URI)
+    r = requests.post(url, json=body, timeout=60)
+    if r.status_code != 200:
+        raise RuntimeError(f"Gemini error: {r.status_code} {r.text}")
 
-
-def save_google_token(creds: Credentials):
-    data = {
-        "token": creds.token,
-        "refresh_token": creds.refresh_token,
-        "token_uri": creds.token_uri,
-        "client_id": creds.client_id,
-        "client_secret": creds.client_secret,
-        "scopes": creds.scopes,
-    }
-    kv_set("google_token", data)
-
-
-def load_google_token() -> Optional[Credentials]:
-    data = kv_get("google_token")
-    if not data:
-        return None
+    data = r.json()
+    # 안전하게 텍스트 추출
     try:
-        return Credentials(**data)
+        text = data["candidates"][0]["content"]["parts"][0]["text"]
     except Exception:
-        return None
+        text = ""
+
+    # Gemini가 Markdown 코드블록으로 줄 때 대비
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.strip("`")
+    return text
 
 
-def get_blogger_client():
-    creds = load_google_token()
-    if not creds:
-        return None
+@app.route("/api/generate", methods=["POST"])
+def api_generate():
+    payload = request.get_json(silent=True) or {}
+    topic = (payload.get("topic") or "").strip()
+    category = (payload.get("category") or "").strip() or "정보"
+    img_provider = (payload.get("img_provider") or "").strip() or "pexels"  # pexels|gemini|none
+
+    if not topic:
+        return jsonify({"ok": False, "error": "topic is required"}), 400
+
+    # 1) 본문 HTML (Gemini)
     try:
-        if creds.expired and creds.refresh_token:
-            creds.refresh(GoogleRequest())
-            save_google_token(creds)
-    except Exception:
-        return None
-    return build("blogger", "v3", credentials=creds)
+        html = gemini_generate_html(topic, category)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+    # 2) 이미지
+    image_url = ""
+    image_prompt = f'{category} 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 미니멀, 고해상도, 16:9'
+    if img_provider == "pexels":
+        image_url = pexels_search_image_url(f"{topic} {category}") or pexels_search_image_url(topic)
+    elif img_provider == "none":
+        image_url = ""
+
+    return jsonify({
+        "ok": True,
+        "topic": topic,
+        "category": category,
+        "generated_at": now_str(),
+        "title": topic,
+        "html": html,
+        "image_prompt": image_prompt,
+        "image_provider": img_provider,
+        "image_url": image_url
+    })
 
 
-@app.route("/oauth/blogger/start")
-def oauth_blogger_start():
-    flow = make_blogger_flow()
-    auth_url, state = flow.authorization_url(access_type="offline", include_granted_scopes="true", prompt="consent")
-    session["oauth_state"] = state
-    return redirect(auth_url)
-
-
-@app.route("/oauth/blogger/callback")
-def oauth_blogger_callback():
-    flow = make_blogger_flow()
-    flow.fetch_token(authorization_response=request.url)
-    creds = flow.credentials
-    save_google_token(creds)
-    return redirect("/settings?oauth=blogger_ok")
-
-
-@app.route("/api/blogger/status")
-def blogger_status():
-    return jsonify({"ok": True, "connected": bool(load_google_token())})
-
-
-@app.route("/api/blogger/blogs")
-def blogger_blogs():
+# ---------------- Blogger APIs ----------------
+@app.route("/api/blogger/blogs", methods=["GET"])
+def api_blogger_blogs():
     svc = get_blogger_client()
     if not svc:
-        return jsonify({"ok": False, "error": "Blogger OAuth not connected. Go /oauth/blogger/start"}), 401
+        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
 
     res = svc.blogs().listByUser(userId="self").execute()
     items = res.get("items", [])
     out = [{"id": b.get("id"), "name": b.get("name"), "url": b.get("url")} for b in items]
-    return jsonify({"ok": True, "items": out})
+    return jsonify({"ok": True, "count": len(out), "items": out})
 
 
 @app.route("/api/blogger/post", methods=["POST"])
-def blogger_post_now():
+def api_blogger_post():
     svc = get_blogger_client()
     if not svc:
-        return jsonify({"ok": False, "error": "Blogger OAuth not connected. Go /oauth/blogger/start"}), 401
+        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
 
     payload = request.get_json(silent=True) or {}
     blog_id = str(payload.get("blog_id", "")).strip()
@@ -316,243 +304,207 @@ def blogger_post_now():
     html = str(payload.get("html", "")).strip()
 
     if not blog_id:
-        return jsonify({"ok": False, "error": "blog_id is required"}), 400
+        return jsonify({"ok": False, "error": "blog_id missing"}), 400
     if not title:
-        return jsonify({"ok": False, "error": "title is required"}), 400
+        return jsonify({"ok": False, "error": "title missing"}), 400
     if not html:
-        return jsonify({"ok": False, "error": "html is required"}), 400
+        return jsonify({"ok": False, "error": "html missing"}), 400
 
     try:
         post_body = {"kind": "blogger#post", "title": title, "content": html}
-        # posts.insert 
         res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
         return jsonify({"ok": True, "id": res.get("id"), "url": res.get("url")})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-# -----------------------------
-# API: money topics / generate article
-# -----------------------------
-@app.route("/api/topics/money", methods=["POST"])
-def api_topics_money():
-    payload = request.get_json(silent=True) or {}
-    api_key = str(payload.get("gemini_key", "")).strip()
-    model = str(payload.get("gemini_model", "")).strip() or "gemini-3-flash-preview"
-    count = int(payload.get("count", 30) or 30)
+# ---------------- Scheduler (Queue) ----------------
+@app.route("/api/queue/list", methods=["GET"])
+def api_queue_list():
+    q = load_queue()
+    return jsonify({"ok": True, "count": len(q), "items": q})
 
-    text = gemini_generate_text(api_key=api_key, model=model, prompt=money_topic_prompt(count), temperature=0.7)
-    # expect JSON array
-    try:
-        arr = json.loads(text)
-        arr = [str(x).strip() for x in arr if str(x).strip()]
-        return jsonify({"ok": True, "items": arr[:count]})
-    except Exception:
-        # fallback: split lines
-        lines = [x.strip("-• \t") for x in text.splitlines() if x.strip()]
-        return jsonify({"ok": True, "items": lines[:count], "raw": text})
+def enqueue(item: Dict):
+    q = load_queue()
+    q.append(item)
+    save_queue(q)
 
+def mark_done(item_id: str, status: str, url: str = "", error: str = ""):
+    q = load_queue()
+    for it in q:
+        if it.get("id") == item_id:
+            it["status"] = status
+            it["done_at"] = now_str()
+            if url:
+                it["post_url"] = url
+            if error:
+                it["error"] = error
+            break
+    save_queue(q)
 
-@app.route("/api/generate", methods=["POST"])
-def api_generate():
-    payload = request.get_json(silent=True) or {}
-    topic = str(payload.get("topic", "")).strip()
-    category = str(payload.get("category", "")).strip() or "돈/재테크"
+def publish_due_once() -> Dict:
+    """
+    예약시간(scheduled_at UTC ISO)이 지난 pending 1개만 발행
+    """
+    q = load_queue()
+    now = utc_now()
+    pending = [it for it in q if it.get("status") == "pending"]
+    # scheduled_at 없으면 즉시
+    def due_time(it):
+        dt = iso_to_dt(it.get("scheduled_at") or "")
+        return dt or datetime(1970,1,1,tzinfo=timezone.utc)
+    pending.sort(key=due_time)
 
-    gemini_key = str(payload.get("gemini_key", "")).strip()
-    gemini_model = str(payload.get("gemini_model", "")).strip() or "gemini-3-flash-preview"
+    for it in pending:
+        dt = iso_to_dt(it.get("scheduled_at") or "")
+        if dt and dt > now:
+            continue
 
-    img_provider = str(payload.get("img_provider", "")).strip() or "pexels"  # pexels | gemini(prompt only)
-    pexels_key = str(payload.get("pexels_key", "")).strip()
-
-    if not topic:
-        return jsonify({"ok": False, "error": "topic is required"}), 400
-
-    html = gemini_generate_text(
-        api_key=gemini_key,
-        model=gemini_model,
-        prompt=article_html_prompt(topic, category),
-        temperature=0.6
-    )
-
-    image_prompt = f'{category} 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 미니멀, 고해상도, 16:9'
-    image_url = ""
-    if img_provider == "pexels":
-        q = f"{topic} {category}".strip()
-        image_url = pexels_search_image_url(pexels_key, q) or pexels_search_image_url(pexels_key, topic)
-
-    return jsonify({
-        "ok": True,
-        "topic": topic,
-        "category": category,
-        "generated_at": now_str(),
-        "html": html,
-        "image_provider": img_provider,
-        "image_prompt": image_prompt,
-        "image_url": image_url
-    })
-
-
-# -----------------------------
-# Scheduler / Tasks
-# -----------------------------
-def task_add(platform: str, blog_id: str, blog_url: str, title: str, html: str, run_at: str) -> int:
-    conn = db()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO tasks(platform, blog_id, blog_url, title, html, run_at, status, created_at)
-        VALUES(?,?,?,?,?,?, 'pending', ?)
-    """, (platform, blog_id, blog_url, title, html, run_at, utc_now_iso()))
-    conn.commit()
-    tid = cur.lastrowid
-    conn.close()
-    return tid
-
-
-def task_list(limit: int = 200):
-    conn = db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM tasks ORDER BY id DESC LIMIT ?", (limit,))
-    rows = [dict(r) for r in cur.fetchall()]
-    conn.close()
-    return rows
-
-
-def task_cancel(tid: int):
-    conn = db()
-    cur = conn.cursor()
-    cur.execute("UPDATE tasks SET status='canceled' WHERE id=? AND status IN ('pending')", (tid,))
-    conn.commit()
-    conn.close()
-
-
-def task_claim_due() -> Optional[Dict[str, Any]]:
-    """Pick one due task and mark running"""
-    conn = db()
-    cur = conn.cursor()
-    now_iso = utc_now_iso()
-    # run_at may be naive; store ISO; compare as string is ok if all ISO UTC. We'll store UTC in UI.
-    cur.execute("""
-        SELECT * FROM tasks
-        WHERE status='pending' AND run_at <= ?
-        ORDER BY run_at ASC, id ASC
-        LIMIT 1
-    """, (now_iso,))
-    row = cur.fetchone()
-    if not row:
-        conn.close()
-        return None
-    tid = row["id"]
-    cur.execute("UPDATE tasks SET status='running' WHERE id=? AND status='pending'", (tid,))
-    conn.commit()
-    # re-read
-    cur.execute("SELECT * FROM tasks WHERE id=?", (tid,))
-    got = cur.fetchone()
-    conn.close()
-    return dict(got) if got else None
-
-
-def task_finish(tid: int, ok: bool, result_url: str = "", error: str = ""):
-    conn = db()
-    cur = conn.cursor()
-    cur.execute("""
-        UPDATE tasks
-        SET status=?, result_url=?, error=?
-        WHERE id=?
-    """, ("ok" if ok else "err", result_url, error, tid))
-    conn.commit()
-    conn.close()
-
-
-def execute_task(task: Dict[str, Any]):
-    tid = int(task["id"])
-    platform = task["platform"]
-    title = task["title"]
-    html = task["html"]
-    blog_id = task.get("blog_id") or ""
-    blog_url = task.get("blog_url") or ""
-
-    if platform == "blogspot":
-        svc = get_blogger_client()
-        if not svc:
-            task_finish(tid, False, error="Blogger OAuth not connected")
-            return
-        if not blog_id:
-            task_finish(tid, False, error="blog_id missing (fetch blogs first)")
-            return
+        # 발행 시도
         try:
-            post_body = {"kind": "blogger#post", "title": title, "content": html}
-            res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
-            task_finish(tid, True, result_url=res.get("url") or "")
+            blog_id = it["blog_id"]
+            title = it["title"]
+            html = it["html"]
+            resp = requests.post(
+                request.url_root.rstrip("/") + "/api/blogger/post",
+                json={"blog_id": blog_id, "title": title, "html": html},
+                timeout=60
+            )
+            data = resp.json() if resp.headers.get("content-type","").startswith("application/json") else {}
+            if resp.status_code != 200 or not data.get("ok"):
+                raise RuntimeError(data.get("error") or f"post failed: {resp.status_code}")
+            mark_done(it["id"], "done", url=data.get("url",""))
+            return {"ok": True, "published": it["id"], "url": data.get("url","")}
         except Exception as e:
-            task_finish(tid, False, error=str(e))
-        return
+            mark_done(it.get("id",""), "error", error=str(e))
+            return {"ok": False, "error": str(e), "failed": it.get("id","")}
 
-    if platform == "naver":
-        # Official posting API is not provided in a stable way for personal Naver Blog.
-        task_finish(tid, False, error="Naver auto-post not supported (no stable official posting API). Use copy/paste.")
-        return
+    return {"ok": True, "message": "no due items"}
 
-    if platform == "tistory":
-        # Tistory Open API is officially marked as ended in their docs, so we don't execute.
-        task_finish(tid, False, error="Tistory Open API is marked ended. Auto-post not supported reliably.")
-        return
-
-    task_finish(tid, False, error=f"Unknown platform: {platform}")
+@app.route("/api/worker/run_once", methods=["POST"])
+def api_worker_run_once():
+    return jsonify(publish_due_once())
 
 
+# ---------------- Distribute Scheduling ----------------
+@app.route("/api/schedule/distribute", methods=["POST"])
+def api_schedule_distribute():
+    """
+    입력:
+    {
+      "blogs": [{"id":"...","name":"...","url":"..."} ...],  # 최대 10
+      "titles": ["제목1","제목2"...],                        # 최대 100
+      "category":"돈/재테크",
+      "per_blog": 10,
+      "interval_minutes": 60,
+      "start_time": "NOW" or "2026-01-22 21:00"  # KST
+      "img_provider": "pexels"|"none"
+    }
+
+    규칙:
+    - 각 블로그는 같은 start_time에서 시작 (=> 블로그끼리 시간 겹쳐도 OK)
+    - 블로그 내부에서는 interval_minutes 만큼만 증가
+    """
+    payload = request.get_json(silent=True) or {}
+
+    blogs = payload.get("blogs") or []
+    titles = payload.get("titles") or []
+    category = (payload.get("category") or "돈/재테크").strip()
+    per_blog = int(payload.get("per_blog") or 10)
+    interval_minutes = int(payload.get("interval_minutes") or 60)
+    start_time = str(payload.get("start_time") or "NOW")
+    img_provider = (payload.get("img_provider") or "pexels").strip()
+
+    if not blogs or not isinstance(blogs, list):
+        return jsonify({"ok": False, "error": "blogs required"}), 400
+    if not titles or not isinstance(titles, list):
+        return jsonify({"ok": False, "error": "titles required"}), 400
+
+    blogs = blogs[:10]
+    titles = titles[: (len(blogs) * per_blog)]
+
+    # start time KST parse
+    if start_time == "NOW":
+        base_kst = datetime.now(KST) + timedelta(minutes=1)
+    else:
+        try:
+            base_kst = datetime.strptime(start_time, "%Y-%m-%d %H:%M").replace(tzinfo=KST)
+        except Exception:
+            return jsonify({"ok": False, "error": "start_time format must be 'YYYY-MM-DD HH:MM' or NOW"}), 400
+
+    created = []
+    idx = 0
+
+    for b in blogs:
+        blog_id = str(b.get("id") or "").strip()
+        if not blog_id:
+            continue
+
+        # ✅ 블로그마다 동일한 시작시간(=> 겹쳐도 OK)
+        t_kst = base_kst
+
+        for j in range(per_blog):
+            if idx >= len(titles):
+                break
+
+            title = str(titles[idx]).strip()
+            idx += 1
+            if not title:
+                continue
+
+            # 1) 글 생성 (Gemini)
+            try:
+                html = gemini_generate_html(title, category)
+            except Exception as e:
+                return jsonify({"ok": False, "error": f"Gemini generate failed: {str(e)}"}), 500
+
+            # 2) 이미지
+            image_url = ""
+            if img_provider == "pexels":
+                image_url = pexels_search_image_url(f"{title} {category}") or pexels_search_image_url(title)
+
+            # 저장 item
+            item_id = f"Q_{int(time.time()*1000)}_{blog_id}_{j}"
+            scheduled_utc = t_kst.astimezone(timezone.utc).isoformat()
+
+            item = {
+                "id": item_id,
+                "status": "pending",
+                "created_at": now_str(),
+                "scheduled_at": scheduled_utc,
+                "blog_type": "blogspot",
+                "blog_id": blog_id,
+                "blog_name": b.get("name") or "",
+                "blog_url": b.get("url") or "",
+                "category": category,
+                "title": title,
+                "html": html,
+                "image_url": image_url,
+                "img_provider": img_provider
+            }
+            enqueue(item)
+            created.append(item)
+
+            # 블로그 내부 interval 증가
+            t_kst = t_kst + timedelta(minutes=interval_minutes)
+
+    return jsonify({"ok": True, "created": len(created), "items": created})
+
+
+# ---------------- Background Worker ----------------
 def worker_loop():
     while True:
         try:
-            task = task_claim_due()
-            if task:
-                execute_task(task)
+            publish_due_once()
         except Exception:
             pass
-        time.sleep(20)
+        time.sleep(60)
 
-
-@app.route("/api/tasks/add", methods=["POST"])
-def api_tasks_add():
-    payload = request.get_json(silent=True) or {}
-    platform = str(payload.get("platform", "")).strip()  # blogspot | naver | tistory
-    blog_id = str(payload.get("blog_id", "")).strip()
-    blog_url = str(payload.get("blog_url", "")).strip()
-    title = str(payload.get("title", "")).strip()
-    html = str(payload.get("html", "")).strip()
-    run_at = str(payload.get("run_at", "")).strip()  # ISO UTC
-
-    if platform not in ("blogspot", "naver", "tistory"):
-        return jsonify({"ok": False, "error": "platform must be blogspot/naver/tistory"}), 400
-    if not title or not html:
-        return jsonify({"ok": False, "error": "title/html required"}), 400
-    if not run_at:
-        return jsonify({"ok": False, "error": "run_at required (ISO UTC)"}), 400
-
-    tid = task_add(platform, blog_id, blog_url, title, html, run_at)
-    return jsonify({"ok": True, "id": tid})
-
-
-@app.route("/api/tasks/list")
-def api_tasks_list():
-    return jsonify({"ok": True, "items": task_list()})
-
-
-@app.route("/api/tasks/cancel/<int:tid>", methods=["POST"])
-def api_tasks_cancel(tid: int):
-    task_cancel(tid)
-    return jsonify({"ok": True})
-
-
-# -----------------------------
-# Main
-# -----------------------------
-if __name__ == "__main__":
-    init_db()
-
-    # start worker thread
+if os.environ.get("ENABLE_WORKER", "1") == "1":
     t = threading.Thread(target=worker_loop, daemon=True)
     t.start()
 
+
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
