@@ -1,250 +1,55 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>BaseOne 설정</title>
-  <style>
-    :root{
-      --bg:#0f1630;--panel:rgba(255,255,255,.06);--panel2:rgba(255,255,255,.08);
-      --text:#f8faff;--muted:rgba(248,250,255,.75);--border:rgba(255,255,255,.14);
-      --primary:#7aa7ff;--good:#38e1c1;--danger:#ff7b7b;--shadow:0 10px 24px rgba(0,0,0,.22);
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,"Noto Sans KR",Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,var(--bg),#0a1022);color:var(--text);font-size:13px}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:980px;margin:0 auto;padding:12px}
-    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 4px}
-    .brand{display:flex;align-items:center;gap:10px}
-    .logo{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--good));display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;box-shadow:var(--shadow)}
-    .title{font-size:18px;font-weight:900;line-height:1}
-    .subtitle{font-size:12px;color:var(--muted);margin-top:4px}
-    .box{background:var(--panel);border:1px solid var(--border);padding:12px;border-radius:16px;margin:10px 0;box-shadow:var(--shadow)}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
-    input,select,textarea{
-      padding:9px 10px;border-radius:12px;border:1px solid var(--border);
-      background:rgba(255,255,255,.06);color:var(--text);outline:none;font-size:12.5px;width:100%;
-    }
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media(max-width:900px){.grid{grid-template-columns:1fr}}
-    .btn{padding:8px 11px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:900;font-size:12px}
-    .btn.primary{background:linear-gradient(135deg,var(--primary),#2f6bff);border:none;color:#fff}
-    .btn.good{background:linear-gradient(135deg,var(--good),#1fb6ff);border:none;color:#fff}
-    .btn.danger{background:rgba(255,107,107,.10);border:1px solid rgba(255,107,107,.35);color:var(--danger)}
-    .small{font-size:12px;color:var(--muted);line-height:1.55}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);font-size:12px}
-    .sep{height:1px;background:var(--border);margin:10px 0}
-    .list{display:grid;gap:8px;margin-top:8px}
-    .hint{padding:10px;border:1px dashed rgba(255,255,255,.22);border-radius:12px;background:rgba(255,255,255,.04)}
-  </style>
+<meta charset="utf-8">
+<title>BaseOne 설정</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;background:#020617;color:#e5e7eb}
+.wrap{max-width:700px;margin:0 auto;padding:20px}
+.box{background:#0f172a;border-radius:14px;padding:16px;margin-bottom:16px}
+input{width:100%;padding:10px;border-radius:8px;border:none;margin-top:6px;background:#1f2933;color:#fff}
+button{background:#22c55e;color:#000;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;margin-top:10px}
+.small{opacity:.7;font-size:13px}
+</style>
 </head>
 <body>
+
 <div class="wrap">
-  <div class="top">
-    <div class="brand">
-      <div class="logo">B</div>
-      <div>
-        <div class="title">BaseOne 설정</div>
-        <div class="subtitle">API 키 + 블로그 목록 저장</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <span class="pill">🛰️ 서버 <b id="sv">-</b></span>
-      <a href="/"><button class="btn">⬅️ 메인</button></a>
-      <button class="btn primary" onclick="save()">💾 저장</button>
-    </div>
+  <h1>⚙️ BaseOne 설정</h1>
+
+  <div class="box">
+    <b>Gemini API Key</b>
+    <input id="gemini">
   </div>
 
   <div class="box">
-    <div class="row">
-      <div>
-        <b>1) 서버 주소</b>
-        <div class="small">Render 배포 주소를 넣으면, 메인화면에서 그 서버로 호출합니다.</div>
-      </div>
-    </div>
-    <div class="list">
-      <input id="backend" placeholder="예) https://baseone11.onrender.com" />
-      <div class="small mono" id="originHint"></div>
-    </div>
+    <b>Pexels API Key</b>
+    <input id="pexels">
   </div>
 
-  <div class="box">
-    <div class="row">
-      <div>
-        <b>2) Gemini 글 생성 API</b>
-        <div class="small">서버가 /api/generate 호출할 때 사용합니다.</div>
-      </div>
-    </div>
-    <div class="grid" style="margin-top:10px">
-      <div>
-        <div class="small">GEMINI_API_KEY</div>
-        <input id="gemini_key" placeholder="AIza..." />
-      </div>
-      <div>
-        <div class="small">Gemini 모델</div>
-        <select id="gemini_model">
-          <option value="gemini-1.5-flash">gemini-1.5-flash (추천)</option>
-          <option value="gemini-1.5-pro">gemini-1.5-pro (품질↑/느림)</option>
-        </select>
-      </div>
-    </div>
-    <div class="hint small" style="margin-top:10px">
-      ✅ Render 환경변수로 GEMINI_API_KEY를 넣었다면, 여기 입력은 생략해도 되지만<br>
-      지금처럼 “혼자 쓰는 프로그램”이면 여기 저장해두는 게 편합니다.
-    </div>
-  </div>
-
-  <div class="box">
-    <div class="row">
-      <div>
-        <b>3) Pexels 이미지 API</b>
-        <div class="small">썸네일 자동 검색에 사용합니다.</div>
-      </div>
-    </div>
-    <div class="list" style="margin-top:10px">
-      <input id="pexels_key" placeholder="Pexels API Key" />
-      <div class="small">이미지 제공: <b>pexels</b> (현재 버전)</div>
-    </div>
-  </div>
-
-  <div class="box">
-    <div class="row">
-      <div>
-        <b>4) 블로그 주소 저장</b>
-        <div class="small">주소는 “목록 관리용”이고, 블로그스팟 자동발행은 OAuth 후 blog_id로 합니다.</div>
-      </div>
-      <div class="small mono">블로그스팟 10개 / 네이버 3개</div>
-    </div>
-
-    <div class="sep"></div>
-
-    <div class="grid">
-      <div>
-        <b>🟦 블로그스팟 주소 (최대 10)</b>
-        <div class="list" id="blogspotList"></div>
-        <button class="btn" onclick="addInput('blogspot')">+ 추가</button>
-      </div>
-
-      <div>
-        <b>🟩 네이버 주소 (최대 3)</b>
-        <div class="list" id="naverList"></div>
-        <button class="btn" onclick="addInput('naver')">+ 추가</button>
-      </div>
-    </div>
-
-    <div class="hint small" style="margin-top:10px">
-      ⚠️ 네이버는 “자동발행”을 공식적으로 지원하지 않는 경우가 많아(또는 매우 까다로움)<br>
-      현재 버전은 <b>HTML 복사 → 수동 업로드</b> 형태로 쓰는 걸 기본으로 잡았습니다.
-    </div>
-  </div>
-
-  <div class="box">
-    <div class="row">
-      <div>
-        <b>5) Blogger OAuth</b>
-        <div class="small">블로그스팟 자동발행/예약을 위해 필요합니다.</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn good" onclick="oauth()">🔐 OAuth 연결</button>
-        <button class="btn" onclick="checkOauth()">✅ 연결상태</button>
-      </div>
-    </div>
-    <div class="small mono" id="oauthState" style="margin-top:8px">-</div>
-  </div>
+  <button onclick="save()">💾 저장</button>
+  <div id="status" class="small"></div>
 </div>
 
 <script>
-const KEY="baseone_settings_v4";
+const KEY="baseone_settings";
 
 function load(){
-  const d = JSON.parse(localStorage.getItem(KEY) || "{}");
-  document.getElementById("backend").value = d.backend || location.origin;
-  document.getElementById("gemini_key").value = d.gemini_key || "";
-  document.getElementById("gemini_model").value = d.gemini_model || "gemini-1.5-flash";
-  document.getElementById("pexels_key").value = d.pexels_key || "";
-
-  renderList("blogspot", d.blogspot_urls || [], 10);
-  renderList("naver", d.naver_urls || [], 3);
-
-  document.getElementById("sv").textContent = (d.backend || location.origin).replace(/\/+$/,"");
-  document.getElementById("originHint").textContent = "현재 페이지 origin: " + location.origin;
+  const s = JSON.parse(localStorage.getItem(KEY)||"{}");
+  gemini.value = s.gemini_key||"";
+  pexels.value = s.pexels_key||"";
 }
-
-function renderList(type, arr, limit){
-  const box = document.getElementById(type+"List");
-  box.innerHTML="";
-  const items = (arr || []).slice(0, limit);
-  while(items.length < limit) items.push("");
-
-  items.forEach((v, idx)=>{
-    const input=document.createElement("input");
-    input.placeholder = (type==="blogspot")
-      ? `블로그스팟 주소 ${idx+1} (예: https://xxx.blogspot.com)`
-      : `네이버 주소 ${idx+1}`;
-    input.value = v || "";
-    input.dataset.type = type;
-    box.appendChild(input);
-  });
-}
-
-function addInput(type){
-  const d = get();
-  const key = (type==="blogspot") ? "blogspot_urls" : "naver_urls";
-  const limit = (type==="blogspot") ? 10 : 3;
-  const arr = (d[key] || []).slice(0, limit);
-  if(arr.length >= limit){ alert("최대 개수입니다."); return; }
-  arr.push("");
-  d[key] = arr;
-  localStorage.setItem(KEY, JSON.stringify(d));
-  renderList(type, d[key], limit);
-}
-
-function get(){
-  return JSON.parse(localStorage.getItem(KEY) || "{}");
-}
+load();
 
 function save(){
-  const d = get();
-  d.backend = (document.getElementById("backend").value || location.origin).trim();
-  d.gemini_key = (document.getElementById("gemini_key").value || "").trim();
-  d.gemini_model = (document.getElementById("gemini_model").value || "gemini-1.5-flash").trim();
-  d.pexels_key = (document.getElementById("pexels_key").value || "").trim();
-
-  d.blogspot_urls = Array.from(document.querySelectorAll('#blogspotList input'))
-    .map(i=>i.value.trim()).filter(Boolean).slice(0,10);
-
-  d.naver_urls = Array.from(document.querySelectorAll('#naverList input'))
-    .map(i=>i.value.trim()).filter(Boolean).slice(0,3);
-
-  localStorage.setItem(KEY, JSON.stringify(d));
-  document.getElementById("sv").textContent = d.backend.replace(/\/+$/,"");
-  alert("저장 완료!");
+  localStorage.setItem(KEY, JSON.stringify({
+    gemini_key: gemini.value.trim(),
+    pexels_key: pexels.value.trim()
+  }));
+  status.innerText="✅ 저장 완료";
 }
-
-function apiBase(){
-  const d=get();
-  return (d.backend || location.origin).replace(/\/+$/,"");
-}
-
-function oauth(){
-  window.open(apiBase()+"/oauth/start", "_blank");
-}
-
-async function checkOauth(){
-  try{
-    const res = await fetch(apiBase()+"/api/oauth/status");
-    const j = await res.json();
-    document.getElementById("oauthState").textContent = JSON.stringify(j);
-    if(j.connected) alert("OAuth 연결됨 ✅");
-    else alert("OAuth 미연결 ❌ / 먼저 OAuth 연결하세요");
-  }catch(e){
-    alert("서버 연결 실패");
-  }
-}
-
-load();
 </script>
+
 </body>
 </html>
-
