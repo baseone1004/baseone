@@ -154,13 +154,14 @@ def oauth_callback():
         flow.fetch_token(authorization_response=request.url)
         creds = flow.credentials
         save_token(creds)
-        return redirect("/?oauth=ok")
-    except Exception as e:
-        return jsonify({"ok": False, "error": f"OAuth callback failed: {str(e)}"}), 500
 
-@app.route("/api/oauth/status")
-def oauth_status():
-    return jsonify({"ok": True, "connected": bool(load_token())})
+        # ✅ JSON + redirect 둘 다 대응
+        if "application/json" in request.headers.get("Accept", ""):
+            return jsonify({"ok": True})
+
+        return redirect("/?oauth=ok=1")
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 # =========================
@@ -346,4 +347,5 @@ def api_blogger_post():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
 
