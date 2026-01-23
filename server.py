@@ -1,351 +1,239 @@
-from flask import Flask, request, jsonify, send_from_directory, redirect, session
+import os, json, time
+from datetime import datetime
+from typing import Optional
+
+import requests
+from flask import Flask, request, jsonify, redirect, send_from_directory, session
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
-
-import os, json
-from datetime import datetime
-import requests
-from typing import Optional
 
 # Google OAuth / Blogger
 from google_auth_oauthlib.flow import Flow
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
 
-
-# =========================
-# App
-# =========================
-app = Flask(__name__, static_folder=".", static_url_path="")
-app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret")
-
-# ✅ Render + HTTPS 필수
+# ================== 기본 설정 ==================
+app = Flask(__name__, static_folder=".")
+app.secret_key = os.environ.get("SESSION_SECRET", "BaseOneSecret")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+CORS(app)
 
-# Session secret (Render ENV: SESSION_SECRET)
-app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
-
-def now_str():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-
-# =========================
-# Env
-# =========================
 SCOPES = ["https://www.googleapis.com/auth/blogger"]
 
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
-OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI")
 
-# ✅ Render에서 토큰 파일 날아가는 문제 대비: Persistent Disk 쓰면 /var/data 추천
-TOKEN_FILE = os.environ.get("TOKEN_FILE", "google_token.json")
+TOKEN_FILE = "google_token.json"
+TASK_FILE = "tasks.json"
 
-# (선택) 서버 환경변수로도 Gemini/Pexels 기본값 설정 가능
-DEFAULT_GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "")
-DEFAULT_PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "")
+# ================== 유틸 ==================
+def now():
+    return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
+def load_json(path, default):
+    if not os.path.exists(path):
+        return default
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-# =========================
-# Static Pages
-# =========================
-@app.route("/")
-def home():
-    return send_from_directory(".", "index.html")
+def save_json(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
-@app.route("/settings")
-def settings_page():
-    return send_from_directory(".", "settings.html")
-
-@app.route("/health")
-def health():
-    return jsonify({"ok": True, "time": now_str()})
-
-@app.route("/__routes")
-def __routes():
-    return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
-
-
-# =========================
-# Token Save/Load
-# =========================
+# ================== OAuth ==================
 def save_token(creds: Credentials):
-    data = {
+    save_json(TOKEN_FILE, {
         "token": creds.token,
         "refresh_token": creds.refresh_token,
         "token_uri": creds.token_uri,
         "client_id": creds.client_id,
         "client_secret": creds.client_secret,
         "scopes": creds.scopes,
-    }
-    with open(TOKEN_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    })
 
 def load_token() -> Optional[Credentials]:
     if not os.path.exists(TOKEN_FILE):
         return None
-    try:
-        with open(TOKEN_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return Credentials(**data)
-    except Exception:
-        return None
+    return Credentials(**load_json(TOKEN_FILE, {}))
 
-def get_blogger_client():
+def get_blogger():
     creds = load_token()
     if not creds:
         return None
-
-    # ✅ 만료 시 refresh
-    try:
-        if creds.expired and creds.refresh_token:
-            creds.refresh(GoogleRequest())
-            save_token(creds)
-    except Exception:
-        return None
-
+    if creds.expired and creds.refresh_token:
+        creds.refresh(GoogleRequest())
+        save_token(creds)
     return build("blogger", "v3", credentials=creds)
 
-
-# =========================
-# OAuth
-# =========================
 def make_flow():
-    if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and OAUTH_REDIRECT_URI):
-        raise RuntimeError(
-            "OAuth env vars missing. Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, OAUTH_REDIRECT_URI in Render Env."
-        )
-
-    client_config = {
-        "web": {
-            "client_id": GOOGLE_CLIENT_ID,
-            "client_secret": GOOGLE_CLIENT_SECRET,
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-        }
-    }
-
     return Flow.from_client_config(
-        client_config=client_config,
+        {
+            "web": {
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+            }
+        },
         scopes=SCOPES,
-        redirect_uri=OAUTH_REDIRECT_URI
+        redirect_uri=OAUTH_REDIRECT_URI,
     )
 
 @app.route("/oauth/start")
 def oauth_start():
-    try:
-        flow = make_flow()
-        auth_url, state = flow.authorization_url(
-            access_type="offline",
-            include_granted_scopes="true",
-            prompt="consent"
-        )
-        session["oauth_state"] = state
-        return redirect(auth_url)
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+    flow = make_flow()
+    url, state = flow.authorization_url(
+        access_type="offline",
+        prompt="consent",
+        include_granted_scopes="true"
+    )
+    session["oauth_state"] = state
+    return redirect(url)
 
 @app.route("/oauth/callback")
 def oauth_callback():
-    try:
-        flow = make_flow()
-        flow.fetch_token(authorization_response=request.url)
-        creds = flow.credentials
-        save_token(creds)
+    flow = make_flow()
+    flow.fetch_token(authorization_response=request.url)
+    save_token(flow.credentials)
+    return redirect("/?oauth=ok")
 
-        # ✅ JSON + redirect 둘 다 대응
-        if "application/json" in request.headers.get("Accept", ""):
-            return jsonify({"ok": True})
+@app.route("/api/oauth/status")
+def oauth_status():
+    return jsonify({"ok": True, "connected": bool(load_token())})
 
-        return redirect("/?oauth=ok=1")
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
-
-
-# =========================
-# Pexels
-# =========================
-def pexels_search_image_url(pexels_key: str, query: str) -> str:
-    if not pexels_key:
-        return ""
-    url = "https://api.pexels.com/v1/search"
-    headers = {"Authorization": pexels_key}
-    params = {"query": query, "per_page": 1, "orientation": "landscape", "size": "large"}
-    try:
-        r = requests.get(url, headers=headers, params=params, timeout=15)
-        if r.status_code != 200:
-            return ""
-        data = r.json()
-        photos = data.get("photos", [])
-        if not photos:
-            return ""
-        src = photos[0].get("src", {})
-        return src.get("large2x") or src.get("large") or src.get("original") or ""
-    except Exception:
-        return ""
-
-
-# =========================
-# Gemini (REST) - HTML 글 생성
-# =========================
-def gemini_generate_html(api_key: str, model: str, topic: str, category: str) -> str:
-    """
-    Google Generative Language API (Gemini) REST 호출로 HTML 생성.
-    """
-    if not api_key:
-        raise RuntimeError("GEMINI_API_KEY missing")
-
-    # 모델 기본값
-    model = (model or "gemini-1.5-flash").strip()
-
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+# ================== Gemini ==================
+def gemini_generate(api_key: str, prompt: str) -> str:
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+    headers = {"Content-Type": "application/json"}
     params = {"key": api_key}
 
-    prompt = f"""
-너는 수익형 정보 블로그 작가다.
-아래 조건으로 '{topic}' 글을 한국어로 작성해줘.
-
-- 카테고리: {category}
-- 분량: 가능하면 길게(최소 5,000자 이상 권장)
-- H2 소제목 8~9개
-- 각 소제목 아래 400자 이상
-- 표 1개 포함(<table>)
-- 아이콘/박스 디자인(✅💡⚠️) div로 포함
-- 마지막: 요약(3~5줄) + FAQ 5개 + 행동유도
-
-출력 규칙:
-- 출력은 블로그에 붙여넣기 좋은 HTML만 출력 (설명/머리말 금지)
-- <h1>제목</h1> 포함
-""".strip()
-
     body = {
-        "contents": [
-            {"role": "user", "parts": [{"text": prompt}]}
-        ],
-        "generationConfig": {
-            "temperature": 0.7,
-            "maxOutputTokens": 8192
-        }
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }]
     }
 
-    r = requests.post(endpoint, params=params, json=body, timeout=60)
+    r = requests.post(url, params=params, headers=headers, json=body, timeout=60)
+    r.raise_for_status()
+    data = r.json()
+    return data["candidates"][0]["content"]["parts"][0]["text"]
+
+# ================== Pexels ==================
+def pexels_image(key: str, query: str) -> str:
+    if not key:
+        return ""
+    r = requests.get(
+        "https://api.pexels.com/v1/search",
+        headers={"Authorization": key},
+        params={"query": query, "per_page": 1},
+        timeout=15
+    )
     if r.status_code != 200:
-        raise RuntimeError(f"Gemini error {r.status_code}: {r.text}")
+        return ""
+    photos = r.json().get("photos", [])
+    if not photos:
+        return ""
+    return photos[0]["src"]["large"]
 
-    j = r.json()
-    try:
-        text = j["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
-        raise RuntimeError(f"Gemini response parse failed: {j}")
-
-    return text.strip()
-
-
-def make_image_prompt(topic: str, category: str) -> str:
-    # 실제 이미지 생성은 'pexels'로 URL을 가져오고,
-    # gemini 선택 시에는 프롬프트만 제공(이미지 모델은 별도 연동이 필요)
-    return f'{category} 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
-
-
-# =========================
-# API: generate (Gemini 글 + Pexels 이미지 URL)
-# =========================
+# ================== API ==================
 @app.route("/api/generate", methods=["POST"])
 def api_generate():
-    payload = request.get_json(silent=True) or {}
-    topic = (payload.get("topic") or "").strip()
-    category = (payload.get("category") or "").strip() or "정보"
+    d = request.json or {}
+    topic = d.get("topic")
+    category = d.get("category", "정보")
+    gemini_key = d.get("gemini_key")
+    pexels_key = d.get("pexels_key")
 
-    # ✅ 프론트에서 보내거나, 서버 ENV 기본값 사용
-    gemini_key = (payload.get("gemini_key") or DEFAULT_GEMINI_KEY or "").strip()
-    gemini_model = (payload.get("gemini_model") or "gemini-1.5-flash").strip()
+    if not topic or not gemini_key:
+        return jsonify({"ok": False, "error": "topic / gemini_key required"}), 400
 
-    img_provider = (payload.get("img_provider") or "pexels").strip()
-    pexels_key = (payload.get("pexels_key") or DEFAULT_PEXELS_KEY or "").strip()
+    prompt = f"""
+너는 수익형 블로그 전문 작가다.
 
-    if not topic:
-        return jsonify({"ok": False, "error": "topic is required"}), 400
+주제: {topic}
+카테고리: {category}
 
-    # 1) Gemini로 HTML 생성
-    try:
-        html = gemini_generate_html(gemini_key, gemini_model, topic, category)
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+조건:
+- HTML 형식
+- H2 소제목 8개 이상
+- 각 소제목 600자 이상
+- 표 1개
+- 체크리스트/주의사항/FAQ 포함
+- 마지막에 행동 유도 문구
+"""
 
-    # 2) 이미지 (pexels면 URL까지)
-    image_prompt = make_image_prompt(topic, category)
-    image_url = ""
-    if img_provider == "pexels":
-        q = f"{topic} {category}".strip()
-        image_url = pexels_search_image_url(pexels_key, q) or pexels_search_image_url(pexels_key, topic)
+    html = gemini_generate(gemini_key, prompt)
+    img = pexels_image(pexels_key, f"{topic} {category}")
+
+    if img:
+        html = f'<img src="{img}" style="max-width:100%"><hr>' + html
 
     return jsonify({
         "ok": True,
-        "topic": topic,
-        "category": category,
-        "generated_at": now_str(),
-        "title": topic,
         "html": html,
-        "image_provider": img_provider,
-        "image_prompt": image_prompt,
-        "image_url": image_url
+        "image_url": img,
+        "generated_at": now()
     })
 
-
-# =========================
-# Blogger APIs
-# =========================
-@app.route("/api/blogger/blogs", methods=["GET"])
-def api_blogger_blogs():
-    svc = get_blogger_client()
+@app.route("/api/blogger/blogs")
+def blogger_blogs():
+    svc = get_blogger()
     if not svc:
-        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
-
+        return jsonify({"ok": False}), 401
     res = svc.blogs().listByUser(userId="self").execute()
-    items = res.get("items", [])
-    out = [{"id": b.get("id"), "name": b.get("name"), "url": b.get("url")} for b in items]
-    return jsonify({"ok": True, "count": len(out), "items": out})
-
+    items = [
+        {"id": b["id"], "name": b["name"], "url": b["url"]}
+        for b in res.get("items", [])
+    ]
+    return jsonify({"ok": True, "items": items})
 
 @app.route("/api/blogger/post", methods=["POST"])
-def api_blogger_post():
-    svc = get_blogger_client()
+def blogger_post():
+    svc = get_blogger()
     if not svc:
-        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
+        return jsonify({"ok": False}), 401
 
-    payload = request.get_json(silent=True) or {}
-    blog_id = str(payload.get("blog_id", "")).strip()
-    title = str(payload.get("title", "")).strip()
-    html = str(payload.get("html", "")).strip()
+    d = request.json
+    res = svc.posts().insert(
+        blogId=d["blog_id"],
+        body={"title": d["title"], "content": d["html"]},
+        isDraft=False
+    ).execute()
 
-    if not blog_id:
-        return jsonify({"ok": False, "error": "blog_id missing"}), 400
-    if not title:
-        return jsonify({"ok": False, "error": "title missing"}), 400
-    if not html:
-        return jsonify({"ok": False, "error": "html missing"}), 400
+    return jsonify({"ok": True, "url": res.get("url")})
 
-    try:
-        post_body = {"kind": "blogger#post", "title": title, "content": html}
-        res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
-        return jsonify({"ok": True, "id": res.get("id"), "url": res.get("url")})
-    except HttpError as e:
-        try:
-            detail = e.content.decode("utf-8") if hasattr(e, "content") and e.content else str(e)
-        except Exception:
-            detail = str(e)
-        return jsonify({"ok": False, "error": detail}), 500
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
+# ================== 예약 ==================
+@app.route("/api/tasks/add", methods=["POST"])
+def task_add():
+    tasks = load_json(TASK_FILE, [])
+    d = request.json
+    d["id"] = int(time.time() * 1000)
+    d["status"] = "pending"
+    tasks.append(d)
+    save_json(TASK_FILE, tasks)
+    return jsonify({"ok": True})
 
+@app.route("/api/tasks/list")
+def task_list():
+    return jsonify({"ok": True, "items": load_json(TASK_FILE, [])})
 
-# =========================
-# Run
-# =========================
+@app.route("/health")
+def health():
+    return jsonify({"ok": True, "time": now()})
+
+@app.route("/__routes")
+def routes():
+    return jsonify([str(r) for r in app.url_map.iter_rules()])
+
+@app.route("/")
+def index():
+    return send_from_directory(".", "index.html")
+
+@app.route("/settings")
+def settings():
+    return send_from_directory(".", "settings.html")
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "5000"))
-    app.run(host="0.0.0.0", port=port)
-
-
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
