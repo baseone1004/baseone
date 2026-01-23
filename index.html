@@ -184,6 +184,18 @@ async function loadBloggerBlogs(){
       return;
     }
     bloggerBlogs = j.items || [];
+    <script>
+(function checkOAuthDone(){
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("oauth") === "ok" || url.searchParams.get("oauth") === "ok=1") {
+    console.log("OAuth 연결 완료");
+    history.replaceState({}, document.title, "/");
+    alert("✅ 구글 OAuth 연결 완료!");
+    location.reload();
+  }
+})();
+</script>
+
 
     // 설정에 blogspot_urls가 있으면 그 URL만 필터
     const allow = (settings().blogspot_urls||[]).map(x=>x.trim()).filter(Boolean);
@@ -408,3 +420,4 @@ makeLocalTopics();
 </script>
 </body>
 </html>
+
