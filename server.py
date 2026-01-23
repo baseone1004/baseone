@@ -25,7 +25,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
 
 # Files (Render free는 디스크가 날아갈 수 있음: 임시 저장용)
-TOKEN_FILE = "google_token.json"
+TOKEN_FILE = os.environ.get("TOKEN_FILE", "/var/data/google_token.json")
 TASK_FILE = "tasks.json"
 
 # OAuth env
@@ -437,3 +437,4 @@ def api_tasks_add():
         return jsonify({"ok": False, "error": "html missing"}), 400
     if not run_at:
         return jsonify({"ok
+
