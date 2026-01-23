@@ -19,8 +19,10 @@ from googleapiclient.errors import HttpError
 # App
 # =========================
 app = Flask(__name__, static_folder=".", static_url_path="")
+app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret")
+
+# ✅ Render + HTTPS 필수
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-CORS(app, supports_credentials=True)
 
 # Session secret (Render ENV: SESSION_SECRET)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_secret_change_me")
@@ -344,3 +346,4 @@ def api_blogger_post():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
