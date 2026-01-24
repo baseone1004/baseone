@@ -133,6 +133,16 @@
 
     <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <select id="blogSelect"></select>
+      <!-- ✅ 키워드 자동수집 → 주제화 -->
+<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%">
+  <input id="kwSeed" placeholder="🔎 키워드 입력 (예: 정부지원금, 카드 추천, 대출 갈아타기)" style="flex:1;min-width:260px"/>
+  <input id="kwCount" type="number" min="5" max="60" value="30" style="width:120px"/>
+  <button class="btn primary" onclick="keywordToTopics()">📌 키워드 자동수집 → 주제화</button>
+</div>
+<div class="small" style="margin-top:6px">
+  ✅ 안전한 방식: Gemini/OpenAI로 ‘롱테일 키워드’ 생성 → 클릭 유도형 ‘주제(제목)’로 변환합니다.
+</div>
+
       <button class="btn good" onclick="setActiveFromSelect()">✅ 선택</button>
       <button class="btn" onclick="oauthConnect()">🔐 OAuth 연결</button>
       <button class="btn primary" onclick="loadBlogs()">📥 내 블로그 불러오기</button>
@@ -677,3 +687,4 @@ updateStatusLine();
 </script>
 </body>
 </html>
+
