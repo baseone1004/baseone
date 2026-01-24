@@ -87,7 +87,6 @@
     .iframeWrap{margin-top:8px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--border);min-height:320px}
     iframe{width:100%;height:320px;border:0}
 
-    /* --- Blog tabs --- */
     .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .tab{
       padding:8px 10px;border-radius:999px;border:1px solid var(--border);
@@ -120,6 +119,7 @@
     </div>
   </div>
 
+  <!-- 1) OAuth + Blogs -->
   <div class="box">
     <div class="row">
       <div>
@@ -133,16 +133,6 @@
 
     <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <select id="blogSelect"></select>
-      <!-- ✅ 키워드 자동수집 → 주제화 -->
-<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%">
-  <input id="kwSeed" placeholder="🔎 키워드 입력 (예: 정부지원금, 카드 추천, 대출 갈아타기)" style="flex:1;min-width:260px"/>
-  <input id="kwCount" type="number" min="5" max="60" value="30" style="width:120px"/>
-  <button class="btn primary" onclick="keywordToTopics()">📌 키워드 자동수집 → 주제화</button>
-</div>
-<div class="small" style="margin-top:6px">
-  ✅ 안전한 방식: Gemini/OpenAI로 ‘롱테일 키워드’ 생성 → 클릭 유도형 ‘주제(제목)’로 변환합니다.
-</div>
-
       <button class="btn good" onclick="setActiveFromSelect()">✅ 선택</button>
       <button class="btn" onclick="oauthConnect()">🔐 OAuth 연결</button>
       <button class="btn primary" onclick="loadBlogs()">📥 내 블로그 불러오기</button>
@@ -152,6 +142,7 @@
     <div class="tabs" id="blogTabs"></div>
   </div>
 
+  <!-- 2) Topics -->
   <div class="box">
     <div class="row">
       <div>
@@ -164,6 +155,16 @@
         <button class="btn" onclick="makeLocalTopics()">⚡ 로컬 주제</button>
         <button class="btn primary" onclick="makeMoneyTopics()">🤖 AI 주제(설정키 필요)</button>
       </div>
+    </div>
+
+    <!-- ✅ 키워드 자동수집 → 주제화 (여기가 맞는 위치) -->
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%">
+      <input id="kwSeed" placeholder="🔎 키워드 입력 (예: 정부지원금, 카드 추천, 대출 갈아타기)" style="flex:1;min-width:260px"/>
+      <input id="kwCount" type="number" min="5" max="60" value="30" style="width:120px"/>
+      <button class="btn primary" onclick="keywordToTopics()">📌 키워드 자동수집 → 주제화</button>
+    </div>
+    <div class="small" style="margin-top:6px">
+      ✅ 안전한 방식: Gemini/OpenAI로 ‘롱테일 키워드’ 생성 → 클릭 유도형 ‘주제(제목)’로 변환합니다.
     </div>
 
     <div class="grid" id="catGrid"></div>
@@ -185,6 +186,7 @@
     </div>
   </div>
 
+  <!-- 3) Preview -->
   <div class="box" id="previewBox" style="display:none">
     <div class="row">
       <div>
@@ -218,6 +220,7 @@
     </div>
   </div>
 
+  <!-- 4) Tasks -->
   <div class="box">
     <div class="row">
       <div>
@@ -247,8 +250,8 @@ function normUrl(u){
   try{
     const url = new URL(raw);
     const host = (url.hostname||"").toLowerCase().replace(/^www\./,"");
-    const path = (url.pathname||"/").replace(/\/+$/,"/"); // trailing /
-    return host + path; // protocol 무시
+    const path = (url.pathname||"/").replace(/\/+$/,"/");
+    return host + path;
   }catch(e){
     return raw.toLowerCase().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/+$/,"/");
   }
@@ -293,7 +296,7 @@ const catGrid=document.getElementById("catGrid");
 CATS.forEach(obj=>{
   const d=document.createElement("div");
   d.className="cat";
-  d.onclick=()=>{selectedCat=obj.k; makeLocalTopics();};
+  d.onclick=()=>{selectedCat=obj.k; makeLocalTopics(); updateStatusLine();};
   d.innerHTML=`<b>${obj.e} ${obj.k}</b><div class="small">${obj.s}</div>`;
   catGrid.appendChild(d);
 });
@@ -318,6 +321,10 @@ function renderBlogTabs(){
     el.innerHTML = `<b>🟦 ${idx+1}</b><small>${esc(b.name||"")} · ${esc(b.url||"")}</small>`;
     box.appendChild(el);
   });
+}
+
+function showToast(msg){
+  alert(msg);
 }
 
 function loadBlogSelect(){
@@ -356,7 +363,7 @@ function loadBlogSelect(){
 
 function setActiveFromSelect(){
   const v=document.getElementById("blogSelect").value;
-  if(!v){ alert("선택할 블로그가 없습니다."); return; }
+  if(!v){ showToast("선택할 블로그가 없습니다."); return; }
   activeBlog=JSON.parse(v);
   localStorage.setItem("baseone_active_blog_id", activeBlog.id);
   renderBlogTabs();
@@ -369,7 +376,7 @@ async function loadBlogs(){
     const res=await fetch(apiBase()+"/api/blogger/blogs");
     const j=await res.json();
     if(!res.ok || !j.ok){
-      alert("불러오기 실패: 먼저 OAuth 연결을 확인하세요.");
+      showToast("불러오기 실패: 먼저 OAuth 연결을 확인하세요.");
       return;
     }
 
@@ -383,8 +390,7 @@ async function loadBlogs(){
     }
 
     if(!bloggerBlogs.length){
-      alert("불러온 블로그가 없습니다. (설정의 blogspot_urls 제한이 걸렸거나 URL이 다를 수 있음)\n\n" +
-            "✅ 팁: 제한을 비우면(제한 해제) 전체 블로그가 표시됩니다.");
+      showToast("불러온 블로그가 없습니다. (설정의 blogspot_urls 제한이 걸렸거나 URL이 다를 수 있음)\n\n✅ 팁: 제한을 비우면(제한 해제) 전체 블로그가 표시됩니다.");
       loadBlogSelect();
       renderBlogTabs();
       updateStatusLine();
@@ -399,9 +405,9 @@ async function loadBlogs(){
     renderBlogTabs();
     loadBlogSelect();
     updateStatusLine();
-    alert("블로그 목록 로드 완료!");
+    showToast("블로그 목록 로드 완료!");
   }catch(e){
-    alert("서버 연결 실패");
+    showToast("서버 연결 실패");
   }
 }
 
@@ -422,24 +428,13 @@ function makeLocalTopics(){
 
 async function makeMoneyTopics(){
   const d=settings();
-  if(!d.gemini_key){ alert("설정에서 GEMINI_API_KEY 저장 먼저"); return; }
+  if(!d.gemini_key){ showToast("설정에서 GEMINI_API_KEY 저장 먼저"); return; }
   const count = Math.max(5, Math.min(60, Number(document.getElementById("topicCount").value||30)));
-  try{
-    const res=await fetch(apiBase()+"/api/topics/money",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({gemini_key:d.gemini_key, gemini_model:(d.gemini_model||"gemini-1.5-flash"), count})
-    });
-    const j=await res.json();
-    if(!res.ok || !j.ok){ alert("주제 생성 실패: "+(j.error||"")); return; }
-    topics=(j.items||[]).slice(0,count).map((t,i)=>({id:`G_${Date.now()}_${i}`, title:String(t), checked:(i<10), html:"", image_url:"", image_prompt:""}));
-    selectedTopicId=topics[0]?.id||"";
-    renderTopics(); updateStatusLine();
-  }catch(e){
-    alert("서버 연결 실패. 설정의 서버 주소 확인");
-  }
+  // 이 엔드포인트는 서버에 없을 수 있어 안전하게 안내
+  showToast("AI 주제는 현재 /api/topics/money 가 서버에 없으면 동작하지 않습니다.\n키워드 자동수집 → 주제화를 사용해도 됩니다.");
 }
 
+/* ---- Render topics ---- */
 function renderTopics(){
   const q=(document.getElementById("filter").value||"").trim().toLowerCase();
   const box=document.getElementById("topicList");
@@ -467,7 +462,7 @@ function renderTopics(){
         </div>
         <div class="itemMeta">🏷️ ${esc(selectedCat)} · ${it.html ? "✅ 생성됨":"⏳ 미생성"}</div>
       </div>
-      <button class="btn" onclick="event.stopPropagation(); navigator.clipboard.writeText('${it.title.replaceAll("'","\\'")}'); alert('복사 완료!');">복사</button>
+      <button class="btn" onclick="event.stopPropagation(); navigator.clipboard.writeText('${it.title.replaceAll("'","\\'")}'); showToast('복사 완료!');">복사</button>
     `;
     box.appendChild(d);
   });
@@ -484,7 +479,7 @@ function getSelectedTopic(){ return topics.find(x=>x.id===selectedTopicId) || nu
 async function generateOne(topicObj){
   const d=settings();
   if(!d.gemini_key && !d.openai_key){
-    alert("설정에서 GEMINI 또는 OPENAI 키를 저장하세요.");
+    showToast("설정에서 GEMINI 또는 OPENAI 키를 저장하세요.");
     return false;
   }
 
@@ -507,7 +502,7 @@ async function generateOne(topicObj){
     });
     const j=await res.json();
     if(!res.ok || !j.ok){
-      alert("생성 실패: "+(j.error||""));
+      showToast("생성 실패: "+(j.error||""));
       return false;
     }
     topicObj.html = j.html || "";
@@ -516,24 +511,24 @@ async function generateOne(topicObj){
     renderTopics();
     return true;
   }catch(e){
-    alert("서버 연결 실패");
+    showToast("서버 연결 실패");
     return false;
   }
 }
 
 async function aiGenerate(){
   const t=getSelectedTopic();
-  if(!t){ alert("주제 선택"); return; }
+  if(!t){ showToast("주제 선택"); return; }
   const ok = await generateOne(t);
   if(ok) showSinglePreview(t);
 }
 
 async function bulkGenerate(){
   const list = topics.filter(x=>x.checked);
-  if(!list.length){ alert("체크된 주제가 없습니다."); return; }
+  if(!list.length){ showToast("체크된 주제가 없습니다."); return; }
 
   const targets = list.filter(x=>!x.html);
-  if(!targets.length){ alert("체크된 주제들은 이미 생성되었습니다."); return; }
+  if(!targets.length){ showToast("체크된 주제들은 이미 생성되었습니다."); return; }
 
   if(!confirm(`체크된 ${list.length}개 중 미생성 ${targets.length}개를 생성할까요?`)) return;
 
@@ -544,7 +539,7 @@ async function bulkGenerate(){
     if(!ok) break;
   }
   updateStatusLine();
-  alert("대량 생성 완료(또는 중단).");
+  showToast("대량 생성 완료(또는 중단).");
 }
 
 /* ---- Preview ---- */
@@ -575,11 +570,11 @@ function showSinglePreview(t){
   document.getElementById("previewBox").style.display="block";
 }
 
-/* ---- Publish / Schedule ---- */
+/* ---- Publish ---- */
 async function publishNow(){
   const t=getSelectedTopic();
-  if(!t || !t.html){ alert("먼저 글 생성"); return; }
-  if(!activeBlog || !activeBlog.id){ alert("내 블로그 불러오기 후, 블로그를 선택하세요."); return; }
+  if(!t || !t.html){ showToast("먼저 글 생성"); return; }
+  if(!activeBlog || !activeBlog.id){ showToast("내 블로그 불러오기 후, 블로그를 선택하세요."); return; }
 
   try{
     const res = await fetch(apiBase()+"/api/blogger/post",{
@@ -589,27 +584,23 @@ async function publishNow(){
     });
     const j = await res.json().catch(()=> ({}));
     if(!res.ok || !j.ok){
-      alert("발행 실패: " + (j.error || "unknown"));
+      showToast("발행 실패: " + (j.error || "unknown"));
       return;
     }
-    alert("발행 완료!\n" + (j.url || ""));
+    showToast("발행 완료!\n" + (j.url || ""));
   }catch(e){
-    alert("서버 연결 실패");
+    showToast("서버 연결 실패");
   }
 }
 
-function utcIsoFromLocalDatetime(localVal){
-  const dt = new Date(localVal);
-  return dt.toISOString();
-}
-
+/* ---- Schedule ---- */
 async function scheduleChecked(){
   const list = topics.filter(x=>x.checked);
-  if(!list.length){ alert("체크된 주제가 없습니다."); return; }
-  if(!activeBlog || !activeBlog.id){ alert("내 블로그 불러오기 후, 블로그를 선택하세요."); return; }
+  if(!list.length){ showToast("체크된 주제가 없습니다."); return; }
+  if(!activeBlog || !activeBlog.id){ showToast("내 블로그 불러오기 후, 블로그를 선택하세요."); return; }
 
   const startVal = (document.getElementById("scheduleAt").value||"").trim();
-  if(!startVal){ alert("예약 시작 시간을 선택하세요."); return; }
+  if(!startVal){ showToast("예약 시작 시간을 선택하세요."); return; }
   const gapMin = Math.max(5, Number(document.getElementById("gapMin").value||120));
 
   const needGen = list.filter(x=>!x.html);
@@ -636,7 +627,7 @@ async function scheduleChecked(){
     });
   }
 
-  alert("예약 저장 완료!");
+  showToast("예약 저장 완료!");
   refreshTasks();
 }
 
@@ -678,26 +669,18 @@ async function cancelTask(id){
   refreshTasks();
 }
 
-/* ---- init ---- */
-refreshOAuth();
-makeLocalTopics();
-loadBlogSelect();
-renderTopics();
-updateStatusLine();
-</script>
-</body>
-</html>
+/* ✅ 키워드 자동수집 → 주제화 (여기! 반드시 script 안) */
 async function keywordToTopics(){
   const seed = (document.getElementById("kwSeed").value||"").trim();
   const count = Math.max(5, Math.min(60, Number(document.getElementById("kwCount").value||30)));
   if(!seed){
-    alert("키워드를 입력하세요. 예) 정부지원금, 카드 추천, 대출 갈아타기");
+    showToast("키워드를 입력하세요. 예) 정부지원금, 카드 추천, 대출 갈아타기");
     return;
   }
 
   const d = settings();
   if(!d.gemini_key && !d.openai_key){
-    alert("설정에서 GEMINI 또는 OPENAI 키를 저장하세요.");
+    showToast("설정에서 GEMINI 또는 OPENAI 키를 저장하세요.");
     return;
   }
 
@@ -718,11 +701,10 @@ async function keywordToTopics(){
     });
     const j = await res.json();
     if(!res.ok || !j.ok){
-      alert("키워드 수집 실패: " + (j.error || "unknown"));
+      showToast("키워드 수집 실패: " + (j.error || "unknown"));
       return;
     }
 
-    // topics로 화면 주제 리스트 갱신
     const items = (j.topics || []).slice(0, count);
     topics = items.map((t,i)=>({
       id: `K_${Date.now()}_${i}`,
@@ -736,10 +718,18 @@ async function keywordToTopics(){
     renderTopics();
     updateStatusLine();
 
-    alert(`완료! (키워드 ${j.keywords?.length||0}개 생성 → 주제 ${items.length}개 생성)`);
+    showToast(`완료! (키워드 ${j.keywords?.length||0}개 생성 → 주제 ${items.length}개 생성)`);
   }catch(e){
-    alert("서버 연결 실패: " + e);
+    showToast("서버 연결 실패: " + e);
   }
 }
 
-
+/* ---- init ---- */
+refreshOAuth();
+makeLocalTopics();
+loadBlogSelect();
+renderTopics();
+updateStatusLine();
+</script>
+</body>
+</html>
