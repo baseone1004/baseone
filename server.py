@@ -1,4 +1,4 @@
-import os, json, time, sqlite3
+import os, json, time, re, sqlite3
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 
@@ -13,44 +13,31 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request as GoogleRequest
 from googleapiclient.discovery import build
 
-# =========================
-# 기본 설정
-# =========================
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-TOKEN_FILE = os.path.join(APP_DIR, "google_token.json")
-DB_FILE = os.path.join(APP_DIR, "tasks.db")
+
+# =========================================================
+# App
+# =========================================================
+app = Flask(__name__)
+app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-change-me")
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+CORS(app, supports_credentials=True)
+
+NOW = lambda: datetime.now(timezone.utc)
+NOW_STR = lambda: NOW().strftime("%Y-%m-%d %H:%M:%S UTC")
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TOKEN_FILE = os.path.join(BASE_DIR, "google_token.json")
+DB_FILE = os.path.join(BASE_DIR, "tasks.db")
 
 SCOPES = ["https://www.googleapis.com/auth/blogger"]
-
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 OAUTH_REDIRECT_URI = os.environ.get("OAUTH_REDIRECT_URI", "")
 
-SESSION_SECRET = os.environ.get("SESSION_SECRET", "BaseOne!Session#Secret@2026$Prod")
-TASK_RUNNER_TOKEN = os.environ.get("TASK_RUNNER_TOKEN", "")  # 선택: 워커 호출 보호용
 
-def now_str() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
-
-def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
-
-def parse_iso(dt: str) -> datetime:
-    # ISO8601 -> datetime (UTC)
-    return datetime.fromisoformat(dt.replace("Z", "+00:00")).astimezone(timezone.utc)
-
-# =========================
-# Flask 앱
-# =========================
-app = Flask(__name__, static_folder=APP_DIR, static_url_path="")
-app.secret_key = SESSION_SECRET
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-
-CORS(app, supports_credentials=True)
-
-# =========================
-# DB (예약 발행 큐)
-# =========================
+# =========================================================
+# DB (예약발행)
+# =========================================================
 def db_conn():
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
@@ -60,28 +47,30 @@ def db_init():
     conn = db_conn()
     cur = conn.cursor()
     cur.execute("""
-      CREATE TABLE IF NOT EXISTS tasks(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        status TEXT NOT NULL,
-        platform TEXT NOT NULL,
-        blog_id TEXT,
-        blog_url TEXT,
-        title TEXT,
-        html TEXT,
-        run_at TEXT,
-        created_at TEXT,
-        result_url TEXT,
-        error TEXT
-      )
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      platform TEXT NOT NULL,
+      blog_id TEXT NOT NULL,
+      blog_url TEXT,
+      title TEXT NOT NULL,
+      html TEXT NOT NULL,
+      run_at TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      result_url TEXT,
+      error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
     """)
     conn.commit()
     conn.close()
 
 db_init()
 
-# =========================
-# OAuth Token Save/Load
-# =========================
+
+# =========================================================
+# OAuth Token
+# =========================================================
 def save_token(creds: Credentials):
     data = {
         "token": creds.token,
@@ -134,99 +123,64 @@ def make_flow():
         redirect_uri=OAUTH_REDIRECT_URI
     )
 
-# =========================
-# Static Pages
-# =========================
+
+# =========================================================
+# Static
+# =========================================================
 @app.route("/")
 def home():
-    return send_from_directory(APP_DIR, "index.html")
+    return send_from_directory(BASE_DIR, "index.html")
 
 @app.route("/settings")
 def settings_page():
-    return send_from_directory(APP_DIR, "settings.html")
+    return send_from_directory(BASE_DIR, "settings.html")
 
 @app.route("/health")
 def health():
-    return jsonify({"ok": True, "time": now_str()})
+    return jsonify({"ok": True, "time": NOW_STR()})
+
+
+# =========================================================
+# OAuth routes
+# =========================================================
+@app.route("/oauth/start")
+def oauth_start():
+    try:
+        flow = make_flow()
+        auth_url, state = flow.authorization_url(
+            access_type="offline",
+            include_granted_scopes="true",
+            prompt="consent"
+        )
+        session["oauth_state"] = state
+        return redirect(auth_url)
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route("/oauth/callback")
+def oauth_callback():
+    try:
+        flow = make_flow()
+        flow.fetch_token(authorization_response=request.url)
+        creds = flow.credentials
+        save_token(creds)
+        return redirect("/?oauth=ok")
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"OAuth callback failed: {str(e)}"}), 500
+
+@app.route("/api/oauth/status")
+def oauth_status():
+    creds = load_token()
+    return jsonify({"ok": True, "connected": bool(creds)})
 
 @app.route("/__routes")
 def __routes():
     return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
 
-# =========================
-# OAuth Routes
-# =========================
-@app.route("/oauth/start")
-def oauth_start():
-    flow = make_flow()
-    auth_url, state = flow.authorization_url(
-        access_type="offline",
-        include_granted_scopes="true",
-        prompt="consent"
-    )
-    session["oauth_state"] = state
-    return redirect(auth_url)
 
-@app.route("/oauth/callback")
-def oauth_callback():
-    flow = make_flow()
-    flow.fetch_token(authorization_response=request.url)
-    creds = flow.credentials
-    save_token(creds)
-    return redirect("/?oauth=ok")
-
-@app.route("/api/oauth/status")
-def oauth_status():
-    return jsonify({"ok": True, "connected": bool(load_token())})
-
-# =========================
-# Blogger API
-# =========================
-@app.route("/api/blogger/blogs", methods=["GET"])
-def api_blogger_blogs():
-    svc = get_blogger_client()
-    if not svc:
-        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
-
-    res = svc.blogs().listByUser(userId="self").execute()
-    items = res.get("items", [])
-    out = [{"id": b.get("id"), "name": b.get("name"), "url": b.get("url")} for b in items]
-    return jsonify({"ok": True, "count": len(out), "items": out})
-
-def blogger_post(blog_id: str, title: str, html: str) -> Dict[str, Any]:
-    svc = get_blogger_client()
-    if not svc:
-        return {"ok": False, "error": "OAuth not connected. Visit /oauth/start"}
-
-    post_body = {"kind": "blogger#post", "title": title, "content": html}
-    res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
-    return {"ok": True, "id": res.get("id"), "url": res.get("url")}
-
-@app.route("/api/blogger/post", methods=["POST"])
-def api_blogger_post():
-    payload = request.get_json(silent=True) or {}
-    blog_id = str(payload.get("blog_id", "")).strip()
-    title = str(payload.get("title", "")).strip()
-    html = str(payload.get("html", "")).strip()
-
-    if not blog_id:
-        return jsonify({"ok": False, "error": "blog_id missing"}), 400
-    if not title:
-        return jsonify({"ok": False, "error": "title missing"}), 400
-    if not html:
-        return jsonify({"ok": False, "error": "html missing"}), 400
-
-    try:
-        j = blogger_post(blog_id, title, html)
-        if not j.get("ok"):
-            return jsonify(j), 401
-        return jsonify(j)
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
-
-# =========================
-# 이미지: Pexels
-# =========================
+# =========================================================
+# Pexels image
+# =========================================================
 def pexels_search_image_url(pexels_key: str, query: str) -> str:
     if not pexels_key:
         return ""
@@ -246,116 +200,115 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
     except Exception:
         return ""
 
-def wrap_image_html(image_url: str, alt: str) -> str:
-    if not image_url:
-        return ""
-    safe_alt = (alt or "").replace('"', "'")
-    return f"""
-    <figure style="margin:18px 0;padding:0">
-      <img src="{image_url}" alt="{safe_alt}" style="width:100%;max-width:920px;border-radius:14px;border:1px solid #e5e7eb;display:block;margin:0 auto"/>
-      <figcaption style="text-align:center;color:#6b7280;font-size:12px;margin-top:8px">이미지 출처: Pexels</figcaption>
-    </figure>
-    """.strip()
 
-# =========================
-# 글 생성 프롬프트
-# =========================
+# =========================================================
+# LLM: Gemini / OpenAI (HTTP)
+# =========================================================
+def strip_code_fences(text: str) -> str:
+    if not text:
+        return ""
+    t = text.strip()
+    # ```html ... ```
+    t = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", t)
+    t = re.sub(r"\s*```$", "", t)
+    return t.strip()
+
+def call_gemini(gemini_key: str, model: str, prompt: str) -> str:
+    if not gemini_key:
+        raise RuntimeError("gemini_key missing")
+    model = model or "gemini-1.5-flash"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.7,
+            "topP": 0.9,
+            "maxOutputTokens": 8192
+        }
+    }
+    r = requests.post(url, json=payload, timeout=60)
+    if r.status_code != 200:
+        raise RuntimeError(f"Gemini API error: {r.status_code} {r.text[:400]}")
+    j = r.json()
+    text = ""
+    try:
+        text = j["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception:
+        text = ""
+    return strip_code_fences(text)
+
+def call_openai(openai_key: str, model: str, prompt: str) -> str:
+    if not openai_key:
+        raise RuntimeError("openai_key missing")
+    model = model or "gpt-5.2-mini"
+    url = "https://api.openai.com/v1/responses"
+    headers = {
+        "Authorization": f"Bearer {openai_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": model,
+        "input": [
+            {"role": "user", "content": [{"type": "text", "text": prompt}]}
+        ]
+    }
+    r = requests.post(url, headers=headers, json=payload, timeout=60)
+    if r.status_code not in (200, 201):
+        raise RuntimeError(f"OpenAI API error: {r.status_code} {r.text[:400]}")
+    j = r.json()
+
+    # output_text가 있으면 그걸 우선
+    if isinstance(j, dict) and j.get("output_text"):
+        return strip_code_fences(j["output_text"])
+
+    # fallback 파싱
+    out = ""
+    try:
+        for item in j.get("output", []):
+            for c in item.get("content", []):
+                if c.get("type") == "output_text":
+                    out += c.get("text", "")
+    except Exception:
+        pass
+    return strip_code_fences(out)
+
+
+# =========================================================
+# Prompts
+# =========================================================
 def make_body_prompt(topic: str, category: str) -> str:
     return f"""너는 수익형 정보블로그 작가다.
 아래 조건으로 '{topic}' 글을 한국어로 작성해줘.
 
 - 카테고리: {category}
-- 분량: 6,000~10,000자 (너무 과하면 안 됨)
-- H2 소제목 8개 이상
-- 각 소제목 아래 실무적으로 바로 쓰는 내용 (예: 체크리스트, 실수 방지)
+- 분량: 4,000~7,000자 (너무 과하면 발행/로딩이 느려짐)
+- H2 소제목 7~9개
+- 각 소제목 아래 350자 이상
 - 표 1개 포함(<table>)
 - 아이콘/박스 디자인(✅💡⚠️) div로 포함
 - 마지막: 요약(3~5줄) + FAQ 5개 + 행동유도
 
-※ 출력은 블로그에 붙여넣기 좋은 HTML로 작성해줘.
+반드시 블로그에 붙여넣기 좋은 HTML로만 출력해줘.
+(설명/머리말/코드펜스 없이 HTML만)
 """.strip()
 
-def make_image_query(topic: str, category: str) -> str:
-    # Pexels 검색용: 한글/영문 혼합해도 됨
-    return f"{topic} {category} finance people document".strip()
+def make_image_prompt(topic: str, category: str) -> str:
+    return f'{category} 관련 블로그 썸네일, 주제 "{topic}", 텍스트 없음, 깔끔한 미니멀, 고해상도, 16:9'
 
-# =========================
-# Gemini / OpenAI 호출 (공식 키 기반)
-# =========================
-def call_gemini_generate_html(gemini_key: str, model: str, prompt: str) -> str:
-    if not gemini_key:
-        raise RuntimeError("gemini_key missing")
 
-    model = model or "gemini-1.5-flash"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-    params = {"key": gemini_key}
-    payload = {
-        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192}
-    }
-    r = requests.post(url, params=params, json=payload, timeout=60)
-    if r.status_code != 200:
-        raise RuntimeError(f"Gemini error {r.status_code}: {r.text[:2000]}")
-    data = r.json()
-    # candidates[0].content.parts[].text
-    text = ""
-    cands = data.get("candidates") or []
-    if cands:
-        parts = (((cands[0] or {}).get("content") or {}).get("parts") or [])
-        text = "\n".join([p.get("text","") for p in parts if isinstance(p, dict)])
-    return (text or "").strip()
-
-def call_openai_generate_html(openai_key: str, model: str, prompt: str) -> str:
-    if not openai_key:
-        raise RuntimeError("openai_key missing")
-
-    model = model or "gpt-5.2-mini"
-    url = "https://api.openai.com/v1/responses"
-    headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
-    payload = {
-        "model": model,
-        "input": prompt,
-        "max_output_tokens": 3000
-    }
-    r = requests.post(url, headers=headers, json=payload, timeout=60)
-    if r.status_code != 200:
-        raise RuntimeError(f"OpenAI error {r.status_code}: {r.text[:2000]}")
-    data = r.json()
-
-    # responses API: output_text가 있으면 가장 간단
-    if "output_text" in data and isinstance(data["output_text"], str):
-        return data["output_text"].strip()
-
-    # fallback: output[].content[].text
-    out = []
-    for item in data.get("output", []) or []:
-        for c in (item.get("content", []) or []):
-            if c.get("type") == "output_text":
-                out.append(c.get("text",""))
-    return "\n".join(out).strip()
-
-def ensure_html(text: str) -> str:
-    t = (text or "").strip()
-    if not t:
-        return ""
-    # 모델이 마크다운으로 주는 경우 대충 html로 감싸기
-    if "<h" in t or "<p" in t or "<div" in t or "<table" in t:
-        return t
-    return f"<div style='line-height:1.75'>\n{t.replace('\n','<br/>')}\n</div>"
-
-# =========================
-# 글 생성 API
-# =========================
+# =========================================================
+# API: generate (실제 글 생성)
+# =========================================================
 @app.route("/api/generate", methods=["POST"])
 def api_generate():
     payload = request.get_json(silent=True) or {}
+
     topic = (payload.get("topic") or "").strip()
     category = (payload.get("category") or "").strip() or "정보"
 
     writer = (payload.get("writer") or "gemini").strip().lower()
     gemini_key = (payload.get("gemini_key") or "").strip()
     gemini_model = (payload.get("gemini_model") or "gemini-1.5-flash").strip()
-
     openai_key = (payload.get("openai_key") or "").strip()
     openai_model = (payload.get("openai_model") or "gpt-5.2-mini").strip()
 
@@ -366,32 +319,30 @@ def api_generate():
         return jsonify({"ok": False, "error": "topic is required"}), 400
 
     body_prompt = make_body_prompt(topic, category)
+    image_prompt = make_image_prompt(topic, category)
 
-    # 1) 이미지 URL 만들기
-    image_url = ""
-    image_prompt = make_image_query(topic, category)
-    if img_provider == "pexels":
-        image_url = pexels_search_image_url(pexels_key, image_prompt) or pexels_search_image_url(pexels_key, topic)
-
-    # 2) 본문 생성
+    # 글 생성
     try:
         if writer == "openai":
-            raw = call_openai_generate_html(openai_key, openai_model, body_prompt)
+            html = call_openai(openai_key, openai_model, body_prompt)
         else:
-            raw = call_gemini_generate_html(gemini_key, gemini_model, body_prompt)
-        html = ensure_html(raw)
+            html = call_gemini(gemini_key, gemini_model, body_prompt)
+        if not html or "<" not in html:
+            return jsonify({"ok": False, "error": "LLM returned empty/invalid html"}), 500
     except Exception as e:
-        return jsonify({"ok": False, "error": f"generate failed: {str(e)}"}), 500
+        return jsonify({"ok": False, "error": str(e)}), 500
 
-    # 3) 이미지가 있으면 본문 상단에 삽입
-    if image_url:
-        html = wrap_image_html(image_url, topic) + "\n\n" + html
+    # 이미지
+    image_url = ""
+    if img_provider == "pexels":
+        q = f"{topic} {category}".strip()
+        image_url = pexels_search_image_url(pexels_key, q) or pexels_search_image_url(pexels_key, topic)
 
     return jsonify({
         "ok": True,
         "topic": topic,
         "category": category,
-        "generated_at": now_str(),
+        "generated_at": NOW_STR(),
         "title": topic,
         "html": html,
         "image_prompt": image_prompt,
@@ -399,79 +350,70 @@ def api_generate():
         "image_url": image_url
     })
 
-# =========================
-# ✅ 키워드 자동수집(안전한 방식: AI 기반)
-# =========================
-KEYWORD_PROMPT = """너는 수익형 블로그 SEO 기획자다.
-아래 조건에 맞는 '검색 키워드(롱테일)' 목록을 만들어라.
 
-[입력]
-- 카테고리: {category}
-- 씨드(기준 키워드): {seed}
-- 목표 개수: {count}
-
-[출력 규칙]
-- 한국어 키워드만
-- 각 줄에 키워드 1개
-- 너무 일반적인 단어(예: 재테크, 보험)는 피하고 '의도'가 명확한 롱테일로
-- 광고/수익으로 이어질 확률이 높은 쿼리(비교/추천/조건/신청/절약/방법/후기/주의사항) 중심
-- 중복 제거
-""".strip()
-
-TOPICIZE_PROMPT = """너는 수익형 정보블로그 편집장이다.
-아래 키워드 목록을 보고, 클릭을 유도하는 '글 제목(주제)'로 변환해라.
-
-[입력]
-- 카테고리: {category}
-- 키워드 목록:
-{keywords}
-
-[출력 규칙]
-- 제목만 출력
-- 한 줄에 1개
-- 총 {count}개
-- 과장 금지, 하지만 클릭 유도되는 구조(체크리스트/조건/비교/실수방지/한눈에 정리)
-""".strip()
-
-def ai_lines(writer: str, gemini_key: str, gemini_model: str, openai_key: str, openai_model: str, prompt: str) -> List[str]:
-    if writer == "openai":
-        text = call_openai_generate_html(openai_key, openai_model, prompt)
-    else:
-        text = call_gemini_generate_html(gemini_key, gemini_model, prompt)
-
-    lines = []
-    for line in (text or "").splitlines():
-        s = line.strip()
-        if not s:
-            continue
-        # 번호/불릿 제거
-        s = s.lstrip("-•").strip()
-        if s[:2].isdigit() and (s[2:3] == "." or s[2:3] == ")"):
-            s = s[3:].strip()
-        if s and s not in lines:
-            lines.append(s)
+# =========================================================
+# API: topics money
+# =========================================================
+def parse_list_from_text(text: str) -> List[str]:
+    t = strip_code_fences(text)
+    # JSON 배열 우선
+    try:
+        arr = json.loads(t)
+        if isinstance(arr, list):
+            return [str(x).strip() for x in arr if str(x).strip()]
+    except Exception:
+        pass
+    # 줄바꿈 리스트
+    lines = [re.sub(r"^\s*[-•\d\.\)]\s*", "", x).strip() for x in t.splitlines()]
+    lines = [x for x in lines if x]
     return lines
 
+@app.route("/api/topics/money", methods=["POST"])
+def api_topics_money():
+    payload = request.get_json(silent=True) or {}
+    count = int(payload.get("count") or 30)
+    category = (payload.get("category") or "돈/재테크").strip()
+
+    writer = (payload.get("writer") or "gemini").strip().lower()
+    gemini_key = (payload.get("gemini_key") or "").strip()
+    gemini_model = (payload.get("gemini_model") or "gemini-1.5-flash").strip()
+    openai_key = (payload.get("openai_key") or "").strip()
+    openai_model = (payload.get("openai_model") or "gpt-5.2-mini").strip()
+
+    count = max(5, min(60, count))
+
+    prompt = f"""너는 한국어 수익형 블로그 편집자다.
+카테고리: {category}
+
+아래 조건을 만족하는 '클릭 유도형 글 제목'을 {count}개 만들어줘.
+- 과장/허위 금지, 정보성
+- 숫자/체크리스트/가이드 형태 선호
+- 서로 중복 최소화
+- 출력은 JSON 배열로만 (예: ["제목1","제목2",...])
+""".strip()
+
+    try:
+        if writer == "openai":
+            txt = call_openai(openai_key, openai_model, prompt)
+        else:
+            txt = call_gemini(gemini_key, gemini_model, prompt)
+        items = parse_list_from_text(txt)[:count]
+        if not items:
+            return jsonify({"ok": False, "error": "no topics generated"}), 500
+        return jsonify({"ok": True, "items": items})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+# =========================================================
+# API: keyword collect -> topics
+# =========================================================
 @app.route("/api/keywords/collect_topics", methods=["POST"])
 def api_keywords_collect_topics():
-    """
-    input:
-      {
-        seed: "정부지원금",
-        category: "정부지원",
-        count: 30,
-        writer: "gemini"|"openai",
-        gemini_key, gemini_model,
-        openai_key, openai_model
-      }
-    output:
-      { ok:true, keywords:[...], topics:[...] }
-    """
     payload = request.get_json(silent=True) or {}
     seed = (payload.get("seed") or "").strip()
-    category = (payload.get("category") or "").strip() or "정보"
+    category = (payload.get("category") or "돈/재테크").strip()
     count = int(payload.get("count") or 30)
-    count = max(5, min(60, count))
 
     writer = (payload.get("writer") or "gemini").strip().lower()
     gemini_key = (payload.get("gemini_key") or "").strip()
@@ -482,54 +424,113 @@ def api_keywords_collect_topics():
     if not seed:
         return jsonify({"ok": False, "error": "seed is required"}), 400
 
-    # 1) 키워드 수집
-    try:
-        k_prompt = KEYWORD_PROMPT.format(category=category, seed=seed, count=count*2)
-        keywords = ai_lines(writer, gemini_key, gemini_model, openai_key, openai_model, k_prompt)
-        keywords = keywords[: max(count, 30)]  # 넉넉히
-    except Exception as e:
-        return jsonify({"ok": False, "error": f"keyword collect failed: {str(e)}"}), 500
+    count = max(5, min(60, count))
 
-    # 2) 주제화
+    prompt = f"""너는 SEO 키워드 기획자다.
+시드 키워드: {seed}
+카테고리: {category}
+
+1) 롱테일 키워드 30~60개 생성
+2) 그 중에서 수익형 정보글로 좋은 '글 제목(주제)' {count}개로 변환
+
+조건:
+- 과장/허위 금지
+- “방법/조건/필요서류/체크리스트/비교/주의사항” 형태 선호
+- 출력은 아래 JSON만 반환:
+
+{{
+  "keywords": ["키워드1","키워드2",...],
+  "topics": ["제목1","제목2",...]
+}}
+""".strip()
+
     try:
-        kw_block = "\n".join(keywords[:60])
-        t_prompt = TOPICIZE_PROMPT.format(category=category, keywords=kw_block, count=count)
-        topics = ai_lines(writer, gemini_key, gemini_model, openai_key, openai_model, t_prompt)
+        if writer == "openai":
+            txt = call_openai(openai_key, openai_model, prompt)
+        else:
+            txt = call_gemini(gemini_key, gemini_model, prompt)
+
+        t = strip_code_fences(txt)
+        j = {}
+        try:
+            j = json.loads(t)
+        except Exception:
+            # JSON 찾기 fallback
+            m = re.search(r"\{[\s\S]*\}", t)
+            if m:
+                j = json.loads(m.group(0))
+
+        keywords = [str(x).strip() for x in (j.get("keywords") or []) if str(x).strip()]
+        topics = [str(x).strip() for x in (j.get("topics") or []) if str(x).strip()]
         topics = topics[:count]
+
+        if not topics:
+            return jsonify({"ok": False, "error": "no topics generated"}), 500
+
+        return jsonify({"ok": True, "keywords": keywords, "topics": topics})
     except Exception as e:
-        return jsonify({"ok": False, "error": f"topicize failed: {str(e)}"}), 500
+        return jsonify({"ok": False, "error": str(e)}), 500
 
-    return jsonify({"ok": True, "seed": seed, "category": category, "keywords": keywords, "topics": topics})
 
-# =========================
-# (선택) 예약발행 Task API
-# - index.html에서 /api/tasks/add/list/cancel 호출함
-# =========================
+# =========================================================
+# Blogger APIs
+# =========================================================
+@app.route("/api/blogger/blogs", methods=["GET"])
+def api_blogger_blogs():
+    svc = get_blogger_client()
+    if not svc:
+        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
+    res = svc.blogs().listByUser(userId="self").execute()
+    items = res.get("items", [])
+    out = [{"id": b.get("id"), "name": b.get("name"), "url": b.get("url")} for b in items]
+    return jsonify({"ok": True, "count": len(out), "items": out})
+
+@app.route("/api/blogger/post", methods=["POST"])
+def api_blogger_post():
+    svc = get_blogger_client()
+    if not svc:
+        return jsonify({"ok": False, "error": "OAuth not connected. Visit /oauth/start"}), 401
+
+    payload = request.get_json(silent=True) or {}
+    blog_id = str(payload.get("blog_id", "")).strip()
+    title = str(payload.get("title", "")).strip()
+    html = str(payload.get("html", "")).strip()
+
+    if not blog_id: return jsonify({"ok": False, "error": "blog_id missing"}), 400
+    if not title: return jsonify({"ok": False, "error": "title missing"}), 400
+    if not html: return jsonify({"ok": False, "error": "html missing"}), 400
+
+    try:
+        post_body = {"kind": "blogger#post", "title": title, "content": html}
+        res = svc.posts().insert(blogId=blog_id, body=post_body, isDraft=False).execute()
+        return jsonify({"ok": True, "id": res.get("id"), "url": res.get("url")})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+# =========================================================
+# Tasks APIs (예약발행 큐)
+# =========================================================
 @app.route("/api/tasks/add", methods=["POST"])
 def api_tasks_add():
-    p = request.get_json(silent=True) or {}
-    platform = (p.get("platform") or "blogspot").strip()
-    blog_id = (p.get("blog_id") or "").strip()
-    blog_url = (p.get("blog_url") or "").strip()
-    title = (p.get("title") or "").strip()
-    html = (p.get("html") or "").strip()
-    run_at = (p.get("run_at") or "").strip()
+    payload = request.get_json(silent=True) or {}
+    platform = (payload.get("platform") or "blogspot").strip()
+    blog_id = str(payload.get("blog_id") or "").strip()
+    blog_url = str(payload.get("blog_url") or "").strip()
+    title = str(payload.get("title") or "").strip()
+    html = str(payload.get("html") or "").strip()
+    run_at = str(payload.get("run_at") or "").strip()
 
-    if platform != "blogspot":
-        return jsonify({"ok": False, "error": "only blogspot supported"}), 400
-    if not blog_id:
-        return jsonify({"ok": False, "error": "blog_id missing"}), 400
-    if not title or not html:
-        return jsonify({"ok": False, "error": "title/html missing"}), 400
-    if not run_at:
-        run_at = utc_now_iso()
+    if not blog_id or not title or not html or not run_at:
+        return jsonify({"ok": False, "error": "blog_id/title/html/run_at required"}), 400
 
     conn = db_conn()
     cur = conn.cursor()
+    now = NOW_STR()
     cur.execute("""
-      INSERT INTO tasks(status, platform, blog_id, blog_url, title, html, run_at, created_at)
-      VALUES(?,?,?,?,?,?,?,?)
-    """, ("pending", platform, blog_id, blog_url, title, html, run_at, utc_now_iso()))
+      INSERT INTO tasks(platform, blog_id, blog_url, title, html, run_at, status, created_at, updated_at)
+      VALUES(?,?,?,?,?,?, 'pending', ?, ?)
+    """, (platform, blog_id, blog_url, title, html, run_at, now, now))
     conn.commit()
     task_id = cur.lastrowid
     conn.close()
@@ -548,70 +549,72 @@ def api_tasks_list():
 def api_tasks_cancel(task_id: int):
     conn = db_conn()
     cur = conn.cursor()
-    cur.execute("UPDATE tasks SET status='canceled' WHERE id=? AND status='pending'", (task_id,))
+    cur.execute("UPDATE tasks SET status='canceled', updated_at=? WHERE id=? AND status='pending'", (NOW_STR(), task_id))
     conn.commit()
     conn.close()
     return jsonify({"ok": True})
 
-# =========================
-# (선택) 워커용: due tasks 실행
-# - Render Background Worker나 cron에서 호출 가능
-# =========================
 @app.route("/api/tasks/run_due", methods=["POST"])
 def api_tasks_run_due():
-    if TASK_RUNNER_TOKEN:
-        tok = request.headers.get("X-Runner-Token","").strip()
-        if tok != TASK_RUNNER_TOKEN:
-            return jsonify({"ok": False, "error": "unauthorized"}), 401
+    """
+    Render Background Worker를 쓰면 worker.py에서 돌리고,
+    안 쓰면 cron(예: uptimerobot/webhook)으로 이 엔드포인트를 주기적으로 호출해도 됨.
+    """
+    ran = run_due_tasks(max_jobs=5)
+    return jsonify({"ok": True, "ran": ran})
 
-    now = datetime.now(timezone.utc)
+
+def run_due_tasks(max_jobs: int = 5) -> int:
+    svc = get_blogger_client()
+    if not svc:
+        return 0
+
     conn = db_conn()
     cur = conn.cursor()
 
+    now_iso = NOW().isoformat()
     cur.execute("""
       SELECT * FROM tasks
-      WHERE status='pending'
+      WHERE status='pending' AND run_at <= ?
       ORDER BY run_at ASC
-      LIMIT 20
-    """)
+      LIMIT ?
+    """, (now_iso, max_jobs))
     rows = [dict(r) for r in cur.fetchall()]
+
     ran = 0
-
     for t in rows:
+        task_id = t["id"]
         try:
-            run_at = parse_iso(t["run_at"])
-        except Exception:
-            run_at = now
+            cur.execute("UPDATE tasks SET status='running', updated_at=? WHERE id=?", (NOW_STR(), task_id))
+            conn.commit()
 
-        if run_at > now:
-            continue
+            post_body = {"kind": "blogger#post", "title": t["title"], "content": t["html"]}
+            res = svc.posts().insert(blogId=t["blog_id"], body=post_body, isDraft=False).execute()
+            url = res.get("url")
 
-        # running
-        cur.execute("UPDATE tasks SET status='running', error=NULL WHERE id=?", (t["id"],))
-        conn.commit()
-
-        try:
-            res = blogger_post(t["blog_id"], t["title"], t["html"])
-            if res.get("ok"):
-                cur.execute("""
-                  UPDATE tasks SET status='ok', result_url=?, error=NULL WHERE id=?
-                """, (res.get("url",""), t["id"]))
-            else:
-                cur.execute("""
-                  UPDATE tasks SET status='err', error=? WHERE id=?
-                """, (res.get("error","unknown"), t["id"]))
+            cur.execute("""
+              UPDATE tasks
+              SET status='ok', result_url=?, error=NULL, updated_at=?
+              WHERE id=?
+            """, (url, NOW_STR(), task_id))
             conn.commit()
             ran += 1
+
         except Exception as e:
-            cur.execute("UPDATE tasks SET status='err', error=? WHERE id=?", (str(e), t["id"]))
+            cur.execute("""
+              UPDATE tasks
+              SET status='err', error=?, updated_at=?
+              WHERE id=?
+            """, (str(e), NOW_STR(), task_id))
             conn.commit()
 
     conn.close()
-    return jsonify({"ok": True, "ran": ran, "time": now_str()})
+    return ran
 
-# =========================
+
+# =========================================================
 # main
-# =========================
+# =========================================================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
