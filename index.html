@@ -272,6 +272,36 @@
 </div>
 
 <script>
+  function buildLinkButtonsHtml(topic, sites){
+  const safeSites = (sites||[])
+    .map(u=>String(u||"").trim())
+    .filter(Boolean)
+    .slice(0, 12);
+
+  // 외부 “진짜 URL”을 내가 임의로 만들어 주면 위험/환각 가능성이 있어서
+  // 안전하게 “검색 링크” 버튼을 제공하는 방식이 제일 깔끔함.
+  const q = encodeURIComponent(topic);
+  const google = `https://www.google.com/search?q=${q}`;
+  const naver  = `https://search.naver.com/search.naver?query=${q}`;
+
+  const btns = [];
+  safeSites.forEach((u,i)=>{
+    btns.push(`<a class="linkbtn" href="${escAttr(u)}" target="_blank" rel="noopener">🔗 내 사이트 ${i+1}</a>`);
+  });
+  btns.push(`<a class="linkbtn" href="${google}" target="_blank" rel="noopener">🔎 구글 검색</a>`);
+  btns.push(`<a class="linkbtn" href="${naver}" target="_blank" rel="noopener">🟢 네이버 검색</a>`);
+
+  return `<div class="linkbar"><b style="margin-right:6px">📌 참고/관련 링크</b>${btns.join("")}</div>`;
+}
+
+function escAttr(s){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
 /* ---- Settings ---- */
 const KEY="baseone_settings_v4";
 function settings(){ return JSON.parse(localStorage.getItem(KEY) || "{}"); }
@@ -807,6 +837,7 @@ updateSelectedPanel();
 </script>
 </body>
 </html>
+
 
 
 
