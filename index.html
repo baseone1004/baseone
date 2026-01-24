@@ -132,6 +132,9 @@
     <button class="btn" onclick="event.stopPropagation(); navigator.clipboard.writeText('${it.title.replaceAll("'","\\'")}'); showToast('복사 완료!');">복사</button>
   </div>
 `;
+.linkbar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;padding:12px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:rgba(255,255,255,.06)}
+.linkbtn{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.12);text-decoration:none;color:inherit;font-weight:800}
+.linkbtn:hover{filter:brightness(1.06)}
 
     </div>
   </div>
@@ -804,6 +807,7 @@ updateSelectedPanel();
 </script>
 </body>
 </html>
+
 
 
 
