@@ -687,4 +687,59 @@ updateStatusLine();
 </script>
 </body>
 </html>
+async function keywordToTopics(){
+  const seed = (document.getElementById("kwSeed").value||"").trim();
+  const count = Math.max(5, Math.min(60, Number(document.getElementById("kwCount").value||30)));
+  if(!seed){
+    alert("키워드를 입력하세요. 예) 정부지원금, 카드 추천, 대출 갈아타기");
+    return;
+  }
+
+  const d = settings();
+  if(!d.gemini_key && !d.openai_key){
+    alert("설정에서 GEMINI 또는 OPENAI 키를 저장하세요.");
+    return;
+  }
+
+  try{
+    const res = await fetch(apiBase()+"/api/keywords/collect_topics",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        seed,
+        category: selectedCat,
+        count,
+        writer: d.writer || "gemini",
+        gemini_key: d.gemini_key || "",
+        gemini_model: d.gemini_model || "gemini-1.5-flash",
+        openai_key: d.openai_key || "",
+        openai_model: d.openai_model || "gpt-5.2-mini",
+      })
+    });
+    const j = await res.json();
+    if(!res.ok || !j.ok){
+      alert("키워드 수집 실패: " + (j.error || "unknown"));
+      return;
+    }
+
+    // topics로 화면 주제 리스트 갱신
+    const items = (j.topics || []).slice(0, count);
+    topics = items.map((t,i)=>({
+      id: `K_${Date.now()}_${i}`,
+      title: String(t),
+      checked: (i < 10),
+      html:"",
+      image_url:"",
+      image_prompt:""
+    }));
+    selectedTopicId = topics[0]?.id || "";
+    renderTopics();
+    updateStatusLine();
+
+    alert(`완료! (키워드 ${j.keywords?.length||0}개 생성 → 주제 ${items.length}개 생성)`);
+  }catch(e){
+    alert("서버 연결 실패: " + e);
+  }
+}
+
 
