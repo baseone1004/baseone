@@ -458,6 +458,42 @@ function makeLocalTopics(){
   selectedTopicId=topics[0]?.id||"";
   renderTopics(); updateStatusLine();
 }
+function selectTopic(id){
+  const t = topics.find(x=>x.id===id);
+  if(!t) return;
+  selectedTopicId = id;
+  updateSelectedPanel();
+  showSinglePreview(t);   // 생성돼 있으면 미리보기 켜짐
+  renderTopics();
+}
+
+function updateSelectedPanel(){
+  const t = getSelectedTopic();
+  const el = document.getElementById("selectedInfo");
+  if(!el) return;
+
+  if(!t){
+    el.textContent = "아직 선택한 글이 없습니다. 아래 목록에서 “선택”을 누르세요.";
+    return;
+  }
+
+  const hasImg = !!(t.image_url);
+  el.innerHTML = `
+    <div style="font-weight:900">${esc(t.title)}</div>
+    <div class="small">🏷️ ${esc(selectedCat)} · ${t.html ? "✅ 생성됨" : "⏳ 미생성"} · 🖼️ ${hasImg ? "있음" : "없음"}</div>
+  `;
+}
+
+function copySelectedTitle(){
+  const t = getSelectedTopic();
+  if(!t){ showToast("먼저 글을 선택하세요."); return; }
+  navigator.clipboard.writeText(t.title);
+  showToast("선택한 글 제목 복사 완료!");
+}
+
+function scrollToPreview(){
+  document.getElementById("previewBox")?.scrollIntoView({behavior:"smooth", block:"start"});
+}
 
 async function makeMoneyTopics(){
   const d=settings();
@@ -766,5 +802,6 @@ updateStatusLine();
 </script>
 </body>
 </html>
+
 
 
