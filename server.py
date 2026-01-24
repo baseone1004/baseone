@@ -242,11 +242,9 @@ def gemini_pick_model(gemini_key: str, preferred: str = "") -> str:
     return names[0] if names else "gemini-1.5-flash"
 
 def call_gemini(gemini_key: str, model: str, prompt: str) -> str:
-def call_gemini(gemini_key: str, model: str, prompt: str) -> str:
     if not gemini_key:
         raise RuntimeError("gemini_key missing")
 
-    # 1) 먼저 설정 모델로 시도
     try_model = (model or "").strip() or "gemini-1.5-flash"
 
     def _do(m: str) -> str:
@@ -258,6 +256,23 @@ def call_gemini(gemini_key: str, model: str, prompt: str) -> str:
                 "topP": 0.9,
                 "maxOutputTokens": 8192
             }
+        }
+        r = requests.post(url, json=payload, timeout=60)
+        if r.status_code != 200:
+            raise RuntimeError(f"Gemini API error: {r.status_code} {r.text[:400]}")
+        j = r.json()
+        try:
+            text = j["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception:
+            text = ""
+        return strip_code_fences(text)
+
+    try:
+        return _do(try_model)
+    except Exception:
+        picked = gemini_pick_model(gemini_key, preferred="")
+        return _do(picked)
+
         }
         r = requests.post(url, json=payload, timeout=60)
         if r.status_code != 200:
@@ -635,4 +650,5 @@ def run_due_tasks(max_jobs: int = 5) -> int:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
 
