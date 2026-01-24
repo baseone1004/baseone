@@ -169,6 +169,9 @@ function load(){
   document.getElementById("blogspot_urls").value = (d.blogspot_urls || []).join("\n");
   document.getElementById("naver_urls").value = (d.naver_urls || []).join("\n");
 }
+document.getElementById("my_sites").value = (s.my_sites || []).join("\n");
+s.my_sites = (document.getElementById("my_sites").value || "")
+  .split("\n").map(x=>x.trim()).filter(Boolean);
 
 function save(){
   const d = {
@@ -196,4 +199,5 @@ load();
 </script>
 </body>
 </html>
+
 
