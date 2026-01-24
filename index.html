@@ -116,6 +116,23 @@
       <span class="pill" id="oauthPill">🔐 OAuth <b id="oauth">-</b></span>
       <a href="/settings"><button class="btn">⚙️ 설정</button></a>
       <button class="btn" onclick="refreshTasks()">📋 예약목록</button>
+      d.innerHTML=`
+  <div style="flex:1">
+    <div class="itemTitle">
+      <input type="checkbox" ${it.checked?"checked":""}
+        onclick="event.stopPropagation(); toggleChecked('${it.id}')"
+        style="transform:translateY(1px);margin-right:8px"/>
+      ${esc(it.title)}
+    </div>
+    <div class="itemMeta">🏷️ ${esc(selectedCat)} · ${it.html ? "✅ 생성됨":"⏳ 미생성"}</div>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <button class="btn good" onclick="event.stopPropagation(); selectTopic('${it.id}')">✅ 선택</button>
+    <button class="btn" onclick="event.stopPropagation(); navigator.clipboard.writeText('${it.title.replaceAll("'","\\'")}'); showToast('복사 완료!');">복사</button>
+  </div>
+`;
+
     </div>
   </div>
 
@@ -749,4 +766,5 @@ updateStatusLine();
 </script>
 </body>
 </html>
+
 
