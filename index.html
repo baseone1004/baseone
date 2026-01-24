@@ -251,6 +251,58 @@ function loadBlogSelect(){
 
 async function loadBlogs(){
   try{
+   function normUrl(u){
+  return String(u||"")
+    .trim()
+    .replace(/^https?:\/\//i,"")   // http/https 제거
+    .replace(/^www\./i,"")        // www 제거
+    .replace(/\/+$/,"");          // 끝 / 제거
+}
+
+async function loadBloggerBlogs(){
+  const p=document.getElementById("platform").value;
+  if(p!=="blogspot"){ alert("블로그스팟에서만 사용합니다."); return; }
+
+  try{
+    const res=await fetch(apiBase()+"/api/blogger/blogs");
+    const j=await res.json();
+    if(!res.ok || !j.ok){
+      alert("불러오기 실패: OAuth 연결을 먼저 확인하세요.");
+      return;
+    }
+
+    const d=settings();
+    const allowRaw=(d.blogspot_urls||[]).map(x=>String(x||"").trim()).filter(Boolean);
+
+    // ✅ allow가 비어있으면 제한 OFF
+    const allowSet = new Set(allowRaw.map(normUrl));
+
+    bloggerBlogs = (j.items||[]);
+
+    // ✅ allow가 있으면 그때만 필터 (정규화 비교)
+    if(allowSet.size){
+      bloggerBlogs = bloggerBlogs.filter(b => allowSet.has(normUrl(b.url)));
+    }
+
+    if(!bloggerBlogs.length){
+      alert("불러온 블로그가 없습니다.\n(설정의 blogspot_urls 제한이 있거나 URL이 정확히 안 맞습니다)\n\n해결: 설정에서 blogspot_urls를 비우거나, /api/blogger/blogs의 url 값을 그대로 넣으세요.");
+      return;
+    }
+
+    if(!activeBlog){
+      activeBlog = bloggerBlogs[0];
+      localStorage.setItem("baseone_active_blog_id", activeBlog.id);
+    }
+
+    renderBlogTabs();
+    loadBlogSelect();
+    updateStatusLine();
+    alert("블로그 목록 로드 완료!");
+  }catch(e){
+    alert("서버 연결 실패");
+  }
+}
+
     const res = await fetch(API_BASE + "/api/blogger/blogs");
     const j = await res.json();
     if(!res.ok || !j.ok){
@@ -618,3 +670,10 @@ async function cancelTask(id){
 </script>
 </body>
 </html>
+<style>
+  /* ✅ 하단 디버그/영어 줄 강제 숨김 */
+  #debug, .debug, #statusBar, #devBar, #devlog, #footerDebug, #debugBar {
+    display:none !important;
+  }
+</style>
+
