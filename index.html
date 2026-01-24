@@ -91,6 +91,16 @@
         <button class="btn primary" onclick="makeAiTopics()">💰 AI 주제(설정키 필요)</button>
       </div>
     </div>
+<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <button class="btn primary" onclick="generateSingle()">✨ 선택 주제 글 생성</button>
+  <button class="btn good" onclick="publishNow()">🚀 즉시발행(선택 글)</button>
+  <button class="btn" onclick="scheduleOne()">🕒 예약발행(선택 글)</button>
+  <input id="runAtOne" type="datetime-local" />
+</div>
+
+<div class="small" style="margin-top:8px">
+  사용순서: ① 주제 클릭 → ② ‘선택 주제 글 생성’ → ③ ‘즉시발행’ 또는 ‘예약발행’
+</div>
 
     <div class="grid" id="catGrid"></div>
     <div class="list" id="topicList"></div>
@@ -529,3 +539,4 @@ renderTopics();
 </script>
 </body>
 </html>
+
