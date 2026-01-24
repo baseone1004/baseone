@@ -2,77 +2,89 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>BaseOne 설정</title>
   <style>
-    :root{--bg:#0f1630;--panel:rgba(255,255,255,.06);--text:#f8faff;--muted:rgba(248,250,255,.75);--border:rgba(255,255,255,.14);--primary:#7aa7ff;--good:#38e1c1;--shadow:0 10px 24px rgba(0,0,0,.22);}
+    :root{--bg:#0f1630;--panel:rgba(255,255,255,.06);--panel2:rgba(255,255,255,.08);--text:#f8faff;--muted:rgba(248,250,255,.75);--border:rgba(255,255,255,.14);--primary:#7aa7ff;--good:#38e1c1;--shadow:0 10px 24px rgba(0,0,0,.22);}
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,"Noto Sans KR",Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,var(--bg),#0a1022);color:var(--text);font-size:13px}
-    .wrap{max-width:980px;margin:0 auto;padding:12px}
-    .box{background:var(--panel);border:1px solid var(--border);padding:12px;border-radius:16px;margin:10px 0;box-shadow:var(--shadow)}
-    label{display:block;font-weight:900;margin:10px 0 6px}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Noto Sans KR",Segoe UI,Roboto,sans-serif;
+      background:radial-gradient(1200px 700px at 20% 10%, rgba(122,167,255,.18), transparent 55%),
+                 radial-gradient(900px 600px at 80% 20%, rgba(56,225,193,.16), transparent 50%),
+                 linear-gradient(180deg,var(--bg),#0a1022);
+      color:var(--text);font-size:13px
+    }
+    .wrap{max-width:920px;margin:0 auto;padding:14px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 4px}
+    .box{background:linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.04));border:1px solid var(--border);padding:14px;border-radius:16px;margin:10px 0;box-shadow:var(--shadow)}
+    .title{font-size:18px;font-weight:900}
+    .small{font-size:12px;color:var(--muted);margin-top:4px}
+    label{display:block;font-weight:800;margin:12px 0 6px}
     input,select,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);outline:none}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
-    .row > div{flex:1;min-width:280px}
-    .btn{padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:900}
+    textarea{min-height:110px;line-height:1.6}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+    .btn{padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:900}
     .btn.primary{background:linear-gradient(135deg,var(--primary),#2f6bff);border:none;color:#fff}
     .btn.good{background:linear-gradient(135deg,var(--good),#1fb6ff);border:none;color:#fff}
-    .small{color:var(--muted);font-size:12px}
-    a{color:inherit}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
   </style>
 </head>
 <body>
 <div class="wrap">
+  <div class="top">
+    <div>
+      <div class="title">⚙️ BaseOne 설정</div>
+      <div class="small">저장 후 메인으로 돌아가세요.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="/"><button class="btn">← 메인</button></a>
+      <button class="btn good" onclick="save()">💾 저장</button>
+    </div>
+  </div>
+
   <div class="box">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <b>1) 서버 주소 (backend)</b>
+    <div class="small">보통 비워도 되지만, 다른 도메인 호출 시 지정하세요.</div>
+    <input id="backend" placeholder="예) https://baseone11.onrender.com" />
+  </div>
+
+  <div class="box">
+    <b>2) 글 생성 엔진 (writer)</b>
+    <div class="small">Gemini 또는 OpenAI 중 선택</div>
+    <select id="writer">
+      <option value="gemini">Gemini</option>
+      <option value="openai">OpenAI (GPT)</option>
+    </select>
+
+    <div class="grid">
       <div>
-        <div style="font-size:18px;font-weight:900">⚙️ BaseOne 설정</div>
-        <div class="small">저장 후 메인으로 돌아가세요.</div>
+        <label>GEMINI_API_KEY</label>
+        <input id="gemini_key" placeholder="AIza..." />
       </div>
-      <div style="display:flex;gap:8px">
-        <a href="/"><button class="btn">← 메인</button></a>
-        <button class="btn good" onclick="save()">💾 저장</button>
+      <div>
+        <label>Gemini 모델</label>
+        <input id="gemini_model" placeholder="gemini-1.5-flash" />
+      </div>
+
+      <div>
+        <label>OPENAI_API_KEY (선택)</label>
+        <input id="openai_key" placeholder="sk-..." />
+      </div>
+      <div>
+        <label>OpenAI 모델(선택)</label>
+        <input id="openai_model" placeholder="gpt-5.2-mini" />
       </div>
     </div>
   </div>
 
   <div class="box">
-    <label>서버 주소 (backend)</label>
-    <input id="backend" placeholder="예) https://baseone11.onrender.com"/>
-    <div class="small">보통 비워도 되지만, 다른 도메인 호출 시 지정하세요.</div>
-
-    <label>글 생성 엔진 (writer)</label>
-    <select id="writer">
-      <option value="gemini">Gemini</option>
-      <option value="gpt">GPT (OpenAI)</option>
-    </select>
-
-    <div class="row">
-      <div>
-        <label>GEMINI_API_KEY</label>
-        <input id="gemini_key" placeholder="AIza..."/>
-      </div>
-      <div>
-        <label>Gemini 모델</label>
-        <input id="gemini_model" placeholder="gemini-1.5-flash"/>
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label>OPENAI_API_KEY (선택)</label>
-        <input id="openai_key" placeholder="sk-..."/>
-      </div>
-      <div>
-        <label>OpenAI 모델(선택)</label>
-        <input id="openai_model" placeholder="gpt-4o-mini"/>
-      </div>
-    </div>
-
-    <div class="row">
+    <b>3) 이미지 (Pexels)</b>
+    <div class="grid">
       <div>
         <label>PEXELS_API_KEY</label>
-        <input id="pexels_key" placeholder="Pexels Key"/>
+        <input id="pexels_key" placeholder="Pexels key" />
       </div>
       <div>
         <label>이미지 제공자</label>
@@ -81,50 +93,97 @@
         </select>
       </div>
     </div>
+  </div>
 
-    <label>블로그스팟 URL 제한 (선택)</label>
-    <textarea id="blogspot_urls" rows="6" placeholder="(비워두면 제한 없음)
-예) http://www.yransjoy1000.com/"></textarea>
-    <div class="small">여기에 적은 URL만 “내 블로그 불러오기”에서 보이게 필터합니다. 한 줄에 1개.</div>
+  <div class="box">
+    <b>4) 블로그 제한 목록 (선택)</b>
+    <div class="small">
+      여기에 URL을 넣으면, “내 블로그 불러오기” 결과에서 해당 URL만 남깁니다. (최대 10개)
+      <br>✅ 비워두면 <b>제한 없음</b> (내 블로그 전체 표시)
+      <br>✅ http/https, www, 끝 슬래시 차이는 자동으로 무시합니다.
+    </div>
 
-    <div class="small" id="savedHint" style="margin-top:10px"></div>
+    <div class="grid" style="margin-top:10px">
+      <div>
+        <label>블로그스팟 URL 10개</label>
+        <textarea id="blogspot_urls" placeholder="예) https://내블로그.blogspot.com&#10;또는 도메인 연결 URL"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button class="btn" onclick="trimBlogspotUrls()">🧹 줄정리</button>
+          <button class="btn" onclick="clearBlogspotUrls()">🚫 제한 해제(비우기)</button>
+        </div>
+      </div>
+
+      <div>
+        <label>네이버 블로그 URL 3개(참고용)</label>
+        <textarea id="naver_urls" placeholder="네이버 자동발행은 이 버전에서 미지원 (참고/메모용)"></textarea>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn good" onclick="save()">💾 저장</button>
+      <span class="small" id="savedHint"></span>
+    </div>
   </div>
 </div>
 
 <script>
-const KEY="baseone_settings_v5";
+const KEY="baseone_settings_v4";
+
+function linesToArr(v, maxN){
+  const arr = String(v||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  return arr.slice(0, maxN);
+}
+
+function clearBlogspotUrls(){
+  document.getElementById("blogspot_urls").value = "";
+  document.getElementById("savedHint").textContent = "블로그 제한이 해제되었습니다. 저장을 눌러 반영하세요.";
+}
+
+function trimBlogspotUrls(){
+  const arr = linesToArr(document.getElementById("blogspot_urls").value, 10);
+  document.getElementById("blogspot_urls").value = arr.join("\n");
+  document.getElementById("savedHint").textContent = "줄정리 완료. 저장을 눌러 반영하세요.";
+}
+
 function load(){
-  const d=JSON.parse(localStorage.getItem(KEY)||"{}");
+  const d = JSON.parse(localStorage.getItem(KEY) || "{}");
   document.getElementById("backend").value = d.backend || "";
   document.getElementById("writer").value = d.writer || "gemini";
+
   document.getElementById("gemini_key").value = d.gemini_key || "";
   document.getElementById("gemini_model").value = d.gemini_model || "gemini-1.5-flash";
   document.getElementById("openai_key").value = d.openai_key || "";
-  document.getElementById("openai_model").value = d.openai_model || "gpt-4o-mini";
+  document.getElementById("openai_model").value = d.openai_model || "gpt-5.2-mini";
+
   document.getElementById("pexels_key").value = d.pexels_key || "";
   document.getElementById("img_provider").value = d.img_provider || "pexels";
 
-  const urls=(d.blogspot_urls||[]).join("\n");
-  document.getElementById("blogspot_urls").value = urls;
+  document.getElementById("blogspot_urls").value = (d.blogspot_urls || []).join("\n");
+  document.getElementById("naver_urls").value = (d.naver_urls || []).join("\n");
 }
-function save(){
-  const urls = (document.getElementById("blogspot_urls").value||"")
-    .split("\n").map(x=>x.trim()).filter(Boolean);
 
-  const d={
-    backend: (document.getElementById("backend").value||"").trim(),
-    writer: (document.getElementById("writer").value||"gemini").trim(),
-    gemini_key: (document.getElementById("gemini_key").value||"").trim(),
-    gemini_model: (document.getElementById("gemini_model").value||"gemini-1.5-flash").trim(),
-    openai_key: (document.getElementById("openai_key").value||"").trim(),
-    openai_model: (document.getElementById("openai_model").value||"gpt-4o-mini").trim(),
-    pexels_key: (document.getElementById("pexels_key").value||"").trim(),
-    img_provider: (document.getElementById("img_provider").value||"pexels").trim(),
-    blogspot_urls: urls
+function save(){
+  const d = {
+    backend: String(document.getElementById("backend").value||"").trim(),
+    writer: document.getElementById("writer").value || "gemini",
+
+    gemini_key: String(document.getElementById("gemini_key").value||"").trim(),
+    gemini_model: String(document.getElementById("gemini_model").value||"").trim() || "gemini-1.5-flash",
+
+    openai_key: String(document.getElementById("openai_key").value||"").trim(),
+    openai_model: String(document.getElementById("openai_model").value||"").trim() || "gpt-5.2-mini",
+
+    pexels_key: String(document.getElementById("pexels_key").value||"").trim(),
+    img_provider: document.getElementById("img_provider").value || "pexels",
+
+    blogspot_urls: linesToArr(document.getElementById("blogspot_urls").value, 10),
+    naver_urls: linesToArr(document.getElementById("naver_urls").value, 3),
   };
+
   localStorage.setItem(KEY, JSON.stringify(d));
-  document.getElementById("savedHint").textContent="✅ 저장 완료! 메인으로 돌아가서 사용하세요.";
+  document.getElementById("savedHint").textContent = "✅ 저장 완료! 메인으로 돌아가세요.";
 }
+
 load();
 </script>
 </body>
