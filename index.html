@@ -190,6 +190,68 @@ let activeBlog=null;
 let topics=[]; // {id,title,checked,html,image_url,image_prompt}
 let selectedCat="돈/재테크";
 let selectedTopicId="";
+let collected = {keywords:[], titles:[]};
+
+async function collectKeywords(){
+  const d = S();
+  const seed = (document.getElementById("kwSeed").value||"").trim();
+  const count = Number(document.getElementById("kwCount").value||30);
+
+  if(!seed) return alert("시드 키워드를 입력하세요.");
+  if(!d.gemini_key && !d.openai_key) return alert("설정에서 GEMINI 또는 OPENAI 키를 먼저 넣으세요.");
+
+  document.getElementById("kwHint").textContent = "수집 중...";
+  try{
+    const payload = {
+      seed, category: selectedCat, count,
+      writer: (d.writer||"gemini"),
+      gemini_key: d.gemini_key||"", gemini_model: d.gemini_model||"gemini-1.5-flash",
+      openai_key: d.openai_key||"", openai_model: d.openai_model||"gpt-4o-mini"
+    };
+    const r = await fetch(apiBase()+"/api/keywords/collect",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if(!r.ok || !j.ok) throw new Error(j.error||"collect failed");
+
+    collected.keywords = j.keywords || [];
+    collected.titles = j.titles || [];
+
+    document.getElementById("kwHint").textContent =
+      `✅ 키워드 ${collected.keywords.length}개 / 제목 ${collected.titles.length}개 수집 완료`;
+
+    const box = document.getElementById("kwList");
+    box.innerHTML = collected.keywords.slice(0,80).map((k,i)=>`
+      <div class="item" style="cursor:auto">
+        <div style="flex:1">
+          <div class="itemTitle">${i+1}. ${esc(k)}</div>
+          <div class="itemMeta">${esc((collected.titles[i]||"").slice(0,80))}</div>
+        </div>
+        <button class="btn" onclick="navigator.clipboard.writeText('${String(k).replaceAll("'","\\'")}');alert('복사!')">복사</button>
+      </div>
+    `).join("");
+  }catch(e){
+    document.getElementById("kwHint").textContent = "❌ 실패";
+    alert("키워드 수집 실패: " + e.message);
+  }
+}
+
+function applyTitlesAsTopics(){
+  if(!collected.titles.length) return alert("먼저 키워드 수집을 하세요.");
+  const add = collected.titles.slice(0,24).map((t,i)=>({
+    id:`K_${Date.now()}_${i}`,
+    title: String(t),
+    checked: (i<10),
+    html:"",
+    image_url:"",
+    image_prompt:""
+  }));
+  topics = add.concat(topics);
+  selectedTopicId = topics[0]?.id || "";
+  renderTopics();
+  alert("제목을 주제로 추가 완료!");
+}
 
 /* ------------ categories ------------ */
 const CATS=[
@@ -547,5 +609,6 @@ renderTopics();
 </script>
 </body>
 </html>
+
 
 
