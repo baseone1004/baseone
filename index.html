@@ -638,7 +638,7 @@ function showSinglePreview(t){
   }
   document.getElementById("previewBox").style.display="block";
 }
-
+updateSelectedPanel();
 /* ---- Publish ---- */
 async function publishNow(){
   const t=getSelectedTopic();
@@ -802,6 +802,7 @@ updateStatusLine();
 </script>
 </body>
 </html>
+
 
 
 
