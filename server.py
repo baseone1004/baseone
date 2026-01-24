@@ -212,54 +212,71 @@ def strip_code_fences(text: str) -> str:
     t = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", t)
     t = re.sub(r"\s*```$", "", t)
     return t.strip()
+def gemini_pick_model(gemini_key: str, preferred: str = "") -> str:
+    """
+    사용 가능한 모델 목록을 조회해서 generateContent 지원 모델을 고른다.
+    preferred가 있으면 우선 시도하고, 실패하면 자동 fallback.
+    """
+    if preferred:
+        return preferred  # 우선은 그대로 시도 (아래 call_gemini에서 실패 시 fallback)
 
+    url = f"https://generativelanguage.googleapis.com/v1beta/models?key={gemini_key}"
+    r = requests.get(url, timeout=30)
+    if r.status_code != 200:
+        return "gemini-1.5-flash"  # 조회 실패 시 기본값
+
+    j = r.json()
+    models = j.get("models", [])
+    # generateContent 지원 모델 후보 우선순위
+    prefer = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+    names = []
+    for m in models:
+        name = m.get("name", "")
+        methods = m.get("supportedGenerationMethods", []) or []
+        if "generateContent" in methods and name.startswith("models/"):
+            names.append(name.replace("models/", ""))
+
+    for p in prefer:
+        if p in names:
+            return p
+    return names[0] if names else "gemini-1.5-flash"
+
+def call_gemini(gemini_key: str, model: str, prompt: str) -> str:
 def call_gemini(gemini_key: str, model: str, prompt: str) -> str:
     if not gemini_key:
         raise RuntimeError("gemini_key missing")
-    model = model or "gemini-1.5-flash"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
-    payload = {
-        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {
-            "temperature": 0.7,
-            "topP": 0.9,
-            "maxOutputTokens": 8192
+
+    # 1) 먼저 설정 모델로 시도
+    try_model = (model or "").strip() or "gemini-1.5-flash"
+
+    def _do(m: str) -> str:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={gemini_key}"
+        payload = {
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "temperature": 0.7,
+                "topP": 0.9,
+                "maxOutputTokens": 8192
+            }
         }
-    }
-    r = requests.post(url, json=payload, timeout=60)
-    if r.status_code != 200:
-        raise RuntimeError(f"Gemini API error: {r.status_code} {r.text[:400]}")
-    j = r.json()
-    text = ""
-    try:
-        text = j["candidates"][0]["content"]["parts"][0]["text"]
-    except Exception:
+        r = requests.post(url, json=payload, timeout=60)
+        if r.status_code != 200:
+            raise RuntimeError(f"Gemini API error: {r.status_code} {r.text[:400]}")
+        j = r.json()
         text = ""
-    return strip_code_fences(text)
+        try:
+            text = j["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception:
+            text = ""
+        return strip_code_fences(text)
 
-def call_openai(openai_key: str, model: str, prompt: str) -> str:
-    if not openai_key:
-        raise RuntimeError("openai_key missing")
-    model = model or "gpt-5.2-mini"
-    url = "https://api.openai.com/v1/responses"
-    headers = {
-        "Authorization": f"Bearer {openai_key}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "model": model,
-        "input": [
-            {"role": "user", "content": [{"type": "text", "text": prompt}]}
-        ]
-    }
-    r = requests.post(url, headers=headers, json=payload, timeout=60)
-    if r.status_code not in (200, 201):
-        raise RuntimeError(f"OpenAI API error: {r.status_code} {r.text[:400]}")
-    j = r.json()
+    try:
+        return _do(try_model)
+    except Exception:
+        # 2) 실패하면 ListModels로 자동 모델 선택해서 재시도
+        picked = gemini_pick_model(gemini_key, preferred="")
+        return _do(picked)
 
-    # output_text가 있으면 그걸 우선
-    if isinstance(j, dict) and j.get("output_text"):
-        return strip_code_fences(j["output_text"])
 
     # fallback 파싱
     out = ""
@@ -618,3 +635,4 @@ def run_due_tasks(max_jobs: int = 5) -> int:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
