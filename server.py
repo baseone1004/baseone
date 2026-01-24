@@ -98,6 +98,62 @@ def health():
 def __routes():
     return jsonify(sorted([str(r) for r in app.url_map.iter_rules()]))
 
+@app.route("/api/keywords/collect", methods=["POST"])
+def api_keywords_collect():
+    payload = request.get_json(silent=True) or {}
+    seed = (payload.get("seed") or "").strip()
+    category = (payload.get("category") or "돈/재테크").strip()
+    count = int(payload.get("count") or 30)
+
+    writer = (payload.get("writer") or "gemini").strip().lower()
+    gemini_key = (payload.get("gemini_key") or os.environ.get("GEMINI_API_KEY","")).strip()
+    gemini_model = (payload.get("gemini_model") or "gemini-1.5-flash").strip()
+
+    openai_key = (payload.get("openai_key") or os.environ.get("OPENAI_API_KEY","")).strip()
+    openai_model = (payload.get("openai_model") or "gpt-4o-mini").strip()
+
+    if not seed:
+        return jsonify({"ok": False, "error": "seed is required"}), 400
+    count = max(10, min(80, count))
+
+    prompt = f"""
+너는 한국 수익형 블로그 SEO 전문가다.
+시드 키워드와 카테고리를 바탕으로 '검색 의도'가 강한 롱테일 키워드를 {count}개 뽑아라.
+
+[카테고리] {category}
+[시드] {seed}
+
+규칙:
+- 키워드는 한국어, 띄어쓰기 자연스럽게
+- 너무 포괄적인 단어 금지 (예: 재테크, 대출 X)
+- '방법/조건/서류/기간/금액/대상/신청' 같은 의도 키워드 위주
+- 결과는 JSON만 출력:
+{{
+  "keywords": ["...", "..."],
+  "titles": ["키워드1 기반 제목", "키워드2 기반 제목", ...]
+}}
+""".strip()
+
+    try:
+        if writer == "gpt":
+            # openai_generate_html를 이미 넣었다면 재사용 가능
+            text = openai_generate_html(openai_key, openai_model, prompt)
+        else:
+            text = gemini_generate_html(gemini_key, gemini_model, prompt)
+
+        # 모델이 JSON을 예쁘게 안 주는 경우 대비: 앞뒤 잡텍스트 제거 시도
+        s = text.strip()
+        start = s.find("{")
+        end = s.rfind("}")
+        if start != -1 and end != -1:
+            s = s[start:end+1]
+
+        data = json.loads(s)
+        keywords = data.get("keywords") or []
+        titles = data.get("titles") or []
+        return jsonify({"ok": True, "seed": seed, "category": category, "count": count, "keywords": keywords, "titles": titles})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 # ---------------- Google Token Save/Load ----------------
 def save_token(creds: Credentials):
@@ -504,3 +560,4 @@ def api_tasks_run_due():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
