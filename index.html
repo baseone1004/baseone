@@ -587,6 +587,11 @@ async function generateOne(topicObj){
 
   const payload={
     topic: topicObj.title,
+    // ✅ 내 사이트 버튼 섹션 자동 삽입
+const d = settings();
+const linkHtml = buildLinkButtonsHtml(topicObj.title, d.my_sites || []);
+topicObj.html = linkHtml + topicObj.html; // 위에 붙이기 (원하면 아래로 바꿔도 됨)
+
     category: selectedCat,
     writer: d.writer || "gemini",
     gemini_key: d.gemini_key || "",
@@ -837,6 +842,7 @@ updateSelectedPanel();
 </script>
 </body>
 </html>
+
 
 
 
