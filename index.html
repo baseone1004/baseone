@@ -166,6 +166,22 @@
     <div class="small" style="margin-top:6px">
       ✅ 안전한 방식: Gemini/OpenAI로 ‘롱테일 키워드’ 생성 → 클릭 유도형 ‘주제(제목)’로 변환합니다.
     </div>
+<!-- ✅ 선택한 글 패널 -->
+<div class="card" id="selectedPanel" style="margin-top:12px">
+  <div class="row">
+    <div style="min-width:260px">
+      <div style="font-weight:900">🎯 현재 선택한 글</div>
+      <div class="small" id="selectedInfo">아직 선택한 글이 없습니다. 아래 목록에서 “선택”을 누르세요.</div>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn" onclick="copySelectedTitle()">📋 제목 복사</button>
+      <button class="btn primary" onclick="aiGenerate()">✨ 선택 글 생성/재생성</button>
+      <button class="btn good" onclick="publishNow()">🚀 즉시발행(선택 글)</button>
+      <button class="btn" onclick="scrollToPreview()">👀 미리보기로 이동</button>
+    </div>
+  </div>
+</div>
 
     <div class="grid" id="catGrid"></div>
     <div class="list" id="topicList"></div>
@@ -733,3 +749,4 @@ updateStatusLine();
 </script>
 </body>
 </html>
+
