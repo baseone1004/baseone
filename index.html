@@ -78,6 +78,14 @@
     </div>
     <div class="small" style="margin-top:8px" id="oauthState">-</div>
   </div>
+<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <input id="kwSeed" placeholder="키워드 시드 (예: 정부지원금, 소상공인, 연말정산)" style="min-width:360px"/>
+  <input id="kwCount" type="number" value="30" min="10" max="80" style="width:110px"/>
+  <button class="btn primary" onclick="collectKeywords()">🔎 수익형 키워드 자동수집</button>
+  <button class="btn" onclick="applyTitlesAsTopics()">➕ 제목을 주제로 추가</button>
+</div>
+<div class="small" id="kwHint" style="margin-top:6px"></div>
+<div class="list" id="kwList" style="max-height:240px"></div>
 
   <div class="box">
     <div class="row">
@@ -539,4 +547,5 @@ renderTopics();
 </script>
 </body>
 </html>
+
 
