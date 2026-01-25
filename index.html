@@ -97,11 +97,20 @@
       padding:10px;border-radius:16px;
       display:flex;justify-content:space-between;gap:10px;align-items:center;
       margin-bottom:8px;cursor:pointer;
+      transition:filter .15s ease, border-color .15s ease, box-shadow .15s ease, background .15s ease;
     }
+    /* ✅ 선택된(현재) 글 */
     .item.active{
-      border-color:rgba(122,167,255,.85);
-      box-shadow:0 0 0 2px rgba(122,167,255,.18);
-      background:linear-gradient(135deg,rgba(122,167,255,.14),rgba(56,225,193,.10));
+      border-color:rgba(122,167,255,.95);
+      box-shadow:0 0 0 2px rgba(122,167,255,.22), 0 12px 30px rgba(0,0,0,.25);
+      background:linear-gradient(135deg,rgba(122,167,255,.18),rgba(56,225,193,.12));
+      filter:brightness(1.04);
+    }
+    /* ✅ 체크된 글(여러개) = 불(글로우) */
+    .item.checked{
+      border-color:rgba(56,225,193,.55);
+      box-shadow:0 0 0 2px rgba(56,225,193,.12);
+      background:linear-gradient(135deg, rgba(56,225,193,.10), rgba(255,255,255,.06));
     }
     .itemTitle{font-weight:900}
     .itemMeta{font-size:11.5px;color:var(--muted);margin-top:4px}
@@ -139,6 +148,26 @@
     .linkbar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;padding:12px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:rgba(255,255,255,.06)}
     .linkbtn{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.12);text-decoration:none;color:inherit;font-weight:800}
     .linkbtn:hover{filter:brightness(1.06)}
+
+    /* ✅ 진행상황 로그 박스 */
+    .logBox{
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:16px;
+      background:rgba(0,0,0,.12);
+      padding:10px;
+    }
+    .logHead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .logList{
+      margin-top:8px;
+      max-height:140px;
+      overflow:auto;
+      padding-right:6px;
+      font-size:12px;
+      color:rgba(248,250,255,.82);
+      line-height:1.55;
+      white-space:pre-wrap;
+    }
   </style>
 </head>
 
@@ -209,6 +238,17 @@
     <div class="grid" id="catGrid"></div>
     <div class="list" id="topicList"></div>
 
+    <!-- ✅ 진행상황 로그 박스 -->
+    <div class="logBox">
+      <div class="logHead">
+        <b>📌 진행상황</b>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" onclick="clearLogs()">🧹 로그 비우기</button>
+        </div>
+      </div>
+      <div class="logList" id="logList">-</div>
+    </div>
+
     <!-- 현재 선택한 글 -->
     <div class="box" style="margin-top:12px">
       <div class="row">
@@ -220,7 +260,6 @@
           <button class="btn" onclick="copySelectedTitle()">📄 제목 복사</button>
           <button class="btn primary" onclick="aiGenerateSelected()">✨ 선택 글 생성/재생성</button>
           <button class="btn good" onclick="publishSelected()">🚀 즉시발행(선택 글)</button>
-          <button class="btn" onclick="scrollToPreview()">👀 미리보기로 이동</button>
         </div>
       </div>
     </div>
@@ -315,6 +354,25 @@ function escAttr(s){
     .replaceAll(">","&gt;");
 }
 
+/* ---- Logs ---- */
+function nowKST(){
+  const d = new Date();
+  const hh=String(d.getHours()).padStart(2,"0");
+  const mm=String(d.getMinutes()).padStart(2,"0");
+  const ss=String(d.getSeconds()).padStart(2,"0");
+  return `${hh}:${mm}:${ss}`;
+}
+function logLine(msg){
+  const box=document.getElementById("logList");
+  const line = `[${nowKST()}] ${msg}`;
+  if(box.textContent.trim()==="-" ) box.textContent="";
+  box.textContent += (box.textContent ? "\n" : "") + line;
+  box.scrollTop = box.scrollHeight;
+}
+function clearLogs(){
+  document.getElementById("logList").textContent="-";
+}
+
 /* ---- State ---- */
 let topics=[]; // {id,title,checked,html,image_url,image_prompt}
 let selectedCat="돈/재테크";
@@ -335,6 +393,7 @@ async function refreshOAuth(){
   }
 }
 function oauthConnect(){
+  logLine("OAuth 시작: 새 창에서 구글 로그인 진행");
   window.open(apiBase()+"/oauth/start", "_blank");
 }
 
@@ -353,7 +412,7 @@ const catGrid=document.getElementById("catGrid");
 CATS.forEach(obj=>{
   const d=document.createElement("div");
   d.className="cat";
-  d.onclick=()=>{selectedCat=obj.k; makeLocalTopics();};
+  d.onclick=()=>{selectedCat=obj.k; logLine(`카테고리 선택: ${obj.k}`); makeLocalTopics();};
   d.innerHTML=`<b>${esc(obj.e)} ${esc(obj.k)}</b><div class="small">${esc(obj.s)}</div>`;
   catGrid.appendChild(d);
 });
@@ -377,7 +436,7 @@ function normUrl(u){
     return raw.toLowerCase()
       .replace(/^https?:\/\//,"")
       .replace(/^www\./,"")
-      .replace(/\/+$/,"/"); 
+      .replace(/\/+$/,"/");
   }
 }
 
@@ -392,7 +451,7 @@ function renderBlogTabs(){
   bloggerBlogs.slice(0,10).forEach((b,idx)=>{
     const el=document.createElement("div");
     el.className="tab"+(activeBlog && activeBlog.id===b.id ? " active":"");
-    el.onclick=()=>{ activeBlog=b; localStorage.setItem("baseone_active_blog_id", b.id); loadBlogSelect(); renderBlogTabs(); updateStatusLine(); };
+    el.onclick=()=>{ activeBlog=b; localStorage.setItem("baseone_active_blog_id", b.id); loadBlogSelect(); renderBlogTabs(); updateStatusLine(); logLine(`블로그 탭 선택: ${b.name||b.url||b.id}`); };
     el.innerHTML = `<b>🟦 ${idx+1}</b><small>${esc(b.name||"")} · ${esc(b.url||"")}</small>`;
     box.appendChild(el);
   });
@@ -433,12 +492,15 @@ function setActiveFromSelect(){
   activeBlog=JSON.parse(v);
   localStorage.setItem("baseone_active_blog_id", activeBlog.id);
   renderBlogTabs(); loadBlogSelect(); updateStatusLine();
+  logLine(`블로그 선택: ${activeBlog.name||activeBlog.url||activeBlog.id}`);
 }
 async function loadBlogs(){
   try{
+    logLine("내 블로그 불러오기 시작");
     const res=await fetch(apiBase()+"/api/blogger/blogs");
     const j=await res.json();
     if(!res.ok || !j.ok){
+      logLine("❌ 블로그 불러오기 실패: OAuth 확인 필요");
       alert("불러오기 실패: 먼저 OAuth 연결을 확인하세요.");
       return;
     }
@@ -453,6 +515,7 @@ async function loadBlogs(){
     }
 
     if(!bloggerBlogs.length){
+      logLine("⚠️ 불러온 블로그가 0개 (제한/URL 불일치 가능)");
       alert("불러온 블로그가 없습니다.\n(설정의 blogspot_urls 제한이 걸렸거나 URL이 다를 수 있음)\n\n" +
             "✅ 팁: 제한을 비우면(=제한 해제) 전체 블로그가 표시됩니다.");
       loadBlogSelect(); renderBlogTabs(); updateStatusLine();
@@ -465,8 +528,10 @@ async function loadBlogs(){
     }
 
     renderBlogTabs(); loadBlogSelect(); updateStatusLine();
+    logLine(`✅ 블로그 ${bloggerBlogs.length}개 로드 완료`);
     alert("블로그 목록 로드 완료!");
   }catch(e){
+    logLine("❌ 서버 연결 실패(블로그 불러오기)");
     alert("서버 연결 실패");
   }
 }
@@ -485,12 +550,14 @@ function makeLocalTopics(){
   selectedTopicId=topics[0]?.id||"";
   renderTopics(); updateStatusLine();
   setSelectedPanel();
+  logLine(`로컬 주제 생성: ${topics.length}개`);
 }
 async function makeMoneyTopics(){
   const d=settings();
   if(!d.gemini_key && !d.openai_key){ alert("설정에서 GEMINI 또는 OPENAI 키 저장 먼저"); return; }
   const count = Math.max(5, Math.min(60, Number(document.getElementById("topicCount").value||30)));
   try{
+    logLine(`AI 주제 생성 시작: ${count}개`);
     const res=await fetch(apiBase()+"/api/topics/money",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -505,12 +572,18 @@ async function makeMoneyTopics(){
       })
     });
     const j=await res.json();
-    if(!res.ok || !j.ok){ alert("주제 생성 실패: "+(j.error||"")); return; }
+    if(!res.ok || !j.ok){
+      logLine(`❌ AI 주제 생성 실패: ${j.error||"unknown"}`);
+      alert("주제 생성 실패: "+(j.error||""));
+      return;
+    }
     topics=(j.items||[]).slice(0,count).map((t,i)=>({id:`G_${Date.now()}_${i}`, title:String(t), checked:(i<10), html:"", image_url:"", image_prompt:""}));
     selectedTopicId=topics[0]?.id||"";
     renderTopics(); updateStatusLine();
     setSelectedPanel();
+    logLine(`✅ AI 주제 생성 완료: ${topics.length}개`);
   }catch(e){
+    logLine("❌ 서버 연결 실패(AI 주제)");
     alert("서버 연결 실패. 설정의 서버 주소 확인");
   }
 }
@@ -519,12 +592,15 @@ function toggleChecked(id){
   const t=topics.find(x=>x.id===id);
   if(!t) return;
   t.checked=!t.checked;
+  renderTopics(); // ✅ 체크하면 즉시 글로우 반영
 }
 function setSelected(id){
   selectedTopicId=id;
   renderTopics();
   setSelectedPanel();
   showSinglePreview(getSelectedTopic());
+  const t=getSelectedTopic();
+  if(t) logLine(`선택: ${t.title}`);
 }
 function getSelectedTopic(){ return topics.find(x=>x.id===selectedTopicId) || null; }
 
@@ -541,7 +617,10 @@ function renderTopics(){
 
   arr.forEach(it=>{
     const d=document.createElement("div");
-    d.className="item"+(it.id===selectedTopicId?" active":"");
+    const cls = ["item"];
+    if(it.checked) cls.push("checked"); // ✅ 체크 글로우
+    if(it.id===selectedTopicId) cls.push("active"); // ✅ 선택 글로우(강)
+    d.className = cls.join(" ");
     d.onclick=()=>setSelected(it.id);
 
     d.innerHTML=`
@@ -578,12 +657,8 @@ function copySelectedTitle(){
   const t=getSelectedTopic();
   if(!t){ alert("선택된 글이 없습니다."); return; }
   navigator.clipboard.writeText(t.title);
+  logLine("제목 복사 완료");
   alert("제목 복사 완료!");
-}
-function scrollToPreview(){
-  const el=document.getElementById("previewBox");
-  if(el.style.display==="none"){ alert("미리보기: 먼저 글 생성 후 확인됩니다."); return; }
-  el.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 /* ---- Link buttons (auto insert into article HTML) ---- */
@@ -627,12 +702,14 @@ async function generateOne(topicObj){
   };
 
   try{
+    logLine(`생성 시작: ${topicObj.title}`);
     const res=await fetch(apiBase()+"/api/generate",{
       method:"POST", headers:{"Content-Type":"application/json"},
       body:JSON.stringify(payload)
     });
     const j=await res.json();
     if(!res.ok || !j.ok){
+      logLine(`❌ 생성 실패: ${j.error||"unknown"}`);
       alert("생성 실패: "+(j.error||""));
       return false;
     }
@@ -645,8 +722,10 @@ async function generateOne(topicObj){
     topicObj.image_prompt = j.image_prompt || "";
     renderTopics();
     setSelectedPanel();
+    logLine(`✅ 생성 완료: ${topicObj.title}`);
     return true;
   }catch(e){
+    logLine("❌ 서버 연결 실패(글 생성)");
     alert("서버 연결 실패");
     return false;
   }
@@ -666,6 +745,7 @@ async function bulkGenerate(){
   if(!targets.length){ alert("체크된 주제들은 이미 생성되었습니다."); return; }
   if(!confirm(`체크된 ${list.length}개 중 미생성 ${targets.length}개를 생성할까요?`)) return;
 
+  logLine(`대량 생성 시작: ${targets.length}개`);
   for(let i=0;i<targets.length;i++){
     const t=targets[i];
     document.getElementById("statusLine").textContent = `대량 생성중 ${i+1}/${targets.length} ... (${t.title})`;
@@ -673,6 +753,7 @@ async function bulkGenerate(){
     if(!ok) break;
   }
   updateStatusLine();
+  logLine("대량 생성 종료");
   alert("대량 생성 완료(또는 중단).");
 }
 
@@ -715,6 +796,7 @@ async function publishSelected(){
   if(!activeBlog || !activeBlog.id){ alert("내 블로그 불러오기 후, 블로그를 선택하세요."); return; }
 
   try{
+    logLine(`발행 시작: ${t.title}`);
     const res = await fetch(apiBase()+"/api/blogger/post",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -722,11 +804,14 @@ async function publishSelected(){
     });
     const j = await res.json().catch(()=> ({}));
     if(!res.ok || !j.ok){
+      logLine(`❌ 발행 실패: ${j.error||"unknown"}`);
       alert("발행 실패: " + (j.error || "unknown"));
       return;
     }
+    logLine(`✅ 발행 완료: ${j.url||"(url 없음)"}`);
     alert("발행 완료!\n" + (j.url || ""));
   }catch(e){
+    logLine("❌ 서버 연결 실패(발행)");
     alert("서버 연결 실패");
   }
 }
@@ -743,16 +828,19 @@ async function scheduleChecked(){
   const needGen = list.filter(x=>!x.html);
   if(needGen.length){
     if(confirm(`체크된 ${list.length}개 중 ${needGen.length}개가 아직 생성되지 않았습니다. 먼저 생성할까요?`)){
+      logLine(`예약 전 생성 시작: ${needGen.length}개`);
       for(let i=0;i<needGen.length;i++){
         document.getElementById("statusLine").textContent = `예약 전 생성중 ${i+1}/${needGen.length} ... (${needGen[i].title})`;
         const ok = await generateOne(needGen[i]);
         if(!ok) return;
       }
+      logLine("예약 전 생성 완료");
     }else{
       return;
     }
   }
 
+  logLine(`예약 저장 시작: ${list.length}개 (gap ${gapMin}분)`);
   const start = new Date(startVal);
   for(let i=0;i<list.length;i++){
     const t=list[i];
@@ -764,11 +852,13 @@ async function scheduleChecked(){
     });
     const j = await res.json().catch(()=> ({}));
     if(!res.ok || !j.ok){
+      logLine(`❌ 예약 저장 실패: ${j.error||"unknown"}`);
       alert("예약 저장 실패: " + (j.error || "unknown"));
       return;
     }
   }
 
+  logLine("✅ 예약 저장 완료");
   alert("예약 저장 완료!");
   refreshTasks();
 }
@@ -800,13 +890,16 @@ async function refreshTasks(){
         </div>
       `;
     }).join("");
+    logLine("예약목록 갱신");
   }catch(e){
     box.textContent="서버 연결 실패";
+    logLine("❌ 서버 연결 실패(예약목록)");
   }
 }
 async function cancelTask(id){
   if(!confirm("이 예약을 취소할까요?")) return;
   await fetch(apiBase()+`/api/tasks/cancel/${id}`, {method:"POST"});
+  logLine(`예약 취소 요청: #${id}`);
   refreshTasks();
 }
 
@@ -823,6 +916,7 @@ async function keywordToTopics(){
   }
 
   try{
+    logLine(`키워드 자동수집 시작: "${seed}" (${count}개)`);
     document.getElementById("statusLine").textContent = `키워드 수집중... (${seed})`;
     const res = await fetch(apiBase()+"/api/keywords/collect_topics",{
       method:"POST",
@@ -842,6 +936,7 @@ async function keywordToTopics(){
     updateStatusLine();
 
     if(!res.ok || !j.ok){
+      logLine(`❌ 키워드 수집 실패: ${j.error||"unknown"}`);
       alert("키워드 수집 실패: " + (j.error || "unknown"));
       return;
     }
@@ -859,9 +954,11 @@ async function keywordToTopics(){
     renderTopics();
     setSelectedPanel();
     showSinglePreview(getSelectedTopic());
+    logLine(`✅ 키워드→주제 완료: ${items.length}개`);
     alert(`완료! 주제 ${items.length}개 생성`);
   }catch(e){
     updateStatusLine();
+    logLine("❌ 서버 연결 실패(키워드 수집)");
     alert("서버 연결 실패: " + e);
   }
 }
@@ -874,6 +971,7 @@ loadBlogSelect();
 renderTopics();
 setSelectedPanel();
 updateStatusLine();
+logLine("페이지 로드 완료");
 </script>
 </body>
 </html>
