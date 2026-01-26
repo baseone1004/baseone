@@ -39,20 +39,24 @@
     }
     .title{font-size:18px;font-weight:900;line-height:1}
     .subtitle{font-size:12px;color:var(--muted);margin-top:4px}
-
+    .pill{
+      display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,.06);border:1px solid var(--border);
+      color:var(--muted);font-size:12px;
+    }
     .box{
       background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
       border:1px solid var(--border);
-      padding:14px;border-radius:18px;margin:10px 0;
+      padding:12px;border-radius:18px;margin:10px 0;
       box-shadow:var(--shadow);
     }
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
     @media(max-width:900px){.grid{grid-template-columns:1fr}}
-    label{display:block;font-weight:900;margin-bottom:6px}
+    label{font-weight:900}
     input,select,textarea{
       width:100%;
-      padding:10px 11px;border-radius:12px;border:1px solid var(--border);
+      padding:10px 12px;border-radius:12px;border:1px solid var(--border);
       background:rgba(255,255,255,.06);color:var(--text);outline:none;font-size:12.5px
     }
     textarea{min-height:140px;line-height:1.6}
@@ -66,184 +70,191 @@
     .btn:active{transform:translateY(1px)}
     .btn.primary{background:linear-gradient(135deg,var(--primary),#2f6bff);border:none;color:#fff}
     .btn.good{background:linear-gradient(135deg,var(--good),#1fb6ff);border:none;color:#fff}
-    .btn.danger{background:rgba(255,107,107,.10);border:1px solid rgba(255,107,107,.35);color:var(--danger)}
     .small{font-size:12px;color:var(--muted)}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-    .hint{margin-top:6px}
-    .pill{
-      display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
-      background:rgba(255,255,255,.06);border:1px solid var(--border);
-      color:var(--muted);font-size:12px;
+    .hint{
+      background:rgba(0,0,0,.12);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:10px;
+      margin-top:10px;
     }
+    .ok{color:var(--good);font-weight:900}
   </style>
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">
-        <div class="logo">B</div>
-        <div>
-          <div class="title">BaseOne 설정</div>
-          <div class="subtitle">키 저장 → 메인(index)에서 글 생성/발행</div>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <span class="pill">🛰️ backend <b class="mono" id="sv">-</b></span>
-        <a href="/"><button class="btn">← 메인</button></a>
-        <button class="btn good" onclick="save()">💾 저장</button>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">
+      <div class="logo">B</div>
+      <div>
+        <div class="title">BaseOne 설정</div>
+        <div class="subtitle">키 저장 → 메인으로 돌아가서 글 생성/발행/예약</div>
       </div>
     </div>
-
-    <div class="box">
-      <div class="row">
-        <div>
-          <b>필수</b>
-          <div class="small">여기 저장한 값은 브라우저(LocalStorage)에 저장됩니다.</div>
-        </div>
-        <div class="small mono" id="savedHint"></div>
-      </div>
-
-      <div class="grid" style="margin-top:10px">
-        <div>
-          <label>서버 주소 (backend)</label>
-          <input id="backend" placeholder="예) https://baseone11.onrender.com" />
-          <div class="small hint">보통 비워도 되지만, 다른 도메인 호출 시 입력</div>
-        </div>
-
-        <div>
-          <label>글 생성 엔진 (writer)</label>
-          <select id="writer">
-            <option value="gemini">Gemini</option>
-            <option value="openai">OpenAI(GPT)</option>
-          </select>
-          <div class="small hint">둘 다 키가 있으면, 여기 선택된 엔진으로 글 생성</div>
-        </div>
-
-        <div>
-          <label>GEMINI_API_KEY</label>
-          <input id="gemini_key" placeholder="AIza..." />
-          <div class="small hint">Gemini 모델명은 아래에서 선택</div>
-        </div>
-
-        <div>
-          <label>Gemini 모델</label>
-          <input id="gemini_model" placeholder="예) gemini-1.5-flash, gemini-1.5-pro" />
-          <div class="small hint">⚠️ 모델 404 나면 여기 값이 틀린 거야</div>
-        </div>
-
-        <div>
-          <label>OPENAI_API_KEY (선택)</label>
-          <input id="openai_key" placeholder="sk-..." />
-        </div>
-
-        <div>
-          <label>OpenAI 모델 (선택)</label>
-          <input id="openai_model" placeholder="예) gpt-5.2-mini" />
-        </div>
-
-        <div>
-          <label>이미지 제공자</label>
-          <select id="img_provider">
-            <option value="pexels">Pexels</option>
-          </select>
-        </div>
-
-        <div>
-          <label>PEXELS_API_KEY</label>
-          <input id="pexels_key" placeholder="pexels key..." />
-        </div>
-      </div>
-    </div>
-
-    <div class="box">
-      <b>선택: 블로그 URL 제한(최대 10개)</b>
-      <div class="small">여기에 적은 URL만 “내 블로그 불러오기” 목록에 표시됩니다. (비우면 제한 해제)</div>
-      <textarea id="blogspot_urls" placeholder="한 줄에 1개&#10;예) https://내블로그.blogspot.com/&#10;또는 연결 도메인 https://www.my-domain.com/"></textarea>
-    </div>
-
-    <div class="box">
-      <b>선택: 내 사이트 버튼(글 하단 링크 버튼용)</b>
-      <div class="small">글 생성 시 하단에 “내 사이트 1,2,3…” 버튼으로 들어갈 URL 목록입니다. (한 줄 1개)</div>
-      <textarea id="my_sites" placeholder="한 줄에 1개&#10;예) https://www.example.com/&#10;예) https://www.example.com/page"></textarea>
-      <div class="row" style="margin-top:10px">
-        <div class="small">✅ 저장 후 메인으로 가서 글 생성하면 글 하단에 버튼이 붙습니다.</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn good" onclick="save()">💾 저장</button>
-          <button class="btn danger" onclick="resetAll()">초기화</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="box">
-      <b>디버그</b>
-      <div class="small">settings 화면이 배경만 보이면, 대개 파일이 잘렸거나 캐시입니다.</div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn" onclick="hardTip()">캐시 해결 팁</button>
-        <span class="small mono" id="debug"></span>
-      </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span class="pill">🛰️ backend <b id="backendPill">-</b></span>
+      <a href="/"><button class="btn">← 메인</button></a>
+      <button class="btn primary" onclick="save()">💾 저장</button>
     </div>
   </div>
 
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>1) 서버 주소</b>
+        <div class="small">보통 그대로 두면 됩니다. 다른 도메인을 호출할 때만 바꾸세요.</div>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label>서버 주소 (backend)</label>
+      <input id="backend" placeholder="예) https://baseone11.onrender.com" />
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>2) 글 생성 엔진</b>
+        <div class="small">Gemini 또는 OpenAI 중 선택</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <label>writer</label>
+        <select id="writer">
+          <option value="gemini">Gemini</option>
+          <option value="openai">OpenAI</option>
+        </select>
+      </div>
+      <div>
+        <label>이미지 제공자</label>
+        <select id="img_provider">
+          <option value="pexels">Pexels</option>
+          <option value="none">사용 안함</option>
+        </select>
+      </div>
+
+      <div>
+        <label>GEMINI_API_KEY</label>
+        <input id="gemini_key" placeholder="AIza..."/>
+      </div>
+      <div>
+        <label>Gemini 모델</label>
+        <input id="gemini_model" placeholder="추천: gemini-1.5-flash-latest"/>
+        <div class="small" style="margin-top:6px">
+          ✅ 지금 404 피하려면 <span class="ok">gemini-1.5-flash-latest</span> 추천
+        </div>
+      </div>
+
+      <div>
+        <label>OPENAI_API_KEY (선택)</label>
+        <input id="openai_key" placeholder="sk-..." />
+      </div>
+      <div>
+        <label>OpenAI 모델(선택)</label>
+        <input id="openai_model" placeholder="예) gpt-5.2-mini" />
+      </div>
+
+      <div style="grid-column:1/-1">
+        <label>PEXELS_API_KEY (이미지)</label>
+        <input id="pexels_key" placeholder="pexels key..." />
+      </div>
+    </div>
+
+    <div class="hint small">
+      <b>Tip</b><br>
+      - Gemini 에러(404)가 나면: 모델을 <span class="ok">gemini-1.5-flash-latest</span> 로 바꾸거나, 서버의 fallback 패치 적용<br>
+      - OpenAI 키가 있으면 writer를 OpenAI로 바꿔도 됩니다.
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>3) Blogspot URL 제한</b>
+        <div class="small">여기에 적은 URL만 “내 블로그 불러오기”에서 보이게 필터됩니다. 비우면 제한 없음.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>blogspot_urls (한 줄에 1개)</label>
+      <textarea id="blogspot_urls" placeholder="예)
+https://내블로그.blogspot.com/
+https://www.연결도메인.com/"></textarea>
+    </div>
+
+    <div class="small" style="margin-top:8px">
+      ✅ 제한을 없애고 싶으면 <b>여기를 완전히 비우고 저장</b>하세요.
+    </div>
+  </div>
+
+</div>
+
 <script>
-  const KEY="baseone_settings_v4";
+const KEY="baseone_settings_v4";
 
-  function parseLines(text){
-    return String(text||"")
-      .split("\n")
-      .map(s=>s.trim())
-      .filter(Boolean)
-      .slice(0, 50);
-  }
+function load(){
+  const d = JSON.parse(localStorage.getItem(KEY) || "{}");
 
-  function load(){
-    const d = JSON.parse(localStorage.getItem(KEY) || "{}");
-    const backend = (d.backend || location.origin).replace(/\/+$/,"");
-    document.getElementById("backend").value = d.backend || "";
-    document.getElementById("writer").value = d.writer || "gemini";
-    document.getElementById("gemini_key").value = d.gemini_key || "";
-    document.getElementById("gemini_model").value = d.gemini_model || "gemini-1.5-flash";
-    document.getElementById("openai_key").value = d.openai_key || "";
-    document.getElementById("openai_model").value = d.openai_model || "gpt-5.2-mini";
-    document.getElementById("img_provider").value = d.img_provider || "pexels";
-    document.getElementById("pexels_key").value = d.pexels_key || "";
-    document.getElementById("blogspot_urls").value = (d.blogspot_urls || []).join("\n");
-    document.getElementById("my_sites").value = (d.my_sites || []).join("\n");
-    document.getElementById("sv").textContent = backend;
-    document.getElementById("debug").textContent = "loaded OK";
-  }
+  const origin = location.origin;
+  document.getElementById("backend").value = d.backend || origin;
+  document.getElementById("writer").value = d.writer || "gemini";
+  document.getElementById("img_provider").value = d.img_provider || "pexels";
 
-  function save(){
-    const d = {
-      backend: document.getElementById("backend").value.trim(),
-      writer: document.getElementById("writer").value,
-      gemini_key: document.getElementById("gemini_key").value.trim(),
-      gemini_model: document.getElementById("gemini_model").value.trim() || "gemini-1.5-flash",
-      openai_key: document.getElementById("openai_key").value.trim(),
-      openai_model: document.getElementById("openai_model").value.trim() || "gpt-5.2-mini",
-      img_provider: document.getElementById("img_provider").value,
-      pexels_key: document.getElementById("pexels_key").value.trim(),
-      blogspot_urls: parseLines(document.getElementById("blogspot_urls").value),
-      my_sites: parseLines(document.getElementById("my_sites").value),
-    };
-    localStorage.setItem(KEY, JSON.stringify(d));
-    document.getElementById("savedHint").textContent = "✅ 저장됨 ("+new Date().toLocaleString()+")";
-    const backend = (d.backend || location.origin).replace(/\/+$/,"");
-    document.getElementById("sv").textContent = backend;
-  }
+  document.getElementById("gemini_key").value = d.gemini_key || "";
+  document.getElementById("gemini_model").value = d.gemini_model || "gemini-1.5-flash-latest";
 
-  function resetAll(){
-    if(!confirm("설정을 초기화할까요?")) return;
-    localStorage.removeItem(KEY);
-    load();
-    document.getElementById("savedHint").textContent = "초기화됨";
-  }
+  document.getElementById("openai_key").value = d.openai_key || "";
+  document.getElementById("openai_model").value = d.openai_model || "gpt-5.2-mini";
 
-  function hardTip(){
-    alert("계속 배경만 보이면:\n\n1) Ctrl+Shift+R (강력 새로고침)\n2) 시크릿 창에서 /settings 열기\n3) view-source:/settings로 HTML이 제대로 배포됐는지 확인\n4) Render에서 Clear build cache & deploy");
-  }
+  document.getElementById("pexels_key").value = d.pexels_key || "";
 
-  load();
+  const arr = Array.isArray(d.blogspot_urls) ? d.blogspot_urls : [];
+  document.getElementById("blogspot_urls").value = arr.join("\n");
+
+  document.getElementById("backendPill").textContent = (d.backend || origin).replace(/\/+$/,"");
+}
+
+function save(){
+  const backend = (document.getElementById("backend").value || location.origin).trim().replace(/\/+$/,"");
+  const writer = document.getElementById("writer").value;
+  const img_provider = document.getElementById("img_provider").value;
+
+  const gemini_key = (document.getElementById("gemini_key").value || "").trim();
+  const gemini_model = (document.getElementById("gemini_model").value || "gemini-1.5-flash-latest").trim();
+
+  const openai_key = (document.getElementById("openai_key").value || "").trim();
+  const openai_model = (document.getElementById("openai_model").value || "gpt-5.2-mini").trim();
+
+  const pexels_key = (document.getElementById("pexels_key").value || "").trim();
+
+  const blogspot_urls_raw = (document.getElementById("blogspot_urls").value || "")
+    .split("\n")
+    .map(x => x.trim())
+    .filter(Boolean);
+
+  const d = {
+    backend,
+    writer,
+    img_provider,
+    gemini_key,
+    gemini_model,
+    openai_key,
+    openai_model,
+    pexels_key,
+    blogspot_urls: blogspot_urls_raw
+  };
+
+  localStorage.setItem(KEY, JSON.stringify(d));
+  document.getElementById("backendPill").textContent = backend;
+
+  alert("저장 완료! 메인으로 돌아가서 사용하세요.");
+}
+
+load();
 </script>
 </body>
 </html>
