@@ -52,7 +52,15 @@ def home():
 
 @app.route("/settings")
 def settings_page():
+    path = os.path.join(os.getcwd(), "settings.html")
+    if not os.path.exists(path):
+        return jsonify({
+            "ok": False,
+            "error": "settings.html not found in deploy root",
+            "hint": "settings.html must be in the same folder as server.py and committed to git"
+        }), 404
     return send_from_directory(".", "settings.html")
+
 
 @app.route("/health")
 def health():
@@ -258,3 +266,4 @@ def generate():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
