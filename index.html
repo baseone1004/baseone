@@ -699,7 +699,8 @@ async function generateOne(topicObj){
   }
 
   // ✅ 내 사이트 링크 버튼 섹션을 글 하단에 추가
-  const linkHtml = buildLinkButtonsHtml(topicObj.title, (d.my_sites||[]));
+ topicObj.html = (j.html || "");
+
 
   topicObj.html = (j.html || "") + linkHtml;
   topicObj.image_url = j.image_url || "";
@@ -976,3 +977,4 @@ async function keywordToTopics(){
 
 </body>
 </html>
+
