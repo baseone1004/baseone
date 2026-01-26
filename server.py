@@ -80,8 +80,18 @@ SCOPES = [
 # -----------------------------
 # Flask app
 # -----------------------------
-app = Flask(__name__)
-app.secret_key = SECRET_KEY
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+import os
+from datetime import datetime
+
+app = Flask(
+    __name__,
+    static_folder=".",      # ← index.html 위치
+    static_url_path=""      # ← 루트(/)로 접근
+)
+CORS(app)
+
 
 # CORS (프론트가 따로 있어도 호출 가능)
 if FRONTEND_ORIGIN == "*":
@@ -903,3 +913,4 @@ if TASK_WORKER:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "10000"))
     app.run(host="0.0.0.0", port=port)
+
