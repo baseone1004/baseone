@@ -242,15 +242,39 @@ def pexels_search_image_url(pexels_key: str, query: str) -> str:
 def gemini_generate(gemini_key: str, model: str, prompt: str) -> str:
     """
     Google Generative Language REST.
-    - v1 먼저 시도, 실패하면 v1beta 시도
-    - model이 "models/..." 형태면 자동 보정
+    - 모델명이 애매하면(latest/001) 자동으로 여러 후보를 순서대로 시도해서 404를 피함.
+    - v1 먼저, 실패 시 v1beta도 fallback.
     """
     if not gemini_key:
         raise RuntimeError("gemini_key missing")
 
-    m = (model or "gemini-1.5-flash-latest").strip()
-    if m.startswith("models/"):
-        m = m.split("models/", 1)[1]
+    m0 = (model or "").strip() or "gemini-1.5-flash-latest"
+    if m0.startswith("models/"):
+        m0 = m0.split("models/", 1)[1]
+
+    # ✅ 자주 틀리는 모델명 자동 보정 + 후보 리스트
+    candidates = []
+    def add(x):
+        x = (x or "").strip()
+        if not x:
+            return
+        if x.startswith("models/"):
+            x = x.split("models/", 1)[1]
+        if x not in candidates:
+            candidates.append(x)
+
+    add(m0)
+    # 사용자가 "gemini-1.5-flash" 같이 주면 최신/버전 후보로 확장
+    if m0.endswith("gemini-1.5-flash"):
+        add("gemini-1.5-flash-latest")
+        add("gemini-1.5-flash-001")
+    if m0.endswith("gemini-1.5-pro"):
+        add("gemini-1.5-pro-latest")
+        add("gemini-1.5-pro-001")
+
+    # 기본 fallback들
+    add("gemini-1.5-flash-latest")
+    add("gemini-1.5-pro-latest")
 
     body = {
         "contents": [{
@@ -263,43 +287,39 @@ def gemini_generate(gemini_key: str, model: str, prompt: str) -> str:
         }
     }
 
-    # v1
-    url_v1 = f"https://generativelanguage.googleapis.com/v1/models/{m}:generateContent?key={gemini_key}"
-    r = requests.post(url_v1, json=body, timeout=60)
-    if r.status_code == 200:
-        j = r.json()
-        return (j.get("candidates", [{}])[0]
-                  .get("content", {})
-                  .get("parts", [{}])[0]
-                  .get("text", "")).strip()
+    last_err = None
 
-    # v1beta fallback
-    url_v1b = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={gemini_key}"
-    r2 = requests.post(url_v1b, json=body, timeout=60)
-    if r2.status_code != 200:
-        raise RuntimeError(f"Gemini API error: {r2.status_code} {r2.text}")
-    j2 = r2.json()
-    return (j2.get("candidates", [{}])[0]
-              .get("content", {})
-              .get("parts", [{}])[0]
-              .get("text", "")).strip()
+    for m in candidates:
+        # v1
+        url_v1 = f"https://generativelanguage.googleapis.com/v1/models/{m}:generateContent?key={gemini_key}"
+        try:
+            r = requests.post(url_v1, json=body, timeout=60)
+            if r.status_code == 200:
+                j = r.json()
+                return (j.get("candidates", [{}])[0]
+                          .get("content", {})
+                          .get("parts", [{}])[0]
+                          .get("text", "")).strip()
+            last_err = f"v1 {m} -> {r.status_code} {r.text}"
+        except Exception as e:
+            last_err = f"v1 {m} exception: {e}"
 
-def openai_generate(openai_key: str, model: str, prompt: str) -> str:
-    """
-    OpenAI Responses API (권장) - 단순 텍스트 생성
-    """
-    if not openai_key:
-        raise RuntimeError("openai_key missing")
-    m = (model or "gpt-5.2-mini").strip()
-    url = "https://api.openai.com/v1/responses"
-    headers = {"Authorization": f"Bearer {openai_key}", "Content-Type": "application/json"}
-    payload = {
-        "model": m,
-        "input": prompt
-    }
-    r = requests.post(url, headers=headers, json=payload, timeout=60)
-    if r.status_code != 200:
-        raise RuntimeError(f"OpenAI API error: {r.status_code} {r.text}")
+        # v1beta fallback
+        url_v1b = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={gemini_key}"
+        try:
+            r2 = requests.post(url_v1b, json=body, timeout=60)
+            if r2.status_code == 200:
+                j2 = r2.json()
+                return (j2.get("candidates", [{}])[0]
+                          .get("content", {})
+                          .get("parts", [{}])[0]
+                          .get("text", "")).strip()
+            last_err = f"v1beta {m} -> {r2.status_code} {r2.text}"
+        except Exception as e:
+            last_err = f"v1beta {m} exception: {e}"
+
+    raise RuntimeError(f"Gemini API error (all model fallbacks failed). Last: {last_err}")
+
 
     j = r.json()
     # responses output text 추출(여러 형태 대응)
@@ -626,3 +646,4 @@ if ENABLE_SCHEDULER:
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5000"))
     app.run(host="0.0.0.0", port=port)
+
