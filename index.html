@@ -7,10 +7,10 @@
   <style>
     :root{
       --bg:#0f1630;
-      --panel:rgba(255,255,255,.07);
-      --panel2:rgba(255,255,255,.10);
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.08);
       --text:#f8faff;
-      --muted:rgba(248,250,255,.74);
+      --muted:rgba(248,250,255,.75);
       --border:rgba(255,255,255,.14);
       --primary:#7aa7ff;
       --good:#38e1c1;
@@ -21,34 +21,29 @@
     body{
       margin:0;
       font-family:system-ui,-apple-system,"Noto Sans KR",Segoe UI,Roboto,sans-serif;
-      background:
-        radial-gradient(1100px 650px at 18% 12%, rgba(122,167,255,.18), transparent 55%),
-        radial-gradient(900px 600px at 85% 20%, rgba(56,225,193,.14), transparent 50%),
-        linear-gradient(180deg,var(--bg),#0a1022);
+      background:radial-gradient(1200px 700px at 20% 10%, rgba(122,167,255,.18), transparent 55%),
+                 radial-gradient(900px 600px at 80% 20%, rgba(56,225,193,.16), transparent 50%),
+                 linear-gradient(180deg,var(--bg),#0a1022);
       color:var(--text);
       font-size:13px;
     }
     a{color:inherit;text-decoration:none}
     .wrap{max-width:1120px;margin:0 auto;padding:14px}
-
-    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 2px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 4px}
     .brand{display:flex;align-items:center;gap:10px}
     .logo{
       width:36px;height:36px;border-radius:14px;
       background:linear-gradient(135deg,var(--primary),var(--good));
       display:flex;align-items:center;justify-content:center;
       font-weight:900;color:#fff;box-shadow:var(--shadow);
-      user-select:none;
     }
     .title{font-size:18px;font-weight:900;line-height:1}
     .subtitle{font-size:12px;color:var(--muted);margin-top:4px}
-
     .pill{
       display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
       background:rgba(255,255,255,.06);border:1px solid var(--border);
       color:var(--muted);font-size:12px;
     }
-
     .box{
       background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
       border:1px solid var(--border);
@@ -56,20 +51,18 @@
       box-shadow:var(--shadow);
     }
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
-
-    input,select{
+    input,select,textarea{
       padding:9px 10px;border-radius:12px;border:1px solid var(--border);
       background:rgba(255,255,255,.06);color:var(--text);outline:none;font-size:12.5px
     }
-    select{min-width:320px;max-width:100%}
-
+    select{min-width:320px}
     .btn{
       padding:9px 12px;border-radius:12px;border:1px solid var(--border);
       background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:900;font-size:12px;
       transition:transform .06s ease, filter .15s ease;
       user-select:none;
     }
-    .btn:hover{filter:brightness(1.06)}
+    .btn:hover{filter:brightness(1.05)}
     .btn:active{transform:translateY(1px)}
     .btn.primary{background:linear-gradient(135deg,var(--primary),#2f6bff);border:none;color:#fff}
     .btn.good{background:linear-gradient(135deg,var(--good),#1fb6ff);border:none;color:#fff}
@@ -97,10 +90,7 @@
     .cat:active{transform:translateY(1px)}
     .cat b,.cat .small{position:relative;z-index:1}
 
-    .layout{display:grid;grid-template-columns:1.1fr .9fr;gap:10px}
-    @media(max-width:980px){.layout{grid-template-columns:1fr}}
-
-    .list{max-height:420px;overflow:auto;margin-top:10px;padding-right:6px}
+    .list{max-height:360px;overflow:auto;margin-top:10px;padding-right:6px}
     .item{
       background:rgba(255,255,255,.07);
       border:1px solid var(--border);
@@ -108,19 +98,14 @@
       display:flex;justify-content:space-between;gap:10px;align-items:center;
       margin-bottom:8px;cursor:pointer;
     }
-    .item:hover{filter:brightness(1.03)}
-    .item.selected{
-      border-color:rgba(122,167,255,.9);
+    .item.active{
+      border-color:rgba(122,167,255,.85);
       box-shadow:0 0 0 2px rgba(122,167,255,.18);
-      background:linear-gradient(135deg,rgba(122,167,255,.16),rgba(56,225,193,.10));
-    }
-    .item.checked{
-      border-color:rgba(56,225,193,.35);
-      background:linear-gradient(135deg,rgba(56,225,193,.10),rgba(255,255,255,.05));
+      background:linear-gradient(135deg,rgba(122,167,255,.14),rgba(56,225,193,.10));
     }
     .itemTitle{font-weight:900}
     .itemMeta{font-size:11.5px;color:var(--muted);margin-top:4px}
-    .rightBtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .rightBtns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .chip{
       display:inline-flex;align-items:center;gap:6px;
       padding:6px 10px;border-radius:999px;
@@ -129,18 +114,16 @@
       font-weight:900;
     }
 
-    .card{
-      background:rgba(255,255,255,.07);
-      border:1px solid var(--border);
-      border-radius:16px;
-      padding:10px;
-    }
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    @media(max-width:900px){.two{grid-template-columns:1fr}}
+    .card{background:rgba(255,255,255,.07);border:1px solid var(--border);border-radius:16px;padding:10px}
     .pre{
       margin-top:8px;border:1px solid var(--border);border-radius:12px;padding:10px;
       min-height:180px;white-space:pre-wrap;overflow:auto;background:rgba(0,0,0,.10)
     }
     .iframeWrap{margin-top:8px;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--border);min-height:320px}
     iframe{width:100%;height:320px;border:0}
+
     .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .tab{
       padding:8px 10px;border-radius:999px;border:1px solid var(--border);
@@ -148,26 +131,9 @@
       display:flex;align-items:center;gap:8px;
       max-width:100%;
     }
+    .tab b{white-space:nowrap}
     .tab small{opacity:.8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:520px}
     .tab.active{border-color:rgba(122,167,255,.85);box-shadow:0 0 0 2px rgba(122,167,255,.18)}
-
-    /* 진행상황 로그 박스 */
-    .logBox{
-      margin-top:10px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(0,0,0,.18);
-      border-radius:14px;
-      padding:10px;
-      min-height:92px;
-      max-height:160px;
-      overflow:auto;
-      font-size:12px;
-      line-height:1.55;
-    }
-    .logLine{color:rgba(248,250,255,.86)}
-    .logLine.good{color:rgba(56,225,193,.95)}
-    .logLine.bad{color:rgba(255,123,123,.95)}
-    .logLine.dim{color:rgba(248,250,255,.60)}
   </style>
 </head>
 
@@ -179,7 +145,7 @@
       <div class="logo">B</div>
       <div>
         <div class="title">BaseOne</div>
-        <div class="subtitle">주제 → 글 생성(Gemini/GPT) → 이미지(Pexels) → 즉시발행/예약발행(블로그스팟)</div>
+        <div class="subtitle">주제 → AI 생성(Gemini/GPT) → 이미지(Pexels) → 즉시발행/예약발행(블로그스팟)</div>
       </div>
     </div>
 
@@ -195,8 +161,8 @@
   <div class="box">
     <div class="row">
       <div>
-        <b>1) OAuth + 블로그 선택</b>
-        <div class="small">OAuth 연결 → 내 블로그 불러오기 → 블로그 선택(현재 발행 대상)</div>
+        <b>1) OAuth + 내 블로그 불러오기</b>
+        <div class="small">OAuth 연결 후 “내 블로그 불러오기” → blog_id 확보 → 자동발행/예약 가능</div>
       </div>
       <div class="small mono" id="statusLine">-</div>
     </div>
@@ -206,105 +172,108 @@
       <button class="btn good" onclick="setActiveFromSelect()">✅ 선택</button>
       <button class="btn" onclick="oauthConnect()">🔐 OAuth 연결</button>
       <button class="btn primary" onclick="loadBlogs()">📥 내 블로그 불러오기</button>
-      <span class="small">현재 블로그: <b id="activeBlogText">-</b></span>
+      <span class="small">현재 선택: <b id="activeBlogText">-</b></span>
     </div>
 
     <div class="tabs" id="blogTabs"></div>
   </div>
 
-  <div class="layout">
-
-    <!-- LEFT: Topics -->
-    <div class="box">
-      <div class="row">
-        <div>
-          <b>2) 주제 만들기</b>
-          <div class="small">카테고리 클릭 → 주제 생성 / 체크(여러개) 가능 / “선택(현재 글)”은 1개</div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <input id="filter" placeholder="🔎 검색" oninput="renderTopics()">
-          <input id="topicCount" type="number" min="5" max="60" value="30" style="width:110px" />
-          <button class="btn" onclick="makeLocalTopics()">⚡ 로컬</button>
-          <button class="btn primary" onclick="makeMoneyTopics()">🤖 AI</button>
-        </div>
+  <!-- 2) Topics -->
+  <div class="box">
+    <div class="row">
+      <div>
+        <b>2) 주제 생성</b>
+        <div class="small">카테고리 클릭 → 주제 생성, 체크된 것만 생성/발행/예약</div>
       </div>
-
-      <!-- 키워드 자동수집 -> 주제화 -->
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <input id="kwSeed" placeholder="📌 키워드 입력 (예: 정부지원금, 카드 추천)" style="flex:1;min-width:240px"/>
-        <input id="kwCount" type="number" min="5" max="60" value="30" style="width:110px"/>
-        <button class="btn primary" onclick="keywordToTopics()">📌 키워드→주제</button>
-      </div>
-
-      <div class="grid" id="catGrid"></div>
-
-      <div class="list" id="topicList"></div>
-
-      <!-- 액션바(최소) -->
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between">
-        <div class="small">
-          🎯 선택: <span class="chip" id="selChip">없음</span>
-          <span class="small" style="margin-left:8px">✅ 체크: <b id="checkedCount">0</b>개</span>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <button class="btn primary" onclick="generateSelected()">✨ 선택 글 생성</button>
-          <button class="btn good" onclick="publishSelected()">🚀 선택 글 발행</button>
-          <button class="btn" onclick="generateChecked()">✨ 체크 글 생성</button>
-          <button class="btn" onclick="scheduleChecked()">🗓️ 체크 예약</button>
-        </div>
-      </div>
-
-      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        <span class="small">예약 시작</span>
-        <input id="scheduleAt" type="datetime-local"/>
-        <span class="small">간격(분)</span>
-        <input id="gapMin" type="number" min="5" value="120" style="width:110px"/>
-      </div>
-
-      <!-- 진행상황 로그 -->
-      <div class="logBox" id="logBox"></div>
-    </div>
-
-    <!-- RIGHT: Preview -->
-    <div class="box">
-      <div class="row">
-        <div>
-          <b>3) 미리보기</b>
-          <div class="small" id="previewMeta">아직 생성된 글이 없습니다.</div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" onclick="copyHtml()">📋 HTML 복사</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:10px">
-        <div style="font-weight:900">📝 본문(HTML)</div>
-        <div class="pre" id="finalBody">(비어있음)</div>
-      </div>
-
-      <div class="card" style="margin-top:10px">
-        <div style="font-weight:900">🖼️ 이미지</div>
-        <div class="pre" id="finalImage">(비어있음)</div>
-        <div style="margin-top:10px">
-          <img id="previewImg" alt="preview" style="width:100%;border-radius:12px;border:1px solid var(--border);display:none"/>
-          <div class="small" id="imgHint" style="margin-top:8px">이미지 URL이 있으면 여기에 표시됩니다.</div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:10px">
-        <div style="font-weight:900">👀 렌더 미리보기</div>
-        <div class="iframeWrap"><iframe id="previewIframe"></iframe></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="filter" placeholder="🔎 검색" oninput="renderTopics()">
+        <input id="topicCount" type="number" min="5" max="60" value="30" style="width:120px" />
+        <button class="btn" onclick="makeLocalTopics()">⚡ 로컬 주제</button>
+        <button class="btn primary" onclick="makeMoneyTopics()">🤖 AI 주제(설정키 필요)</button>
       </div>
     </div>
 
+    <!-- 키워드 자동수집 -> 주제화 -->
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input id="kwSeed" placeholder="📌 키워드 입력 (예: 정부지원금, 카드 추천, 대출 갈아타기)" style="flex:1;min-width:260px"/>
+      <input id="kwCount" type="number" min="5" max="60" value="30" style="width:120px"/>
+      <button class="btn primary" onclick="keywordToTopics()">📌 키워드 자동수집 → 주제화</button>
+    </div>
+    <div class="small" style="margin-top:6px">✅ 안전한 방식: LLM(Gemini/OpenAI)로 “롱테일 키워드/주제(제목)”를 생성합니다.</div>
+
+    <div class="grid" id="catGrid"></div>
+    <div class="list" id="topicList"></div>
+
+    <!-- 현재 선택한 글 -->
+    <div class="box" style="margin-top:12px">
+      <div class="row">
+        <div>
+          <b>🎯 현재 선택한 글</b>
+          <div class="small" id="selMeta">아직 선택한 글이 없습니다. 아래 목록에서 “선택”을 누르세요.</div>
+        </div>
+        <div class="rightBtns">
+          <button class="btn" onclick="copySelectedTitle()">📄 제목 복사</button>
+          <button class="btn primary" onclick="aiGenerateSelected()">✨ 선택 글 생성/재생성</button>
+          <button class="btn good" onclick="publishSelected()">🚀 즉시발행(선택 글)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 대량 -->
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn primary" onclick="bulkGenerate()">✨ 체크 글 생성(대량)</button>
+      <button class="btn" onclick="scheduleChecked()">🕒 예약발행(체크 글)</button>
+      <input id="scheduleAt" type="datetime-local"/>
+      <span class="small">간격(분)</span>
+      <input id="gapMin" type="number" min="5" value="120" style="width:110px"/>
+    </div>
+
+    <div class="small" style="margin-top:8px">
+      ✅ 순서: ① 카테고리 클릭 → ② “선택 글 생성/재생성” → ③ “즉시발행” 또는 “예약발행”<br>
+      ✅ 예약발행은 체크된 글들을 <b>선택한 시간부터 gap 간격</b>으로 예약합니다.
+    </div>
   </div>
 
-  <!-- Tasks -->
+  <!-- 3) Preview -->
+  <div class="box" id="previewBox" style="display:none">
+    <div class="row">
+      <div>
+        <b>3) 생성 결과(미리보기)</b>
+        <div class="small" id="previewMeta">-</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn primary" onclick="aiGenerateSelected()">✨ 다시 생성</button>
+        <button class="btn good" onclick="publishSelected()">🚀 즉시발행</button>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="card">
+        <div style="font-weight:900">📝 본문(HTML)</div>
+        <div class="pre" id="finalBody"></div>
+      </div>
+      <div class="card">
+        <div style="font-weight:900">🖼️ 이미지</div>
+        <div class="pre" id="finalImage"></div>
+        <div style="margin-top:10px">
+          <img id="previewImg" alt="preview" style="width:100%;border-radius:12px;border:1px solid var(--border);display:none"/>
+          <div class="small" id="imgHint" style="margin-top:8px">이미지 URL이 있으면 아래에 보입니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <div style="font-weight:900">👀 HTML 미리보기</div>
+      <div class="iframeWrap"><iframe id="previewIframe"></iframe></div>
+    </div>
+  </div>
+
+  <!-- 4) Tasks -->
   <div class="box">
     <div class="row">
       <div>
         <b>4) 예약발행 목록</b>
-        <div class="small">pending 대기 / running 실행 / ok 성공 / err 실패</div>
+        <div class="small">“pending” 대기 / “running” 실행 / “ok” 성공 / “err” 실패</div>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn" onclick="refreshTasks()">🔄 새로고침</button>
@@ -317,7 +286,8 @@
 
 <script>
 /* ==========================
-   BaseOne - Simplified index.html
+   BaseOne (index.html)
+   - 내 블로그/내 사이트 링크 자동삽입 제거 버전
    ========================== */
 
 /* ---- Settings ---- */
@@ -327,10 +297,17 @@ function apiBase(){ return (settings().backend || location.origin).replace(/\/+$
 document.getElementById("sv").textContent = apiBase();
 
 function esc(s){
-  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
 }
 function escAttr(s){
-  return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
 }
 
 /* ---- State ---- */
@@ -339,30 +316,6 @@ let selectedCat="돈/재테크";
 let selectedTopicId="";
 let bloggerBlogs=[]; // {id,name,url}
 let activeBlog=null; // {id,name,url}
-let busy=false;
-
-/* ---- Log ---- */
-function log(msg, type="dim"){
-  const box=document.getElementById("logBox");
-  const t=new Date();
-  const hh=String(t.getHours()).padStart(2,"0");
-  const mm=String(t.getMinutes()).padStart(2,"0");
-  const ss=String(t.getSeconds()).padStart(2,"0");
-  const div=document.createElement("div");
-  div.className="logLine "+type;
-  div.textContent=`[${hh}:${mm}:${ss}] ${msg}`;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
-}
-function setBusy(v){
-  busy=!!v;
-  document.querySelectorAll("button").forEach(b=>{
-    if(b.textContent.includes("OAuth")) return; // OAuth는 새창이라 놔둠
-    b.disabled = busy;
-    b.style.opacity = busy ? ".65" : "1";
-    b.style.cursor = busy ? "not-allowed" : "pointer";
-  });
-}
 
 /* ---- OAuth status ---- */
 async function refreshOAuth(){
@@ -378,7 +331,6 @@ async function refreshOAuth(){
 }
 function oauthConnect(){
   window.open(apiBase()+"/oauth/start", "_blank");
-  log("OAuth 창을 열었습니다. 로그인 후 돌아와서 '내 블로그 불러오기'를 누르세요.", "dim");
 }
 
 /* ---- Categories ---- */
@@ -396,7 +348,7 @@ const catGrid=document.getElementById("catGrid");
 CATS.forEach(obj=>{
   const d=document.createElement("div");
   d.className="cat";
-  d.onclick=()=>{selectedCat=obj.k; makeLocalTopics(); log(`카테고리 변경: ${obj.k}`, "dim");};
+  d.onclick=()=>{selectedCat=obj.k; makeLocalTopics();};
   d.innerHTML=`<b>${esc(obj.e)} ${esc(obj.k)}</b><div class="small">${esc(obj.s)}</div>`;
   catGrid.appendChild(d);
 });
@@ -404,11 +356,7 @@ CATS.forEach(obj=>{
 /* ---- Helper ---- */
 function updateStatusLine(){
   const a = activeBlog ? `${activeBlog.name||activeBlog.url||activeBlog.id}` : "-";
-  const checked = topics.filter(x=>x.checked).length;
-  document.getElementById("statusLine").textContent = `activeBlog=${a} / topics=${topics.length} / checked=${checked} / cat=${selectedCat}`;
-  document.getElementById("checkedCount").textContent = String(checked);
-  const sel = getSelectedTopic();
-  document.getElementById("selChip").textContent = sel ? sel.title : "없음";
+  document.getElementById("statusLine").textContent = `activeBlog=${a} / topics=${topics.length} / cat=${selectedCat}`;
 }
 
 /* ---- URL normalize for allowlist ---- */
@@ -439,7 +387,7 @@ function renderBlogTabs(){
   bloggerBlogs.slice(0,10).forEach((b,idx)=>{
     const el=document.createElement("div");
     el.className="tab"+(activeBlog && activeBlog.id===b.id ? " active":"");
-    el.onclick=()=>{ activeBlog=b; localStorage.setItem("baseone_active_blog_id", b.id); loadBlogSelect(); renderBlogTabs(); updateStatusLine(); log(`현재 블로그 변경: ${b.name||b.url||b.id}`, "good"); };
+    el.onclick=()=>{ activeBlog=b; localStorage.setItem("baseone_active_blog_id", b.id); loadBlogSelect(); renderBlogTabs(); updateStatusLine(); };
     el.innerHTML = `<b>🟦 ${idx+1}</b><small>${esc(b.name||"")} · ${esc(b.url||"")}</small>`;
     box.appendChild(el);
   });
@@ -480,17 +428,12 @@ function setActiveFromSelect(){
   activeBlog=JSON.parse(v);
   localStorage.setItem("baseone_active_blog_id", activeBlog.id);
   renderBlogTabs(); loadBlogSelect(); updateStatusLine();
-  log(`현재 블로그 선택됨: ${activeBlog.name||activeBlog.url||activeBlog.id}`, "good");
 }
 async function loadBlogs(){
   try{
-    setBusy(true);
-    log("블로그 목록 불러오는 중...", "dim");
-
     const res=await fetch(apiBase()+"/api/blogger/blogs");
-    const j=await res.json().catch(()=> ({}));
+    const j=await res.json();
     if(!res.ok || !j.ok){
-      log("불러오기 실패: OAuth 연결을 먼저 확인하세요.", "bad");
       alert("불러오기 실패: 먼저 OAuth 연결을 확인하세요.");
       return;
     }
@@ -505,8 +448,8 @@ async function loadBlogs(){
     }
 
     if(!bloggerBlogs.length){
-      log("불러온 블로그가 없습니다. (설정 제한이 걸렸거나 URL이 다를 수 있음)", "bad");
-      alert("불러온 블로그가 없습니다.\n(설정의 blogspot_urls 제한이 걸렸거나 URL이 다를 수 있음)\n\n팁: 제한을 비우면 전체 블로그가 표시됩니다.");
+      alert("불러온 블로그가 없습니다.\n(설정의 blogspot_urls 제한이 걸렸거나 URL이 다를 수 있음)\n\n" +
+            "✅ 팁: 제한을 비우면(=제한 해제) 전체 블로그가 표시됩니다.");
       loadBlogSelect(); renderBlogTabs(); updateStatusLine();
       return;
     }
@@ -516,13 +459,10 @@ async function loadBlogs(){
       localStorage.setItem("baseone_active_blog_id", activeBlog.id);
     }
 
-    loadBlogSelect(); renderBlogTabs(); updateStatusLine();
-    log(`블로그 ${bloggerBlogs.length}개 로드 완료`, "good");
+    renderBlogTabs(); loadBlogSelect(); updateStatusLine();
+    alert("블로그 목록 로드 완료!");
   }catch(e){
-    log("서버 연결 실패(블로그 불러오기)", "bad");
     alert("서버 연결 실패");
-  }finally{
-    setBusy(false);
   }
 }
 
@@ -539,19 +479,13 @@ function makeLocalTopics(){
   topics=[...out].map((t,i)=>({id:`L_${Date.now()}_${i}`, title:t, checked:(i<10), html:"", image_url:"", image_prompt:""}));
   selectedTopicId=topics[0]?.id||"";
   renderTopics(); updateStatusLine();
-  log("로컬 주제 생성 완료", "good");
+  setSelectedPanel();
 }
 async function makeMoneyTopics(){
   const d=settings();
-  if(!d.gemini_key && !d.openai_key){
-    alert("설정에서 GEMINI 또는 OPENAI 키를 저장하세요.");
-    return;
-  }
+  if(!d.gemini_key && !d.openai_key){ alert("설정에서 GEMINI 또는 OPENAI 키 저장 먼저"); return; }
   const count = Math.max(5, Math.min(60, Number(document.getElementById("topicCount").value||30)));
   try{
-    setBusy(true);
-    log(`AI 주제 생성 요청... (${count}개)`, "dim");
-
     const res=await fetch(apiBase()+"/api/topics/money",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -560,28 +494,19 @@ async function makeMoneyTopics(){
         category:selectedCat,
         writer:d.writer||"gemini",
         gemini_key:d.gemini_key||"",
-        gemini_model:d.gemini_model||"gemini-1.5-flash",
+        gemini_model:d.gemini_model||"gemini-1.5-flash-latest",
         openai_key:d.openai_key||"",
         openai_model:d.openai_model||"gpt-5.2-mini"
       })
     });
-
-    const j=await res.json().catch(()=> ({}));
-    if(!res.ok || !j.ok){
-      log("AI 주제 생성 실패(서버에 /api/topics/money 가 없을 수도 있어요)", "bad");
-      alert("주제 생성 실패: " + (j.error || "서버에 /api/topics/money가 없을 수 있음"));
-      return;
-    }
-
+    const j=await res.json();
+    if(!res.ok || !j.ok){ alert("주제 생성 실패: "+(j.error||"")); return; }
     topics=(j.items||[]).slice(0,count).map((t,i)=>({id:`G_${Date.now()}_${i}`, title:String(t), checked:(i<10), html:"", image_url:"", image_prompt:""}));
     selectedTopicId=topics[0]?.id||"";
     renderTopics(); updateStatusLine();
-    log("AI 주제 생성 완료", "good");
+    setSelectedPanel();
   }catch(e){
-    log("서버 연결 실패(AI 주제)", "bad");
-    alert("서버 연결 실패");
-  }finally{
-    setBusy(false);
+    alert("서버 연결 실패. 설정의 서버 주소 확인");
   }
 }
 
@@ -589,19 +514,12 @@ function toggleChecked(id){
   const t=topics.find(x=>x.id===id);
   if(!t) return;
   t.checked=!t.checked;
-  renderTopics();
-  updateStatusLine();
 }
-
 function setSelected(id){
   selectedTopicId=id;
   renderTopics();
-  updateStatusLine();
-  const t=getSelectedTopic();
-  if(t){
-    log(`선택됨: ${t.title}`, "dim");
-    if(t.html) applyPreview(t);
-  }
+  setSelectedPanel();
+  showSinglePreview(getSelectedTopic());
 }
 function getSelectedTopic(){ return topics.find(x=>x.id===selectedTopicId) || null; }
 
@@ -618,11 +536,7 @@ function renderTopics(){
 
   arr.forEach(it=>{
     const d=document.createElement("div");
-    const isSel = it.id===selectedTopicId;
-    const cls = ["item"];
-    if(it.checked) cls.push("checked");
-    if(isSel) cls.push("selected");
-    d.className = cls.join(" ");
+    d.className="item"+(it.id===selectedTopicId?" active":"");
     d.onclick=()=>setSelected(it.id);
 
     d.innerHTML=`
@@ -636,36 +550,30 @@ function renderTopics(){
         <div class="itemMeta">🏷️ ${esc(selectedCat)} · ${it.html ? "✅ 생성됨":"⏳ 미생성"}</div>
       </div>
       <div class="rightBtns" onclick="event.stopPropagation()">
-        <button class="btn good" onclick="setSelected('${it.id}')">🎯 선택</button>
-        <button class="btn" onclick="navigator.clipboard.writeText('${it.title.replaceAll("'","\\'")}'); log('제목 복사 완료', 'good');">복사</button>
+        <button class="btn good" onclick="setSelected('${it.id}')">✅ 선택</button>
+        <button class="btn" onclick="navigator.clipboard.writeText('${it.title.replaceAll("'","\\'")}'); alert('복사 완료!');">복사</button>
       </div>
     `;
     box.appendChild(d);
   });
 }
 
-/* ---- Link buttons (auto insert into article HTML) ---- */
-function buildLinkButtonsHtml(topic, sites){
-  const safeSites = (sites||[])
-    .map(u=>String(u||"").trim())
-    .filter(Boolean)
-    .slice(0, 12);
-
-  const q = encodeURIComponent(topic);
-  const google = `https://www.google.com/search?q=${q}`;
-  const naver  = `https://search.naver.com/search.naver?query=${q}`;
-
-  const btns = [];
-  safeSites.forEach((u,i)=>{
-    btns.push(`<a style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:#fff;text-decoration:none;color:#111;font-weight:800" href="${escAttr(u)}" target="_blank" rel="noopener">🔗 내 사이트 ${i+1}</a>`);
-  });
-  btns.push(`<a style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:#fff;text-decoration:none;color:#111;font-weight:800" href="${google}" target="_blank" rel="noopener">🔎 구글 검색</a>`);
-  btns.push(`<a style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.10);background:#fff;text-decoration:none;color:#111;font-weight:800" href="${naver}" target="_blank" rel="noopener">🟢 네이버 검색</a>`);
-
-  return `<div style="display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;padding:12px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:rgba(240,240,240,.85)">
-    <b style="margin-right:6px;color:#111">📌 참고/관련 링크</b>
-    ${btns.join("")}
-  </div>`;
+/* ---- Selected panel ---- */
+function setSelectedPanel(){
+  const t=getSelectedTopic();
+  const meta=document.getElementById("selMeta");
+  if(!t){
+    meta.textContent="아직 선택한 글이 없습니다. 아래 목록에서 “선택”을 누르세요.";
+    return;
+  }
+  const gen = t.html ? "생성됨" : "미생성";
+  meta.innerHTML = `<span class="chip">📝 ${esc(t.title)}</span> <span class="small"> · 🏷️ ${esc(selectedCat)} · ${gen}</span>`;
+}
+function copySelectedTitle(){
+  const t=getSelectedTopic();
+  if(!t){ alert("선택된 글이 없습니다."); return; }
+  navigator.clipboard.writeText(t.title);
+  alert("제목 복사 완료!");
 }
 
 /* ---- Generate ---- */
@@ -675,91 +583,84 @@ async function generateOne(topicObj){
     alert("설정에서 GEMINI 또는 OPENAI 키를 저장하세요.");
     return false;
   }
-
   const payload={
     topic: topicObj.title,
     category: selectedCat,
     writer: d.writer || "gemini",
     gemini_key: d.gemini_key || "",
-    gemini_model: d.gemini_model || "gemini-1.5-flash",
+    gemini_model: d.gemini_model || "gemini-1.5-flash-latest",
     openai_key: d.openai_key || "",
     openai_model: d.openai_model || "gpt-5.2-mini",
     img_provider: d.img_provider || "pexels",
     pexels_key: d.pexels_key || ""
   };
 
-  const res=await fetch(apiBase()+"/api/generate",{
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(payload)
-  });
+  try{
+    const res=await fetch(apiBase()+"/api/generate",{
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
+    const j=await res.json();
+    if(!res.ok || !j.ok){
+      alert("생성 실패: "+(j.error||""));
+      return false;
+    }
 
-  const j=await res.json().catch(()=> ({}));
-  if(!res.ok || !j.ok){
-    throw new Error(j.error || "generate failed");
+    // ✅ 링크 자동 삽입 제거: 서버가 준 html 그대로 사용
+    topicObj.html = (j.html || "");
+    topicObj.image_url = j.image_url || "";
+    topicObj.image_prompt = j.image_prompt || "";
+    renderTopics();
+    setSelectedPanel();
+    return true;
+  }catch(e){
+    alert("서버 연결 실패");
+    return false;
   }
-
-  // ✅ 내 사이트 링크 버튼 섹션을 글 하단에 추가
- topicObj.html = (j.html || "");
-
-
-  topicObj.html = (j.html || "") + linkHtml;
-  topicObj.image_url = j.image_url || "";
-  topicObj.image_prompt = j.image_prompt || "";
-  return true;
 }
-
-async function generateSelected(){
+async function aiGenerateSelected(){
   const t=getSelectedTopic();
   if(!t){ alert("주제를 선택하세요."); return; }
-  try{
-    setBusy(true);
-    log(`선택 글 생성 시작: ${t.title}`, "dim");
-    await generateOne(t);
-    log("선택 글 생성 완료", "good");
-    applyPreview(t);
-    renderTopics(); updateStatusLine();
-  }catch(e){
-    log("생성 실패: " + e.message, "bad");
-    alert("생성 실패: " + e.message);
-  }finally{
-    setBusy(false);
-  }
+  document.getElementById("statusLine").textContent = `생성중... (${t.title})`;
+  const ok = await generateOne(t);
+  updateStatusLine();
+  if(ok) showSinglePreview(t);
 }
-
-async function generateChecked(){
+async function bulkGenerate(){
   const list = topics.filter(x=>x.checked);
   if(!list.length){ alert("체크된 주제가 없습니다."); return; }
   const targets = list.filter(x=>!x.html);
-  if(!targets.length){ alert("체크된 글은 이미 생성되어 있습니다."); return; }
+  if(!targets.length){ alert("체크된 주제들은 이미 생성되었습니다."); return; }
+  if(!confirm(`체크된 ${list.length}개 중 미생성 ${targets.length}개를 생성할까요?`)) return;
 
-  try{
-    setBusy(true);
-    log(`체크 글 대량 생성 시작: ${targets.length}개`, "dim");
-    for(let i=0;i<targets.length;i++){
-      log(`생성중 ${i+1}/${targets.length}: ${targets[i].title}`, "dim");
-      await generateOne(targets[i]);
-    }
-    log("체크 글 대량 생성 완료", "good");
-    renderTopics(); updateStatusLine();
-    const sel=getSelectedTopic(); if(sel && sel.html) applyPreview(sel);
-  }catch(e){
-    log("대량 생성 실패: " + e.message, "bad");
-    alert("대량 생성 실패: " + e.message);
-  }finally{
-    setBusy(false);
+  for(let i=0;i<targets.length;i++){
+    const t=targets[i];
+    document.getElementById("statusLine").textContent = `대량 생성중 ${i+1}/${targets.length} ... (${t.title})`;
+    const ok = await generateOne(t);
+    if(!ok) break;
   }
+  updateStatusLine();
+  alert("대량 생성 완료(또는 중단).");
 }
 
 /* ---- Preview ---- */
-function applyPreview(t){
+function showSinglePreview(t){
+  if(!t || !t.html){
+    document.getElementById("previewBox").style.display="none";
+    return;
+  }
+  document.getElementById("finalBody").textContent = t.html;
+  document.getElementById("finalImage").textContent =
+    (t.image_url ? (t.image_prompt+"\n"+t.image_url) : (t.image_prompt||""));
+
   document.getElementById("previewMeta").textContent = `🧠 ${t.title} / 🏷️ ${selectedCat}`;
-  document.getElementById("finalBody").textContent = t.html || "(비어있음)";
-  document.getElementById("finalImage").textContent = t.image_url ? `${t.image_prompt||""}\n${t.image_url}` : (t.image_prompt||"(비어있음)");
 
   document.getElementById("previewIframe").srcdoc =
     `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-    <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;padding:16px;line-height:1.7}</style>
-    </head><body>${t.html || ""}</body></html>`;
+    <style>
+      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;padding:16px;line-height:1.7}
+    </style>
+    </head><body>${t.html}</body></html>`;
 
   const img=document.getElementById("previewImg");
   const hint=document.getElementById("imgHint");
@@ -768,25 +669,17 @@ function applyPreview(t){
   }else{
     img.style.display="none"; hint.style.display="block";
   }
+  document.getElementById("previewBox").style.display="block";
 }
 
-function copyHtml(){
-  const t=getSelectedTopic();
-  if(!t || !t.html){ alert("복사할 HTML이 없습니다. 먼저 글을 생성하세요."); return; }
-  navigator.clipboard.writeText(t.html);
-  log("HTML 복사 완료", "good");
-}
-
-/* ---- Publish ---- */
+/* ---- Publish / Schedule ---- */
 async function publishSelected(){
   const t=getSelectedTopic();
   if(!t){ alert("선택된 글이 없습니다."); return; }
-  if(!t.html){ alert("먼저 글을 생성하세요."); return; }
+  if(!t.html){ alert("먼저 글 생성하세요."); return; }
   if(!activeBlog || !activeBlog.id){ alert("내 블로그 불러오기 후, 블로그를 선택하세요."); return; }
 
   try{
-    setBusy(true);
-    log("발행 요청 중...", "dim");
     const res = await fetch(apiBase()+"/api/blogger/post",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -794,20 +687,14 @@ async function publishSelected(){
     });
     const j = await res.json().catch(()=> ({}));
     if(!res.ok || !j.ok){
-      throw new Error(j.error || "publish failed");
+      alert("발행 실패: " + (j.error || "unknown"));
+      return;
     }
-    log("발행 완료 ✅", "good");
-    if(j.url) log("URL: " + j.url, "good");
     alert("발행 완료!\n" + (j.url || ""));
   }catch(e){
-    log("발행 실패: " + e.message, "bad");
-    alert("발행 실패: " + e.message);
-  }finally{
-    setBusy(false);
+    alert("서버 연결 실패");
   }
 }
-
-/* ---- Schedule ---- */
 async function scheduleChecked(){
   const list = topics.filter(x=>x.checked);
   if(!list.length){ alert("체크된 주제가 없습니다."); return; }
@@ -817,54 +704,37 @@ async function scheduleChecked(){
   if(!startVal){ alert("예약 시작 시간을 선택하세요."); return; }
   const gapMin = Math.max(5, Number(document.getElementById("gapMin").value||120));
 
-  try{
-    setBusy(true);
-    log(`예약 저장 시작: ${list.length}개 / gap=${gapMin}분`, "dim");
-
-    // 생성 안된 글은 먼저 생성
-    const needGen = list.filter(x=>!x.html);
-    if(needGen.length){
-      log(`예약 전 미생성 글 ${needGen.length}개 생성 시작`, "dim");
+  const needGen = list.filter(x=>!x.html);
+  if(needGen.length){
+    if(confirm(`체크된 ${list.length}개 중 ${needGen.length}개가 아직 생성되지 않았습니다. 먼저 생성할까요?`)){
       for(let i=0;i<needGen.length;i++){
-        log(`생성중 ${i+1}/${needGen.length}: ${needGen[i].title}`, "dim");
-        await generateOne(needGen[i]);
+        document.getElementById("statusLine").textContent = `예약 전 생성중 ${i+1}/${needGen.length} ... (${needGen[i].title})`;
+        const ok = await generateOne(needGen[i]);
+        if(!ok) return;
       }
-      log("예약 전 생성 완료", "good");
-      renderTopics(); updateStatusLine();
+    }else{
+      return;
     }
-
-    const start = new Date(startVal);
-    for(let i=0;i<list.length;i++){
-      const t=list[i];
-      const run = new Date(start.getTime() + i*gapMin*60*1000);
-      const res = await fetch(apiBase()+"/api/tasks/add",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          platform:"blogspot",
-          blog_id:activeBlog.id,
-          blog_url:activeBlog.url||"",
-          title:t.title,
-          html:t.html,
-          run_at:run.toISOString()
-        })
-      });
-      const j = await res.json().catch(()=> ({}));
-      if(!res.ok || !j.ok){
-        throw new Error(j.error || "task add failed");
-      }
-      log(`예약 저장됨: ${t.title}`, "good");
-    }
-
-    log("예약 저장 완료 ✅", "good");
-    refreshTasks();
-    alert("예약 저장 완료!");
-  }catch(e){
-    log("예약 실패: " + e.message, "bad");
-    alert("예약 실패: " + e.message);
-  }finally{
-    setBusy(false);
   }
+
+  const start = new Date(startVal);
+  for(let i=0;i<list.length;i++){
+    const t=list[i];
+    const run = new Date(start.getTime() + i*gapMin*60*1000);
+    const res = await fetch(apiBase()+"/api/tasks/add",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({platform:"blogspot", blog_id:activeBlog.id, blog_url:activeBlog.url||"", title:t.title, html:t.html, run_at:run.toISOString()})
+    });
+    const j = await res.json().catch(()=> ({}));
+    if(!res.ok || !j.ok){
+      alert("예약 저장 실패: " + (j.error || "unknown"));
+      return;
+    }
+  }
+
+  alert("예약 저장 완료!");
+  refreshTasks();
 }
 
 /* ---- Tasks UI ---- */
@@ -873,7 +743,7 @@ async function refreshTasks(){
   box.textContent="불러오는 중...";
   try{
     const res=await fetch(apiBase()+"/api/tasks/list");
-    const j=await res.json().catch(()=> ({}));
+    const j=await res.json();
     if(!res.ok || !j.ok){ box.textContent="불러오기 실패"; return; }
     const items=j.items||[];
     if(!items.length){ box.textContent="예약 없음"; return; }
@@ -908,7 +778,7 @@ async function cancelTask(id){
 async function keywordToTopics(){
   const seed = (document.getElementById("kwSeed").value||"").trim();
   const count = Math.max(5, Math.min(60, Number(document.getElementById("kwCount").value||30)));
-  if(!seed){ alert("키워드를 입력하세요. 예) 정부지원금, 카드 추천"); return; }
+  if(!seed){ alert("키워드를 입력하세요. 예) 정부지원금, 카드 추천, 대출 갈아타기"); return; }
 
   const d = settings();
   if(!d.gemini_key && !d.openai_key){
@@ -917,9 +787,7 @@ async function keywordToTopics(){
   }
 
   try{
-    setBusy(true);
-    log(`키워드→주제 생성 요청: "${seed}" (${count}개)`, "dim");
-
+    document.getElementById("statusLine").textContent = `키워드 수집중... (${seed})`;
     const res = await fetch(apiBase()+"/api/keywords/collect_topics",{
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -929,15 +797,17 @@ async function keywordToTopics(){
         count,
         writer: d.writer || "gemini",
         gemini_key: d.gemini_key || "",
-        gemini_model: d.gemini_model || "gemini-1.5-flash",
+        gemini_model: d.gemini_model || "gemini-1.5-flash-latest",
         openai_key: d.openai_key || "",
         openai_model: d.openai_model || "gpt-5.2-mini"
       })
     });
+    const j = await res.json();
+    updateStatusLine();
 
-    const j = await res.json().catch(()=> ({}));
     if(!res.ok || !j.ok){
-      throw new Error(j.error || "서버에 /api/keywords/collect_topics 가 없을 수 있음");
+      alert("키워드 수집 실패: " + (j.error || "unknown"));
+      return;
     }
 
     const items = (j.topics || []).slice(0, count);
@@ -950,31 +820,24 @@ async function keywordToTopics(){
       image_prompt:""
     }));
     selectedTopicId = topics[0]?.id || "";
-    renderTopics(); updateStatusLine();
-    log(`주제 ${items.length}개 생성 완료`, "good");
+    renderTopics();
+    setSelectedPanel();
+    showSinglePreview(getSelectedTopic());
+    alert(`완료! 주제 ${items.length}개 생성`);
   }catch(e){
-    log("키워드→주제 실패: " + e.message, "bad");
-    alert("키워드→주제 실패: " + e.message);
-  }finally{
-    setBusy(false);
+    updateStatusLine();
+    alert("서버 연결 실패: " + e);
   }
 }
 
 /* ---- init ---- */
-(function init(){
-  document.getElementById("logBox").textContent = "";
-  log("준비 완료. ①OAuth ②내 블로그 불러오기 ③주제 생성 순서로 진행하세요.", "dim");
-
-  refreshOAuth();
-  setInterval(refreshOAuth, 6000);
-
-  makeLocalTopics();
-  loadBlogSelect();
-  renderTopics();
-  updateStatusLine();
-})();
+refreshOAuth();
+setInterval(refreshOAuth, 6000);
+makeLocalTopics();
+loadBlogSelect();
+renderTopics();
+setSelectedPanel();
+updateStatusLine();
 </script>
-
 </body>
 </html>
-
